@@ -1,0 +1,149 @@
+% LaTeX thesis template.
+% Version 1.6
+%
+% Department of Computer Science IV,
+% University of Mannheim,
+% Germany
+%
+% Based on the KOMA script classes.
+% Created by Philip Mildner 2013-2015.
+% If you have any feedback or if you find errors contact me:
+% mildner@informatik.uni-mannheim.de
+%
+% Relevant class options:
+%
+% oneside:
+% For shorter thesis like seminar papers you can use the single-sided layout, for longer thesis
+% the double-sided layout is preferred (and it uses less paper, too). If you would like to have
+% a single-sided print, use the 'oneside' option in the documentclass.
+%
+% BCOR=<value>:
+% Depending on your method of binding, you might want to change the BCOR setting to account for
+% the part of the pages that are hidden in the cover (e.g., set 'BCOR=10mm' if 1cm is hidden). 
+%
+% german:
+% The standard behavior of this template is to produce English documents. If you would like to
+% write your work in German, just include the 'german' option.
+%
+% draft:
+% If you set the 'draft' option, overfull boxes will be highlighted in the PDF file so that you can
+% find them more easily.
+
+\documentclass[twoside,BCOR=12mm]{pi4-thesis}
+
+% additional packages
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{tikz-uml}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{pgfplots}
+\usepackage{colortbl}
+\usepackage{lscape}
+\usepackage{theorem}
+
+% additional styles
+\tikzstyle{line} = [draw, -latex']
+\theoremstyle{break}
+\setlength\theorempreskipamount{3ex}
+\setlength\theorempostskipamount{3ex}
+\newtheorem{define}{Definition}
+\newtheorem{hypothesis}{Hypothesis}
+
+% The title page in this template has a pretty standard layout. While all relevant information are
+% displayed on it, it surely could be improved to look nicer. You are invited to change the title
+% page to your needs. If you have found a pleasing layout, I will be glad if you share it with me.
+%
+% Fill in the relevant information in the following lines.
+%
+% Choose between bachelor thesis or master thesis.
+\piivsubject{Master Thesis}
+% The title of your work.
+\piivtitle{Comparison of Disparity Algorithms for Stereoscopic Video}
+% Your name.
+\piivauthor{Ben John}
+% Name of your supervisor.
+\piivsupervisor{Dr. Stephan Kopf}
+% The date you submit your thesis. You can substitute the command with any date.
+\date{May 2016}
+
+% If you want to use the glossary make sure your 'makeindex' toolchain is working correctly.
+% Alternetively, you might want to look into the 'xindy' option of the glossaries package.
+\makeglossaries
+
+\begin{document}
+
+\include{src/glossary}
+
+% Abstract is optional. If you do not use an abstract, remove it.
+% ---------------------------------
+% Begin of abstract
+\abstractchap
+\input{src/abstract}
+% End of abstract
+% ---------------------------------
+
+% ---------------------------------
+% Begin of listings
+\microtypesetup{protrusion=false} % disables protrusion locally in the document
+\tableofcontents
+% If you should not have any figures, tables or acronyms in your paper remove the according list.
+\listoffigures
+\listoftables
+
+\listofalgorithms
+\addcontentsline{toc}{chapter}{List of Algorithms}
+
+% Uncomment the next line if you use listings in your document.
+% \lstlistoflistings
+\microtypesetup{protrusion=true} % enables protrusion
+
+\printglossary[type=\acronymtype]
+% End of listings
+% ---------------------------------
+
+% ---------------------------------
+% Begin of main part
+\mainmatter
+
+\include{src/chapter_1}
+
+\include{src/chapter_2}
+
+\include{src/chapter_3}
+
+\include{src/chapter_4}
+
+\include{src/chapter_5}
+
+\include{src/chapter_6}
+
+% End of main part
+% ---------------------------------
+
+% ---------------------------------
+% Begin of appendix
+\appendix
+% Appendix chapters are optional. Use it if you have very long tables or additional figures that
+% do not belong to the main text.
+% \include{src/appendix}
+
+% Remove this from the final document
+% \include{src/checklist}
+
+\backmatter
+
+\bibliography{library}
+
+\sloppy
+\printglossary
+\fussy
+
+\include{src/erklaerung}
+
+% Consult your supervisor about the following declaration of assignment.
+\include{src/abtretungserklaerung}
+
+% End of appendix
+% ---------------------------------
+
+\end{document}

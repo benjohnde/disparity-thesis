@@ -1,0 +1,81 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Motivation}
+
+Obtaining depth information as additional data to infer intents from human gestures has arrived in mainstream computing with the release of Kinect at November 4th, 2010\footnote{\url{http://gizmodo.com/5563148/microsoft-xbox-360-kinect-launches-november-4}}.
+Kinect is a hardware add-on for the Xbox video gaming console which enables users to interact visually with the console without actually using a controller or any other peripheral.
+The Kinect utilizes two cameras, one capturing colored and the other monochrome images.
+The monochrome sensor is used in combination with an infrared laser projector to obtain depth information via time of flight (TOF).
+Time of flight is a method to measure the time light needs to reach objects and then calculate the distance.
+\newline\newline\noindent With deducing  intents from human gestures a step in the field of artificial intelligence was made as the computer is now able to interpret human body language.
+As this means processing an enormous stream of data (gathering and processing frame by frame) it represents a dataset of large and complex nature, also known as big data.
+This also implies the need for new data processing techniques in comparison with traditional ones.
+As a result one could say that computer vision is linked to both, artificial intelligence and big data.
+New applications which arose from the combination of those topics are for instance:
+
+\begin{itemize}
+  \item Robotic
+  \item Medical image analysis
+  \item Automatic surgery
+  \item 3DTV
+  \item Video compression
+  \item Autonomous driving
+\end{itemize}
+
+\noindent Besides the technology of time of flight laser sensors - such as the Kinect\footnote{Besides the consumer market, for autonomous driving or robotic research Velodyne is a well-known sensor.} - there exists also the possibility to obtain depth information from stereo images by analyzing coherent images with so called disparity algorithms.
+Thus, it is sufficient to have two calibrated aligned cameras (a stereo camera) to acquire disparity information and calculate the depth at each point.
+But this leads to another fundamental problem of stereo matching: stereo correspondence, that basically means the labelling of pixels, i.e. which pixel of the left image belongs to the corresponding pixel on the right image as projection of the same three-dimensional point from the captured world projected to the image plane in every image.
+This problem of stereo correspondence has to be solved in order to actually match those and calculate the disparity.
+According to \citeauthor{scharstein2002taxonomy}, stereo correspondence is one of the most heavily investigated topics in computer vision \citep{scharstein2002taxonomy}.
+As there is still a lot of research going on, no algorithm is working without any mistakes and also the runtime is a bit quirky, Microsoft Kinect established itself as a real alternative.
+This leads us to one of the disadvantages of Kinect sensor: Kinect is sensitive to other infrared sources (like sunlight) due to its nature of utilizing an infrared laser projector to acquire depth information, a stereo camera does not have this issue.
+Although using two coherent images also have some disadvantages which will be discussed later on, it is an alternative way to receive depth information.
+Especially thinking about autonomous driving during which at day a lot of sunlight is involved in, other techniques to estimate how far an object is away from one another are necessary to ensure a certain accuracy and fault-tolerance.
+\newline\newline\noindent Although the topic of this thesis is neither about artificial intelligence nor big data the foundations and algorithms discussed can help machines to sense their environment through cameras, identify objects and estimate the distances towards each other.
+With the support of neuronal networks computers may also deduce intents, reason about their environment and then execute defined actions.
+In conclusion computer vision is a research field on its own but other fields may also benefit from the results.
+Computer vision establishes itself on the consumer market as more research is done.
+The upcoming iPhone supports this as it will feature a dual camera system \footnote{\url{http://9to5mac.com/2016/02/03/sony-dual-cameras-iphone-7-plus/}, 2016-02-22.}.
+In the year 2011 LG and HTC released the LG Optimus 3D\footnote{\url{https://en.wikipedia.org/wiki/LG_Optimus_3D} } and corresponding the HTC Evo 3D\footnote{\url{https://en.wikipedia.org/wiki/HTC_Evo_3D}}.
+Both had a stereo camera implemented and an auto-stereoscopic display attached.
+This enables one to view photos or videos taken in stereographic 3D without the actual need for additional peripheral like 3D glasses.
+Both can be seen as an experiment as there was no big distribution, Apple normally focuses on the mainstream consumer market, opening up the box of possibilities and the need for such algorithms even further.
+One example application for such a consumer-driven market could be the reconstruction of a face after taking a photo.
+There exist no method to reconstruct a whole 3D model without having stereo images from all angles of the face, but it is possible to trick the user in having captured a 3D photo.
+Another concrete example for an application regarding depth estimation in stereo videos: detecting moving people in a stereo video and calculate the distance to the camera of each person\footnote{\url{http://de.mathworks.com/help/vision/examples/depth-estimation-from-stereo-video.html}}.
+
+\section{Assignment}
+
+The usage and applications of computer vision are huge as seen in the motivational introduction.
+For understanding how disparity algorithms work it is important to have knowledge of various topics in computer vision.
+Therefore it was difficult to decide what should be in the thesis and what can be left out.
+The thesis' main goal is to provide an overview of selected disparity algorithms for stereoscopic videos and evaluated those.
+\citeauthor{scharstein2002taxonomy} justified their tiny selection of disparity algorithms with the following: "Compiling a complete survey of existing stereo methods [...] would be a formidable task, as a large number of new methods are published every year." \citep{scharstein2002taxonomy}.
+That said the ones with well documented source code and a research paper, also adaptable within the time scope of this thesis, were integrated.
+
+\begin{itemize}
+	\item The thesis should provide a good fundamental knowledge base for an advanced insight into the area of disparity algorithms for stereoscopic images and videos.
+	\item Existing datasets are examined. Additionally, a novel dataset from the Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} is presented.
+	\item Based on existing paper and source code, different state of the art algorithms are analyzed and evaluated.
+	\item As there exist a lot of different unaligned code for evaluating / comparing images the decision towards a new implementation of an evaluation suite with OpenCV was made.
+	\item An idea of smoothing the computed disparity maps over time is presented. The smoothing should reduce occurring noise.
+	\item Moreover quality metrics for evaluating those algorithms are defined.
+	\item The algorithms are evaluated on different datasets. The runtime is also measured.
+	\item As a benefit the results can be analyzed visually via a web front-end.
+	\item Finally the results are discussed and future outlook is given.
+\end{itemize}
+
+\section{Outline}
+
+The main purpose of chapter \ref{chap:foundations} is to give an overview of terms and techniques used in this thesis.
+The following chapter \ref{chap:related} focuses more on disparity algorithms and related work.
+To give an overview of state of the art algorithms a small summary of current used disparity algorithms is made.
+This will create the foundations for the later implementation.
+Chapter \ref{chap:impl} describes the implementation and explains reasons for building an evaluation engine.
+The details of the implementation are explained afterwards.
+In addition the integration of existing algorithms is illustrated.
+The evaluation engine was fed with datasets which are introduced in chapter \ref{chap:eval}.
+This chapter also explains the used quality metrics and describes the resulting outcome accurately.
+In the end the results of this thesis are reflected in the concluding chapter.
+Besides some future work, split in low- and high-level, is pointed out.

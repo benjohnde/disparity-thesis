@@ -1,0 +1,68 @@
+\chapter{Checklist}
+\label{chap:appendix:checklist}
+Use the following list to check if you have followed the hints from this document in your work.
+Refer to \cref{chap:introduction} for more information on the items.
+
+\tabulinesep=2.5mm
+% tabu allows to use relative width specifier: Use X[<ratio>] to specify the width of a column. In
+% this example, the table is divided into 20 parts that are spread over the three columns.
+\begin{longtabu} to \textwidth {|X[1]|X[17]|X[2]|}
+% Begin header on first page
+\caption[Formatting checklist]{The checklist for correctly formatted and prettier documents.}
+\label{tab:checklist}
+\\
+\hline
+\endfirsthead
+% End header on first page
+
+% Begin header on consecutive pages
+\caption[]{Table continued.}
+\\
+\hline
+\endhead
+% End header on consecutive pages
+
+% Begin footer
+\multicolumn{3}{c}{Table is continued on the next page.} \\
+\endfoot
+% End footer
+
+% Begin footer on last page
+\endlastfoot
+% End footer on last page
+
+% Begin content
+1. & Check for incorrect/missing citations (\emph{[?]}) or references (\emph{??}). & \\
+\hline
+2. & Remove all \LaTeX{} errors and underfull/overfull boxes. & \\
+\hline
+3. & Make sure to use a consistent encoding for your \TeX{} files, especially for special characters (ä, ö, ü, ß, \dots). & \\
+\hline
+4. & Format your \textsc{Bib}\TeX{} document: Check if the information is correct and complete for each entry. Pay notice to warnings when running  the \texttt{bibtex} command.& \\
+\hline
+5. & Add access dates to online sources in your bibliography (see \texttt{library.bib}) or in footnotes. & \\
+\hline
+6. & Run a spell checker over your document (included with some \LaTeX{} editors). & \\
+\hline
+7. & Place figures or tables in the \TeX{} file at the end of the paragraph you are referring to them in the text (\texttt{\textbackslash{}ref}). & \\
+\hline
+8. & Use the correct format for quotation marks (\emph{``x''} or \emph{\glqq{}x\grqq{}}). & \\
+\hline
+9. & Use the correct format for separating paragraphs (one empty line). Manual line breaks (\texttt{\textbackslash{}\textbackslash}) should be avoided. & \\
+\hline
+10. & Use the correct form of dashes (-, --, ---). & \\
+\hline
+11. & Separate citations at the end of sentences/paragraphs with a small whitespace (\texttt{\~}). & \\
+\hline
+12. & Name sources of images/figures you did not create yourself in the description (\emph{Source: [X]}). & \\
+\hline
+13. & Use the short form of captions for List of Figures, Tables, etc. (\texttt{caption[<short>]\{<long>\}}). & \\
+\hline
+14. & If you print your work double-sided (recommended for bachelor and master thesis) remove the \texttt{oneside} option from the document class. & \\
+\hline
+15. & Make sure to use high-quality figures and images that are readable both in the digital and the printed version. & \\
+\hline
+16. & If you include the declaration of honor do not forget to sign it. & \\
+\hline
+% End content
+\end{longtabu}
