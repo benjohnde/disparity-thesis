@@ -2,15 +2,20 @@
 \label{chap:related}
 
 In this chapter the related work regarding disparity algorithms is treated.
-As integration of some disparity algorithms for later evaluation was part of this thesis, the ones which were actually implemented are explained.
-The well-known and already "dozens of times" evaluated Semi-Global Matcher by \citeauthor{hirschmuller2011semi} is explained.
-A major part of this chapter focuses on solving optimization problems as most accurate disparity algorithms nowadays use a global energy cost function to be minimized.
-In the end a short outlook on spatiotemporal consistency regarding disparity on videos is depicted.
+As integration of some disparity algorithms for the later evaluation was part of this thesis, the ones which were actually implemented are examined in more detail.
+The well-known semi-global matcher by \citeauthor{hirschmuller2011semi} is introduced and the OpenCV implementations are illustrated.
+An approach by \citeauthor{Geiger2010ACCV} to enable fast matching of high-resolution images is discussed.
+Both are local methods for estimating disparity maps.
+One candidate utilizing global methods is the Middlebury MRF library which is also introduced in this chapter.
+It utilizes global methods for the disparity computation.
+This implies solving optimization problems (i.e. minimize a global energy cost function).
+Thus, the methods implemented by the library to solve such optimization problems are outlined.
+In the end a short outlook on spatiotemporal consistency regarding disparity algorithms applied on videos is depicted.
 
 \section{Semi-global matching}
 
 \citeauthor{hirschmuller2011semi} combines two different types of techniques, global- and local-matching for determining accurate disparity at a lower runtime as other global algorithms which tends to run pretty long on current hardware.
-\newline\newline\noindent The semi-global matching (SGM) method utilizes pixel-wise matching of so called mutual information (MI) via entropy $H$ and their joint-entropy of a pair of images and combining those with the approximation of a global two-dimensional smoothness constraint:
+\newline\newline\noindent The semi-global matching (SGM) method utilizes pixel-wise matching of so called mutual information (MI) via entropy $H$ and their joint-entropy of a pair of images and combining those with the approximation of a global two-dimensional smoothness constraint:tele
 
 \begin{equation}
   MI_{I_1,I_2} = H_{I_1} + H_{I_2} + H_{I_1,I_2}.
@@ -19,7 +24,7 @@ In the end a short outlook on spatiotemporal consistency regarding disparity on 
 \noindent The other discussed one-dimensional constraints are applied as well.
 Calculating the matching cost based on mutual information is insensitive to recording differences and illumination changes \citep{viola1997alignment}.
 The joint entropy $H_{I_1,I_2}$ is low (meaning low information content) for rectified images as one image can be predicted by the other.
-Assuming the disparity map $D$ is known \textit{a priori}: one image needs to be warped\footnote{In this context warping can be seen as a function which  maps pixels from the destination image to pixels in the original image. Then the pixels are copied at the mapped position to the coordinates in the destination image.} that corresponding pixels are at the same location in both stereo images:
+Assuming the disparity map $D$ is known \textit{a priori}: one image needs to be warped\footnote{In this context warping can be seen as a function which maps pixels from the destination image to pixels in the original image. Then the pixels are copied at the mapped position to the coordinates in the destination image.} that corresponding pixels are at the same location in both stereo images:
 
 \begin{equation}
     I_1 = I_b\quad \textrm{and}\quad I_2 = f_D(I_m),
