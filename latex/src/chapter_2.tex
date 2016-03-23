@@ -73,7 +73,7 @@ In his manuscript 'Astronomia Pars Optica' from 1604, Kepler explains the use of
 He defined the term binocular as the composition of two latin words, 'bini' for double and 'oculus' for eye.
 With uniocular as 'uni' for one the sight with only one eye is meant.
 Binocular vision is then the vision creatures having two eyes obtain while using them together according to Kepler.
-According to \citeauthor{fahle1987wozu} and \citeauthor{henson2000visual} creatures with binocular vision have several advantages over creatures with only uniocular vision.
+According to \citeauthor{fahle1987wozu} \citep{fahle1987wozu} and \citeauthor{henson2000visual} \citep{henson2000visual} creatures with binocular vision have several advantages over creatures with only uniocular vision.
 Not to mention all but three, the most important ones which affect the depth perception:
 
 \begin{enumerate}
@@ -188,7 +188,7 @@ Based on this, the investigations of stereo correspondence and the actual depth 
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.7\textwidth]{src/images/epipolar-rectified.png}
+  \includegraphics[width=0.6\textwidth]{src/images/epipolar-rectified.png}
   \caption[Epipolar geometry after image rectification]{Epipolar geometry after image rectification\protect\footnotemark}
   \label{fig:epipolar-rectified}
 \end{figure}
@@ -308,9 +308,9 @@ For example, in some cases pixels are hidden in one image by an object due to th
 
 In order to actually analyze the output of algorithms ground-truth data is necessary.
 An algorithm normally outputs a disparity map reflecting the disparity space $(x,y,d)$.
-This disparity map can be seen as matrix having the size of the originally image ($m \times n$) and containing values ranging from $0$ to $d_{max} - 1$ utilizing one color channel (grayscale).
+This disparity map can be seen as matrix having the size of the original image ($m \times n$) and containing values ranging from $0$ to $d_{max} - 1$ utilizing one color channel (grayscale).
 The maximum disparity can be set via parameter for most of the algorithms and a feasible value which yields to sound results is $64$.
-Usually for better visual analysis the disparity maps are normalized to values ranging from $0 - 255$ \citep{martull2012realistic, cyganek2011introduction, scharstein2002taxonomy}.
+For better visual analysis the disparity maps are usually normalized to values ranging from $0 - 255$ \citep{martull2012realistic, cyganek2011introduction, scharstein2002taxonomy}.
 Figure \ref{fig:tsukuba} c) shows the ground-truth data representing the disparity map.
 The disparity map depicts grayscale intensities with lighter gray representing pixels / objects closer to the camera.
 \newline\newline\noindent Tying in with the term ground-truth \citeauthor{martull2012realistic} created the first "highly realistic CG dataset that properly models real-world imperfections, while providing accurate ground truth." \citep{martull2012realistic}.
@@ -330,22 +330,23 @@ Figure \ref{fig:tsukuba} shows the previous dataset of the University of Tsukuba
 
 \noindent The input for a perfect algorithm would be the reference image (a) and the matching image (b).
 After computation the result would be similar to the ground-truth data (c).
-With evaluation metrics the computed disparity map is then compared to the ground-truth data and some measuring instruments serving as a quality indicator for an algorithm's performance.
+With evaluation metrics the computed disparity map is then compared to the ground-truth data.
+Measuring instruments serve as a quality indicator for an algorithm's performance.
 The above example is given for basic knowledge and understandability of how a disparity map actually looks like.
-Details of this process are examined in the evaluation chapter \ref{chap:eval}.
+Details of this process are examined in the evaluation Chapter \ref{chap:eval}.
 
 \subsection*{Depth calculation}
 
-From an obtained disparity map, given some camera parameters, the depth can be calculated.
-The mathematical description of the following equations is introduced by \citeauthor{cyganek2011introduction} in chapter 3.4.9 (Depth Resolution in Stereo Setups) of their book "\textit{An introduction to 3D computer vision techniques and algorithms}" \citep{cyganek2011introduction}.
-Assuming the focal length of the camera's lens and the baseline\footnote{The distance between both image sources.} is known, the following holds:
+From an obtained disparity map and given camera parameters the depth can be calculated.
+The mathematical description of the following equations has been introduced by \citeauthor{cyganek2011introduction} in Chapter 3.4.9 (Depth Resolution in Stereo Setups) of their book "\textit{An introduction to 3D computer vision techniques and algorithms}" \citep{cyganek2011introduction}.
+Assuming the focal length of the camera's lens and the baseline\footnote{The distance between both image sources.} are known, the following holds:
 
 \begin{equation}
   Z = \frac{f \cdot B}{d}\quad \textrm{and}\quad d = \frac{f \cdot B}{Z}
 \end{equation}
 
 \begin{equation}
-  U = \frac{u \cdot Z}{f}\quad \textrm{and}\quad V = \frac{v \cdot Z}{f}
+  X = \frac{x \cdot Z}{f}\quad \textrm{and}\quad Y = \frac{y \cdot Z}{f}
 \end{equation}
 
 where:
@@ -357,17 +358,20 @@ where:
   \item $d$ is the disparity of the point.
 \end{itemize}
 
-\noindent After $Z$ is determined, $U$ and $V$ can be calculated using the usual projective camera equations (2.4-2.5) where the point $(u,v)$ is the pixel location in the 2D reference image and $(U,V,Z)$ describes the real 3D position \citep{scharstein2002taxonomy, cyganek2011introduction, block20133d, martull2012realistic}.
+\noindent After $Z$ is determined, $X$ and $Y$ can be calculated using the usual projective camera equations (2.4-2.5) where the point $(x,y)$ is the pixel location in the 2D reference image and $(X,Y,Z)$ describes the real 3D position \citep{scharstein2002taxonomy, cyganek2011introduction, block20133d, martull2012realistic}.
 Figure \ref{fig:depth-estimation} depicts the depth calculation from disparity with $X$ being the estimated point and $d = x - x'$.
 \newline\newline\noindent The following subsection describes the more general steps of how disparity algorithms work, known as the taxonomy.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.5\textwidth]{src/images/depth-calculation.png}
+  \includegraphics[width=0.6\textwidth]{src/images/depth-calculation.png}
   \caption[Depict of depth calculation from disparity.]{Depict of depth calculation from disparity.\protect\footnotemark}
   \label{fig:depth-estimation}
 \end{figure}
 \footnotetext{Source (accessed 02/2016): \url{http://docs.opencv.org}.}
+
+%explicit
+\newpage
 
 \section{Disparity algorithms}
 
@@ -377,17 +381,17 @@ To get a better understandability of the algorithm's technique, this section foc
 \subsection*{Diversity of disparity algorithms}
 
 A lot of different algorithms exist and their workings differ slightly.
-According to \citeauthor{cyganek2011introduction, scharstein2002taxonomy}, the following categories to separate algorithms exist.
-Some of these classifications are discussed in the related work chapter \ref{chap:related}.
+According to \citeauthor{cyganek2011introduction} \citep{cyganek2011introduction}, \citeauthor{scharstein2002taxonomy} \citep{scharstein2002taxonomy}, the following categories to separate disparity algorithms exist.
+Some of these classifications are discussed in more detail the related work Chapter \ref{chap:related}.
 \newline\newline\noindent First, the output of an algorithm is rated: they can create sparse or dense disparity maps.
-On the one hand most of the algorithms produce a dense disparity map meaning that almost every pixel got a corresponding shift value.
-On the other hand sparse algorithms only calculate values around for instance feature points (cf. feature matching).
-One advantage of sparse algorithms compared to dense disparity algorithms: they are normally faster in computation but limited in applications.
-Approaches to interpolate sparse disparity maps into dense disparity maps exist, but they tend to produce in inaccurate results in comparison with dense algorithms.
-\newline\newline\noindent Second, \citeauthor{cyganek2011introduction} categorize direct and indirect methods.
-Indirect methods are feature based or operate on transformed image space (cf. \citeauthor{cyganek2011introduction} chapter 6.3.7 (Nonparametric Image Transformations) \citep{cyganek2011introduction}).
+On the one hand, most of the algorithms produce a dense disparity map meaning that almost every pixel got a corresponding shift value.
+On the other hand, sparse algorithms only calculate values around, for instance, feature points (cf. feature matching).
+One advantage of sparse algorithms compared to dense disparity algorithms is that they are normally faster in computation but limited in applications.
+Approaches to interpolate sparse disparity maps into dense disparity maps exist, but they tend to produce inaccurate results in comparison to dense algorithms.
+\newline\newline\noindent Second, \citeauthor{cyganek2011introduction} \citep{cyganek2011introduction} categorize direct and indirect methods.
+Indirect methods are feature based or operate in the transformed image space (cf. Chapter 6.3.7 in \citep{cyganek2011introduction}).
 Direct methods use intensity based measures.
-\newline\newline\noindent And finally, the classification of disparity algorithms into local and global methods:
+\newline\newline\noindent Finally, disparity algorithms are classified into local and global methods:
 
 \begin{itemize}
   \item Local Methods
@@ -406,84 +410,97 @@ Direct methods use intensity based measures.
 
 \subsection*{Taxonomy of disparity algorithms}
 
-\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=gray!20, text centered, rounded corners, minimum height=3em]
-\begin{figure}[h!]
-  \centering
-  \begin{tikzpicture}[node distance=4.5em, auto]
-    \node [rblock] (matchingcost) {Computing the matching cost};
-    \node [rblock, below of=matchingcost] (aggregation) {Aggregation of the cost values};
-    \node [rblock, below of=aggregation] (computation) {Computation of the disparity};
-    \node [rblock, below of=computation] (refinement) {Disparity refinement};
-
-    \path [line] (matchingcost) -- (aggregation);
-    \path [line] (aggregation) -- (computation);
-    \path [line] (computation) -- (refinement);
-  \end{tikzpicture}
-  \caption{Basic processing flow of disparity algorithms \citep{cyganek2011introduction, scharstein2002taxonomy}.}
-  \label{fig:disparity-flow}
-\end{figure}
-
-\newpage
-
 \noindent Assumptions need to be made before starting to describe the taxonomy of disparity algorithms:
 
 \begin{enumerate}
   \item The algorithm is fed with a pair of rectified images as input.
-  \item The algorithm produces a dense integer disparity map, meaning disparity is estimated at each pixel.
-  \item The algorithm works according to the following steps as there exist some 'outliers' which work differently.
+  \item The algorithm produces a dense integer disparity map, which means that disparity is estimated at each pixel.
+  \item Most of the current algorithms works according to the following steps (see Figure \ref{fig:disparity-flow})
 \end{enumerate}
 
-\noindent The basics steps are depicted in figure \ref{fig:disparity-flow}.
+\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=gray!25, text centered, rounded corners, minimum height=3em]
+\tikzstyle{cloud} = [text width=6.5em, ellipse, draw, fill=gray!10, text centered, rounded corners, minimum height=3em]
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[node distance=4.8em, auto]
+    \node [cloud] (input) {Pair of rectified images};
+    \node [rblock, below of=input] (matchingcost) {Computing the matching cost};
+    \node [cloud, below of=matchingcost] (DSI) {Disparity space image};
+    
+    \node [rblock, right of=computation, below of=DSI, node distance=6em] (aggregation) {Aggregation of the cost values};
+    \node [rblock, left of=aggregation, below of=DSI, node distance=6em] (computation) {Computation of the disparity};    
+    
+    \node [cloud, below of=DSI, node distance=12em] (disparity) {Disparity map};
+    \node [rblock, below of=disparity] (refinement) {Disparity refinement};
+
+    \path [line] (input) -- (matchingcost);
+    \path [line] (matchingcost) -- (DSI);
+    \path [line] (DSI) -- node[anchor=north, xshift=-4.8em, yshift=1.0em] {for global methods}(computation);
+    \path [line] (DSI) -- node[anchor=north, xshift=4.8em, yshift=1.0em] {for local methods}(aggregation);
+    \path [line] (aggregation) -- (disparity);
+    \path [line] (computation) -- (disparity);
+    \path [line] (disparity) -- (refinement);
+  \end{tikzpicture}
+  \caption{Basic processing flow of typical disparity algorithms \citep{cyganek2011introduction, scharstein2002taxonomy}.}
+  \label{fig:disparity-flow}
+\end{figure}
 
 \noindent The upcoming subsections discuss the steps in more detail, especially regarding the computation of the matching cost and the subsequent aggregation.
-But initially, related to the disparity space introduced in the section before, the disparity space image (DSI) should be defined.
-The DSI is an image or a function over a continuous or discretized version of the disparity space $(x,y,d)$ and represents the cost of a given $d(x,y)$.
-It can be imagined as a two-dimensional array with the x-axis meaning the column, the y-axis the disparity and each combination the cost for that particular value.
+
+%explicit
+\newpage
 
 \subsubsection{Matching cost functions}
 
-At first the similarities of pixels in both images are calculated.
-In general the literature shows matching cost as the dissimilarities of pixels.
+At first, the similarities of pixels in both images are calculated.
+In general, the literature shows matching cost as the dissimilarities of pixels.
 The matching cost needs to be computed for the decision which pixel belongs to another.
-Hence the cost needs to be low for similar pixels.
-Some of the matching criteria used for determining the matching cost are described in table \ref{tab:overview-matching-cost-functions} cf. \citep{cyganek2011introduction, scharstein2002taxonomy, opencv_library, kanade1995development, hamzah2010sum}.
+Hence, the cost needs to be low for similar pixels.
+Some of the matching criteria used for determining the matching cost are described in Table \ref{tab:overview-matching-cost-functions} cf. \citep{cyganek2011introduction, scharstein2002taxonomy, opencv_library, kanade1995development, hamzah2010sum}.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{l|l}
   \hline
   \textbf{Method} & \textbf{Formula} \\ \hline \hline
-  Sum of absolute differences & $\displaystyle \sum_{i,j \in U} \left| I_1(x+i,x+j) - I_2(x+i,y+j) \right|$ \\
-  Sum of squared differences & $\displaystyle \sum_{i,j \in U} (I_1(x+i,x+j) - I_2(x+i,y+j))^2$ \\
-  Normalized cross-correlation & $\displaystyle \frac{1}{n} \sum_{x,y}\frac{(I_1(x,y) - \overline{I_1})(I_2(x,y) - \overline{I_2})}{\sigma_{I_1} \sigma_{I_2}}$ \\
+  Sum of absolute differences & $\displaystyle \sum_{i,j \in U} \left| I_1(x_L+i,y_L+j) - I_2(x_R+i,y_R+j) \right|$ \\
+  Sum of squared differences & $\displaystyle \sum_{i,j \in U} (I_1(x_L+i,y_L+j) - I_2(x_R+i,y_R+j))^2$ \\
+  Normalized cross-correlation & $\displaystyle \frac{1}{n} \sum_{x,y}\frac{(I_1(x_L,y_L) - \overline{I_1})(I_2(x_R,y_R) - \overline{I_2})}{\sigma_{I_1} \sigma_{I_2}}$ \\
   \hline
 \end{tabular}
-\caption{Most common correlation based similarity measures}
+\caption{Most common similarity measures}
 \label{tab:overview-matching-cost-functions}
 \end{table}
 
-\noindent $I_k(i,j)$ stands for an intensity value of the image $k$ at the point with given coordinates $(i,j)$.
-The set $U = U(x,y)$ describes close-by points located around the point $(x,y)$.
+\noindent $I_k(x,y)$ stands for an intensity value of the image $k$ at the point with given coordinates $(x,y)$.
+The set $U = U(i,j)$ describes close-by points located around the point $(i,j)$.
 The sum of absolute differences (SAD) similarity measure is one of the simplest ones and describes the difference between pixel values.
-The intensities of all adjacent pixels in the neighborhood (described with $U$) in both images $I_1$ and $I_2$ are summed up individually.
-Hence the absolute difference between both sums are calculated.
-Zero stands for the equality of both parts.
-In an optimal image material nearly every pixel in the left image should have a corresponding pixel in the right image, fulfilling the constraints from the section before, and thus the calculated SAD should sum up in zero.
+The absolute intensity differences of both images $I_1$ and $I_2$ are summed up for all adjacent pixels in the neighborhood (described with $U$).
+Zero stands for the equality of both regions.
+In optimal images nearly every pixel in the left image should have a corresponding pixel in the right image, fulfilling the constraints from the section before, and thus the calculated SAD should sum up to zero.
 The lower the result, the more similar the pixels and the cheaper the matching cost are.
-\newline\newline\noindent In the sum of squared differences (SSD) similarity measure the differences are squared.
-This measurement needs a bit more computational power and is usually chosen to strongly discriminate differences.
+\newline\newline\noindent In the sum of squared differences (SSD) similarity measure the pixel differences are squared and summed up.
+This measurement needs a bit more computational power and is usually chosen to discriminate high differences.
 It can yield to better results if outliers need to be excluded and the difference is not strong enough while using SAD.
-There also exist the normalized cross-correlation (NCC) which behaves similar to SSD (cf. \citep{hirschmuller2007evaluation, scharstein2002taxonomy, cyganek2011introduction}) and thus, it is not examined here in more detail.
-\newline\newline\noindent The disparity space image $C(x,y,d)$ is the result of the matching cost values over all pixels and all disparities.
-This leads to the aggregation step, during which the matching cost form the final disparity for local methods.
+\newline\newline\noindent There also exist the normalized cross-correlation (NCC).
+Cross-correlation measures the correlation between two intensity values in a point $(x,y)$.
+The normalized cross-correlation subtracts the mean $\overline{I}$ of the intensities and divides by the standard deviation $\sigma_{I}$ to normalize the intensity values. This may be necessary to balance brightness variations.
+NCC is excluded in most scientific investigations regarding disparity algorithms as it behaves similar to SSD (cf. \citep{hirschmuller2007evaluation, scharstein2002taxonomy, cyganek2011introduction}).
 
+%explicit
 \newpage
-%todo introduction into disparity space image (Stephan Kopf's recommendation)
-\subsubsection{Disparity space image}
+
+\subsection*{Disparity space image}
+
+Related to the disparity space introduced in the section before, the disparity space image (DSI) should be defined.
+The DSI is an image or a function over a continuous or discretized version of the disparity space $(x,y,d)$ and represents the matching cost (i.e. the dissimilarity) of a given $d(x,y)$.
+It can be imagined as a three-dimensional matrix with the x-axis meaning the column, the y-axis the disparity and each combination the matching cost for that particular value as the z-axis.
+The disparity space image $C(x,y,d)$ is the result of the matching cost values over all pixels and all disparities, where the function $C$ that denotes the matching cost for the given input parameter.
+This leads to the aggregation step, during which the matching cost form the final disparity for local methods.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.8\textwidth]{src/images/dsi.png}
+  \includegraphics[width=1.0\textwidth]{src/images/dsi.png}
   \caption[Disparity space image]{Illustration of a disparity space image.\protect\footnotemark}
   \label{fig:dsi}
 \end{figure}
@@ -492,14 +509,14 @@ This leads to the aggregation step, during which the matching cost form the fina
 \subsubsection{Aggregation}
 
 In the aggregation step the decision has to be made, which discrete set of disparities represents the scene best \citep{scharstein2002taxonomy}.
-As the matching cost values over all pixels and all disparities are hold in the DSI the minimum over the row in the right image is chosen as the best matching pixel and thus declared as the corresponding pixel.
+As the matching cost values over all pixels and all disparities are stored in the DSI the minimum for each row is chosen as the best matching pixel and thus declared as the corresponding pixel.
+In other words: for every pixel the disparity with the lowest cost is selected.
+This strategy is known as the winner takes it all (WTA). \citep{cyganek2011introduction, scharstein2002taxonomy}.
 As the pixel with the lowest cost is chosen, the following holds:
 
 \begin{equation}
   d(x,y) = \arg\min_{d'} C(x,y,d').
 \end{equation}
-
-\noindent This strategy is known as: the winner takes it all (WTA). \citep{cyganek2011introduction, scharstein2002taxonomy}.
 
 \subsubsection{Disparity computation}
 
@@ -508,28 +525,32 @@ It is split up for the two different methods: local and global.
 \newline\newline \noindent \textbf{(i) Local methods.} Local methods focus on the matching cost computation and the cost aggregation steps.
 The final disparity computation is trivial as the minimum cost value (least dissimilarities) over each row is chosen (WTA).
 \newline\newline\noindent \textbf{(ii) Global methods.} In contrast to local methods, global methods unify the three basic steps into a single one by defining an energy function to be minimized.
-It ties in with the labelling problem \citep{tamassia2013handbook}:
-\newline\newline\noindent Let $P$ be a set of pixels and $D$ a set of disparities. The energy function aims to find a disparity $d$ which minimizes some energy.
+It ties in with the labelling problem \citep{tamassia2013handbook}.
+A row in the DSI can be imagined as the different labels (i.e. disparity values) one pixel can receive.
+The labelling problem describes the search of the disparity as the choice of the correct label.
+Each pixel should only have one label assigned in the end.
+\newline\newline\noindent Let $P$ be a set of pixels and $D$ a set of disparities. The energy function aims to find a disparity $d$ which minimizes some energy:
 
 \begin{equation}
-  E(d) = E_{data}(d) + \lambda E_{smooth}(d)
+  E(d) = E_{data}(d) + \lambda E_{smooth}(d).
 \end{equation}
 
-\noindent The data term $E_{data}(d)$ defines the match cost for given disparity function $d$ and expresses how well the disparity function $d$ matches with the input image pair where $C$ is the matching cost DSI.
-As each pixel should be matched to a good find in the other image but simultaneously the adjacent pixels should be normally piecewise smooth, i.e. about the same value / intensity, the smoothness term $E_{smooth}(d)$ is introduced to reflect that (cf. stereo correspondence constraints).
+\noindent The data term $E_{data}(d)$ defines the matching cost for a given disparity function $d$ and expresses how well the disparity function $d$ matches with the input image pair.
+$C$ is the matching cost DSI:
+
+\begin{equation}
+  E_{data}(d) = \sum_{(x,y)} C(x,y,d(x,y)).
+\end{equation}
+
+\noindent As each pixel should be matched to a good find in the other image but simultaneously the adjacent pixels should be normally piecewise smooth, i.e. about the same value / intensity, the smoothness term $E_{smooth}(d)$ is introduced to reflect that (cf. stereo correspondence constraints).
 The $\lambda$ is introduced to control how much the smoothness term should influence the overall data term.
-
-\begin{equation}
-  E_{data}(d) = \sum_{(x,y)} C(x,y,d(x,y)) 
-\end{equation}
-
-\noindent To make the smoothness term computationally affordable it is, depending on the algorithm, usually restricted on the differences between adjacent pixel disparities \citep{scharstein2002taxonomy, cyganek2011introduction}, i.e. disparity gradient:
+To make the smoothness term computationally affordable it is, depending on the algorithm, usually restricted on the differences between adjacent pixel disparities \citep{scharstein2002taxonomy, cyganek2011introduction}, i.e. the disparity gradient:
 
 \begin{equation}
   E_{smooth}(d) = \sum_{(x,y)} p(d(x,y) - d(x+1,y)) + p(d(x,y) - d(x,y+1)),
 \end{equation}
 
-\noindent where  $p$ is a "monotonically increasing function of disparity difference" \citep{scharstein2002taxonomy}.
+\noindent where $p$ is a "monotonically increasing function of disparity difference" \citep{scharstein2002taxonomy}.
 Depending on the used algorithm, other smoothness term functions exist.
 The optimization problem to solve is defined as the minimization of the energy function, i.e.:
 
@@ -537,14 +558,14 @@ The optimization problem to solve is defined as the minimization of the energy f
   D = \arg\min_{d} E(d),
 \end{equation}
 
-\noindent where D is the disparity map containing the final values for every $(x,y)$ and $d$ a set of parameters or a disparity function affecting the energy value.
+\noindent where $D$ is the disparity map containing the final values for every $(x,y)$ and $d$ a set of parameters or a disparity function affecting the energy value.
 \newline\newline\noindent The search space for finding a solution is large, as an $n \times m$ image with $k$ disparities has about $k^{n \times m}$ possible solutions.
-According to \citeauthor{scharstein2002taxonomy, cyganek2011introduction} finding the global minimum is \textit{NP-hard}.
-The related work chapter \ref{chap:related} gives an introduction into solving those optimization problems.
+According to \citeauthor{scharstein2002taxonomy} \citep{scharstein2002taxonomy}, \citeauthor{cyganek2011introduction} \citep{cyganek2011introduction} finding the global minimum is \textit{NP-hard}.
+The related work in Chapter \ref{chap:related} gives an introduction into solving those optimization problems.
 
 \subsubsection{Disparity refinement}
 
-Disparity refinement can be seen as an optional post-processing step some algorithms perform automatically or maybe manually requested.
+Disparity refinement can be seen as an optional post-processing step some algorithms perform automatically or may be requested manually.
 Refinement steps can also be implemented independently from the algorithm as they are executed on the final disparity maps.
 Sometimes the literature mentions those as clean-up steps.
 Here is a list of some known refinement steps:
@@ -553,10 +574,21 @@ Here is a list of some known refinement steps:
   \item Sub-pixel estimation for higher accuracy.
   \item Disparity verification with left-to-right and right-to-left disparity map comparison (can also detect occluded areas).
   \item Filtering of disparity values, for instance using a median filter to remove mismatches.
-  \item Interpolation of missing values: can be necessary when using an algorithm producing a sparse disparity map.
+  \item Interpolation of missing values: can be necessary when using an algorithm which produces a sparse disparity map.
 \end{itemize}
 
 \subsubsection{Simplified block matching}
+
+\noindent For demonstration purpose of a working local disparity algorithm, block matching, also known as area matching, is sketched in a simplified version.
+The following algorithm assumes rectified images.
+Thus, the algorithm is executed along the scanlines.
+
+\begin{enumerate}
+  \item Divide the images in blocks of the size $m \times n$ (e.g. $8 \times 8)$.
+  \item Find the corresponding block along the scanlines as shown in Figure \ref{fig:tsukuba-block}, i.e. the block with the lowest matching cost (e.g. sum of absolute differences).
+  \item Calculate for this block the displacement (the shift from left to right image) which results in the disparity.
+  \item This yields in the final, ideally \textit{bijective}\footnote{Considering two sets, for each element of the first set a corresponding element of the second set is found. It also holds that both sets contain the same amount of elements. Thus, it is a one-to-one correspondence which also works inversely.} disparity map after finding the corresponding block from the left to the right image and vice versa. If a block could not be matched the bijective criteria is not fulfilled.
+\end{enumerate}
 
 \begin{figure}[h!]
   \centering
@@ -565,33 +597,26 @@ Here is a list of some known refinement steps:
   \label{fig:tsukuba-block}
 \end{figure}
 
-\noindent For demonstration purpose of a working local disparity algorithm, block matching, also known as area matching, is sketched in a simplified version:
-\newline\newline\noindent \textit{As a short remark: rectified images are presumed and thus the algorithm is executed along the scanlines.}
-
-\begin{enumerate}
-  \item Divide the images in blocks of the size $m \times n$ (e.g. $8 \times 8)$.
-  \item Find the corresponding block along the scanlines as shown in figure \ref{fig:tsukuba-block}, i.e. the block with the lowest matching cost (e.g. sum of absolute differences).
-  \item Then calculate for this block the displacement by means of block values (the shift from left to right image) resulting in the disparity.
-  \item This yields in the final, ideally \textit{bijective}\footnote{Considering two sets: for each element of the first set a corresponding element of the second set is found. It also holds that both sets contain the same amount of elements. Thus it is a one-to-one correspondence which also works inversely.} disparity map after finding the corresponding block for each. If a block could not be matched the bijective criteria is not fulfilled.
-\end{enumerate}
-
-\noindent In general: block matching leads to more accurate results with a smaller window size but increases noise.
-The window size is depending on the image size and its content, therefore no general assumption can be made.
+\noindent In general, block matching leads to more accurate results with smaller window sizes.
+A bigger window leads to more smoothing which results in lower noise.
+The window size depends on the image size and its content.
+Therefore, no general assumption can be made.
 For each scenery the window size should be adjusted individually.
 
 \section{Sub-pixel accuracy}
 
-As seen in the sections before the disparity algorithms produce a disparity map consisting only of integer values.
+As seen in the sections before the disparity algorithms produce a disparity map consisting of integer values only.
 For most of the imaginable applications integer values should be enough.
 However, the world is continuous and there are applications which rely on accurate disparity estimations.
-For instance having no sub-pixel values, image-based rendering produces an image for visualizing the disparity map, which can appear to be made up of many thin shearing layers \citep{scharstein2002taxonomy}.
-To get an accurate sub-pixel value, the most common technique is to use curve fitting by utilizing a \textit{n-th} polynomial-order function, in this particular case: a second-order polynomial function, i.e. parabola.
-The curve is fit around three or more values of a matching measure.
-The point of interest lies in the center of the chosen window (as figure \ref{fig:sub-pixel-estimation} depicts).
+For instance, having no sub-pixel values, image-based rendering produces an image for visualizing the disparity map, which can appear to be made up of many thin shearing layers \citep{scharstein2002taxonomy}.
+To get an accurate sub-pixel value, the most common technique is to use curve fitting by utilizing an \textit{n-th} polynomial-order function.
+In this particular case \citep{scharstein2002taxonomy}, a second-order polynomial function, i.e. a parabola is used.
+The curve is fitted around three or more values of the matching measure.
+The point of interest lies in the center of the chosen window (as Figure \ref{fig:sub-pixel-estimation} depicts).
 The minimum of this parabola is the searched value \citep{cyganek2011introduction, scharstein2014high}.
 \newline\newline\noindent Curve fitting with a second-order-polynomial in figure \ref{fig:sub-pixel-estimation} works with three data points: $(d_{i-1}, m_{i-1})$, $(d_{i}, m_{i})$ and $(d_{i+1}, m_{i+1})$.
 $d_i$ is the found integer value for disparity and $m_i$ is a match value for the displacement $d_i$.
-With the curve fit a new minimum value is found: $d_x$ which no longer needs to lie on an integer grid.
+With the curve fit a new minimum value $d_x$ is found which no longer needs to lie on the integer grid.
 
 \begin{figure}[h!]
   \centering
@@ -629,27 +654,29 @@ With the curve fit a new minimum value is found: $d_x$ which no longer needs to 
 \section{Optical flow}
 
 Similar to the problems discussed in the section before, optical flow is also an image matching problem.
-Optical flow is compiled of vectors describing small local displacements like moving objects or caused by the camera between two consecutive frames \citep{cyganek2011introduction, opencv_library}.
-The principle of image matching like in disparity algorithms remains.
+The optical flow is defined as vectors describing small local displacements like moving objects or camera motion between two consecutive frames \citep{cyganek2011introduction, opencv_library}.
+The principle of the matching problem of images is comparable to disparity algorithms.
 The main difference is that instead of analyzing left and right image, a scene is investigated and the disparity describes small local vectors.
-To be more precise: it relies on the assumption that a certain point $(x_1, y_1)$ in a frame at time $t_1$ will be matched to a point $(x_2, y_2)$ in a frame at time $t_2$.
+To be more precise, the optical flow relies on the assumption that a certain point $(x_1, y_1)$ in a frame at time $t_1$ will be matched to a point $(x_2, y_2)$ in a frame at time $t_2$.
 Different approaches for estimating the optical flow of pixels exist, like:
 
 \begin{itemize}
   \item Correlation or block-matching,
   \item feature tracking,
-  \item energy-based methods,
+  \item energy-based methods, or
   \item gradient-based methods.
 \end{itemize}
 
+\noindent Optical flow is heavily used in autonomous driving, automated traffic surveillance systems and video compression like H.264 \citep{cohen1999detecting, richardson2004h, kondermann2015stereo, menze2015object}.
+Recently a dataset containing ground-truth data of real-world sceneries regarding optical-flow information was released by \citeauthor{kondermann2015stereo}.
+Figure \ref{fig:optical-flow-estimation} shows an example of estimating the movement of a vehicle.
+In the left image of Figure \ref{fig:optical-flow-estimation} most of the vectors are null as no local displacement can be estimated.
+Only a few vectors (small white dots) near the vehicle illustrate the displacements.
+
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.9\textwidth]{src/images/optical-flow-estimation.jpg}
+  \includegraphics[width=1.0\textwidth]{src/images/optical-flow-estimation.jpg}
   \caption[Optical flow estimation]{Optical flow estimation to obtain motion vectors (left) and pixel velocity magnitudes (right).\protect\footnotemark}
   \label{fig:optical-flow-estimation}
 \end{figure}
 \footnotetext{Source (accessed 02/2016): \url{http://de.mathworks.com/discovery/optical-flow.html}.}
-
-\noindent Optical flow is heavily used in autonomous driving, automated traffic surveillance systems and video compression, for instance: H.264 \citep{cohen1999detecting, richardson2004h, kondermann2015stereo, menze2015object}.
-Recently a dataset containing ground-truth data of real-world sceneries regarding optical-flow information was released by \citeauthor{kondermann2015stereo}.
-Figure \ref{fig:optical-flow-estimation} shows an example of estimating the movement of a vehicle.
