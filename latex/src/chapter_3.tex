@@ -47,7 +47,7 @@ Thus the negative disparity is $-1$.
 
 \section{ELAS: Efficient large-scale stereo matching}
 
-\citeauthor{Geiger2010ACCV, Geiger2011IV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
+\citeauthor{Geiger2010ACCV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
 A support point is like a features, it is defined as pixels which can be robustly matched due to their texture and uniqueness.
 The basic principle is then the following:
 
@@ -61,7 +61,7 @@ The basic principle is then the following:
 
 \section{Middlebury MRF library}
 
-The Middlebury MRF library\citep{scharstein2014high} utilizes a global energy function consisting of Markov random fields and offers the following methods to solve this energy function:
+The Middlebury MRF library\citep{scharstein2014high, szeliski2008comparative} utilizes a global energy function consisting of Markov random fields and offers the following methods to solve this energy function:
 
 \begin{itemize}
   \item ICM (iterated conditional modes),
@@ -94,6 +94,15 @@ The Middlebury MRF library\citep{scharstein2014high} utilizes a global energy fu
 \caption{Parameter overview of the Middlebury MRF-library.}
 \label{tab:parameter-middlebury-library}
 \end{table}
+
+Graph cuts.
+%todo massage me
+Citation \citep{boykov2001fast} develops the graph-cuts algorithms (alpha-expansion and the swap algorithms), citation \citep{ramin2004energy} gives a simpler graph construction for the methods described in \citep{boykov2001fast}, and citation \citep{kolmogorov2004ener^gy} gives an efficient min-cut/max-flow algorithm for computing the minimum graph cut.
+
+Belief propagation.
+\citep{tappen2003comparison}.
+
+TRW-S \citep{kolmogorov2006convergent, wainwright2005map}.
 
 \subsection{Solving optimization problems}
 
