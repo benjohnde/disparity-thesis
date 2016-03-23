@@ -1,12 +1,12 @@
 \chapter{Foundations}
 \label{chap:foundations}
 
-In this chapter the foundations for related work and the implementation is built.
-As a first step computer vision is introduced with a short explanation how image representation works from a computer's perspective.
+In this chapter the foundations for related work and the implementation are built.
+As a first step, computer vision is introduced with a short explanation how image representation works from a computer's perspective.
 Human visual perception is put in contrast to how computers perceive and interpret their environment.
-In addition the labelling problem regarding stereo correspondence and the disparity between stereo images is illustrated.
+In addition, the labelling problem regarding stereo correspondence and the disparity between stereo images is illustrated.
 Furthermore, the depth calculation as well as the taxonomy of disparity algorithms is depicted.
-Finally, optical flow, a technical method that measures direction and movement of every pixel based on dominant movement in the original scene, is introduce to round this chapter up.
+Finally, optical flow, a technical method that measures direction and movement of every pixel based on dominant movement in the original scene, is introduced to round this chapter up.
 
 \section{Computer vision}
 
@@ -14,52 +14,58 @@ Computer graphics describes the terms and definitions of everything which has to
 To give an example, the applications of computer graphics range from image representation, image creation, image transformations to applications of color models.
 Computer vision shares concepts from the domain of computer graphics, but works in reverse.
 Instead of modeling a scene and generating an image of it, computer vision optically measures the real world and tries to analyze it by applying models to the captured images.
-For instance trying to get information out of an image, like image segmentation, edge detection, classification and feature\footnote{Geometric shapes or more complex classifiers that are clearly recognizable.} points.
-\newline\newline\noindent A simple example would be to imagine a face of a human being captured by a camera, which may produce errors due to lens distortion, shaky capturing and sampling of the chip.
-Image editing would be useful to optimize the image by correction of contrast or brightness, cropping or further adjustments.
+For instance, typical jobs are to get information out of an image, like image segmentation, edge detection, classification, and feature\footnote{Geometric shapes or more complex classifiers that are clearly recognizable.} point detection.
+\newline\newline\noindent A simple example would be to imagine a face of a human being captured by a camera, which may produce errors due to lens distortion, shaky capturing, and sampling of the chip.
+Image editing would be useful to optimize the image by correction of contrast or brightness, cropping, or further adjustments.
 The tasks of computer vision are more in analyzing and understanding images for instance (just to name a few):
 
+%explicit
+\newpage
+
 \begin{itemize}
-  \item face detection to know the areas of faces on images,
+  \item face localization to know the areas of faces on images,
   \item feature matching to detect the face on other images,
-  \item feature tracking to track the movement of a person,
+  \item feature tracking to track the movement of a person, or
   \item 3D reconstruction of a facial model.
 \end{itemize}
 
 \subsection*{Image representation}
 
-The existing method of handling images on a computer is separated into two different methods.
-On the one hand a vector image describes its contents by representing forms like a circle, line, curve or rectangle.
-The properties of these forms and shapes are also included, for instance coloring, size and origin.
+Two different methods exit of handling images on a computer.
+On the one hand, a vector image describes its content by representing forms like a circle, line, curve, or rectangle.
+The properties of these forms and shapes are also included, for instance, coloring, size, and origin.
 So a vector image basically contains those forms and shapes, their properties and a description of how they are all composed together.
-\newline\newline\noindent On the other hand as it may become pretty complex using vector images to represent the real-world, in contrast to those there also exist raster images.
-Raster images (sometimes the term bitmap images is used) are a form to represent natural images, e.g. captured by a CCD\footnote{charge-coupled device} image sensor from a digicam.
-Capturing means sampling information on a matrix of light sensitive sensors to transform received signals into color a matrix of the same size.
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.5\textwidth]{src/images/rgb-raster-image.png}
-  \caption[Example of a RGB raster image]{Example of a RGB raster image\protect\footnotemark}
-  \label{fig:rgb-raster-image}
-\end{figure}
-\footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
-
-\noindent Both types of images use a coordinate system to describe either the placement of elements (like written above with the properties size and origin of each element) or to describe how each point looks like.
+\newline\newline\noindent On the other hand, it may become pretty complex using vector images to represent the real-world.
+In contrast to those there also exist raster images.
+Raster images (sometimes the term bitmap images is used) are a form to represent natural images, e.g. captured by a CCD\footnote{CCD: charge-coupled device} image sensor from a digicam.
+Capturing means sampling information on a matrix of light sensitive sensors to transform received signals into a matrix of color values of the same size.
+\newline\newline\noindent Both types of images use a coordinate system to describe either the placement of elements (like written above with the properties size and origin of each element) or to describe how each point looks like.
 The coordinate system most widely used working with images starts in the upper left at the point $(0,0)$, with the x-axis extending to the right and y-axis extending to the bottom.
 This can be seen as a grid system with the size of the image $width\ \times\ height$ representing $columns\ \times\ rows$.
 By describing how each point looks like the exact description of a pixel is meant \citep{shirley2009fundamentals}.
 \newline\newline\noindent One pixel in a grayscale image can range from $0 - 255$ describing the intensity of this pixel.
 $0$ means black and $255$ is fully white.
 In colored images a pixel can have more than one intensity value.
-More concrete in a typical RGB\footnote{red-green-blue color channels} raster image each pixel contains three color channels, also called the RGB tuple.
-Thus $$3 \cdot 1\ bytes = 3 \cdot 8\ bits = 3 \cdot 8 = 24\ bits$$ are saved per pixel utilizing RGB tuples.
-In \texttt{C} or \texttt{C++} such pixel values are normally described as unsigned chars. A char represents one byte and unsigned means that it ranges from $0 - 255$ instead of $-128$ to $127$.
-Sometimes RGB is used with an additional alpha channel specifying the degree of opacity, named RGBA\footnote{red-green-blue-alpha color channels}.
-The composition of these color channels orchestrate the final pixel value as it is obtained by for example an image sensor.
+More concrete, in a typical RGB\footnote{RGB: red-green-blue color channels} raster image each pixel contains three color channels, also called the RGB tuple.
+Thus $$3 \cdot 1\ bytes = 3 \cdot 8\ bits = 3 \cdot 8 = 24\ bits$$ are stored per pixel utilizing RGB tuples.
+In \texttt{C} or \texttt{C++} such pixel values are normally described as unsigned chars. A char represents eight bit and unsigned means that it ranges from $0 - 255$ instead of $-128$ to $127$.
+Sometimes RGB is used with an additional alpha channel specifying the degree of opacity, named RGBA\footnote{RGBA: red-green-blue-alpha color channels}.
+The composition of these color channels orchestrate the final pixel value as it is obtained by, for example, an image sensor.
 Figure \ref{fig:rgb-raster-image} depicts an example of a RGB raster image and shows the values of three pixels.
 The first marked pixel in figure \ref{fig:rgb-raster-image} describes the RGB tuple with the following values $(237,237,237)$.
 Utilizing three color channels the final raster image then needs up to 24 bits per pixel, meaning an image the size $width = 300\ px$ and $height = 400\ px$ needs $$300 \cdot 400 \cdot 24bits \cdot \frac{1\ byte}{8\ bits} = 360.000\ bytes$$ in memory.
-Images can be compressed with for example the JPEG algorithm but as the later implementation works only with pure raster images, as the unaltered values are examined, the amount of bytes as explained above is to be held in memory during the execution of the implementation.
+Images can be compressed with, for example, the JPEG algorithm but as the later implementation works only with pure raster images, as the unaltered values are examined, the amount of bytes as explained above is to be held in memory during the execution of the implementation.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{src/images/rgb-raster-image.png}
+  \caption[Example of an RGB raster image]{Example of a RGB raster image\protect\footnotemark}
+  \label{fig:rgb-raster-image}
+\end{figure}
+\footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
+
+%explicit
+\newpage
 
 \subsection*{Human visual perception}
 
@@ -67,12 +73,12 @@ In his manuscript 'Astronomia Pars Optica' from 1604, Kepler explains the use of
 He defined the term binocular as the composition of two latin words, 'bini' for double and 'oculus' for eye.
 With uniocular as 'uni' for one the sight with only one eye is meant.
 Binocular vision is then the vision creatures having two eyes obtain while using them together according to Kepler.
-According to \citeauthor{fahle1987wozu, henson2000visual} creatures with binocular vision have several advantages over creatures with only uniocular vision.
-Not to mention all but three as the most important ones which affect the depth perception:
+According to \citeauthor{fahle1987wozu} and \citeauthor{henson2000visual} creatures with binocular vision have several advantages over creatures with only uniocular vision.
+Not to mention all but three, the most important ones which affect the depth perception:
 
 \begin{enumerate}
   \item Considering human beings, the second eye increases the field of view \citep{henson2000visual}. About 120 degrees are the binocular field of view (projected on both eyes) and two uniocular fields of view with about 40 degrees.
-  \item This also leads to another advantage with occluded, half-occluded or non-occluded objects \citep{fahle1987wozu}. Looking at figure \ref{fig:horopter} the point $P$ is in focus of the human being. Something directly behind this point maybe fully occluded by the object in point $P$. Most of the things besides that are non-occluded. Something behind this point $P$ may be half-occluded if it can be seen by either the left or the right eye.
+  \item This also leads to another advantage with occluded, half-occluded or non-occluded objects \citep{fahle1987wozu}. Looking at Figure \ref{fig:horopter}, the point $P$ is in focus of the human being. Something directly behind this point may be fully occluded by the object in point $P$. Most of the things besides are non-occluded. Something behind this point $P$ may be half-occluded if it can be seen by either the left or the right eye.
   \item An advantage of having two eyes is the third-dimension human beings perceive, which leads to the binocular disparity or retinal disparity. Both terms are used in the literature and both mean the same: extracting depth information out of two coherent retinal images (obtained by the human eyes) \citep{cyganek2011introduction, fahle1987wozu}.
 \end{enumerate}
 
@@ -80,9 +86,9 @@ Not to mention all but three as the most important ones which affect the depth p
 The letter $F$ stands for \textit{foveae} in which the visual axis ends.
 The eye is constructed out of photoreceptor cells, mainly rods and cones.
 The rods are necessary for seeing at night while the cones are responsible for humans being able to see the world sharp.
-In the foveae is the peak of cones and contains very few rods.
-Meaning that the human visual system works the way, that the visual axis joins the point of fixation with the foveae.
-This can be seen in figure \ref{fig:horopter} as the lines between $F$ of each eye to the point of fixation $P$.
+In the foveae is the peak of cones and it contains very few rods.
+This means that the human visual system works the way that the visual axis joins the point of fixation with the foveae.
+This can be seen in Figure \ref{fig:horopter} as the lines between $F$ of each eye to the point of fixation $P$.
 Both eyes should be brought into convergence that the point of interest is projected onto the foveae of each eye.
 Everything on the horopter (the circle) is corresponding (e.g. $P$ and $Q$), all points other than being on the horopter are non-corresponding ($R$) in terms of retinal disparity.
 \newline\newline\noindent In the later described disparity algorithms which act like a tool for computers to be able to see the shift of pixels from the left image to the right image, the human being does somehow the same.
@@ -115,12 +121,12 @@ This is not an easy task as can be seen in the next sections.
 \subsection*{Stereoscopy}
 
 To paint the bigger picture, stereoscopy and the illusion of depth are introduced.
-Stereoscopy is sometimes linked with the phrase 'the illusion of depth' as it is a technique used to add a third dimension to a flat image to simulate depth \citep{block20133d, lucas20133d}.
-Specifically to show each eye a slightly different image and thus achieving depth perception in our brain.
+Stereoscopy is sometimes linked to the phrase 'the illusion of depth' as it is a technique used to add a third dimension to a flat image to simulate depth \citep{block20133d, lucas20133d}.
+Specifically, the goal is to show each eye a slightly different image and thus achieve depth perception in our brain.
 With so called stereoscope or special glasses depth perception can be transferred to the consumer in a cinema or at home via showing each eye a different image which then is composed to the final spatial perception.
 \newline\newline\noindent There exist several techniques to create the stereoscopic effect. One of these glasses is the shutter system.
 The concept of a shutter glass is that it cycles a block (meaning only one eye is dispatched to the screen) with a certain frequency (usually about 120 fps\footnote{frames per second}, resulting in 60 fps per eye) synchronously with the 3DTV.
-Meaning only one specific image is passed to exactly one of the consumers eyes.
+This means that only one specific image is passed to exactly one of the consumers eyes.
 So each eye is shown about 60 fps which naturally is experienced as flicker-free.
 The older anaglyph 3D technique uses multiplied images tinted with red/cyan to filter out the respective image by the glasses filter foil, thus only one image is dispatched to one specific eye at a time.
 Nowadays the anaglyph 3D technique is sometimes used in magazines to show 3D graphics.
@@ -139,34 +145,26 @@ The most important terms of epipolar geometry are:
   \item epipolar plane.
 \end{itemize}
 
+\noindent The \textit{image planes} in Figure \ref{fig:epipolar} and Figure \ref{fig:epipolar-rectified} are the blue surfaces which represent the captured image through the cameras $O_L$ and $O_R$.
+The \textit{baseline} is the line joining both camera centers with the image plane. Focusing on the figures, the baseline is the line going from $O_L$ to $O_R$, as $O$ reflects the origin (camera center).
+An \textit{epipole} is the joint of the baseline with the image plane, referring to the symbols $e_L$ and $e_R$.
+The \textit{epipolar plane}, visualized as green triangle in Figures \ref{fig:epipolar} and \ref{fig:epipolar-rectified}, is determined by point $X$ and both origins $O_L$ and $O_R$.
+It is the surface reflecting the z-axis, the depth.
+An \textit{epipolar line} then is the intersection between the origin to the point of interest, in this particular case $X$, which lies on the epipolar plane and intersects the image plane.
+
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.6\textwidth]{src/images/epipolar.png}
+  \includegraphics[width=0.7\textwidth]{src/images/epipolar.png}
   \caption[Epipolar geometry]{Epipolar geometry\protect\footnotemark}
   \label{fig:epipolar}
 \end{figure}
 \footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
 
-\noindent The \textit{image planes} in figure \ref{fig:epipolar} and figure \ref{fig:epipolar-rectified} are the blue surfaces which represent the captured image through the cameras $O_L$ and $O_R$.
-The \textit{baseline} is the line joining both camera centers with the image plane. Focusing on the figures, the baseline is the line going from $O_L$ to $O_R$, as $O$ reflects the origin (camera center).
-An \textit{epipole} is the joint of the baseline with the image plane, referring to the figures $e_L$ and $e_R$.
-The \textit{epipolar plane}, visualized as green triangle in figures \ref{fig:epipolar} and \ref{fig:epipolar-rectified}, is determined by the $X$ and both origins $O_L$ and $O_R$.
-It is the surface reflecting the z-axis, the depth.
-An \textit{epipolar line} then is the intersection between the origin to the point of interest, in this particular case $X$, which lies on the epipolar plane and intersects the image plane.
-\newline\newline\noindent This results in an epipolar constraint \citep{cyganek2011introduction}:
-Each image point $X_i$ of a space point in the image plane, considering figure \ref{fig:epipolar} $X$, must lie on the corresponding epipolar line $\vec{O_LX}$.
-More concrete focusing on figure \ref{fig:epipolar}: this constraint states that the correspondence for a point on the epipolar line $\vec{O_LX}$ must lie on the line $\vec{e_rX_r}$.
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.6\textwidth]{src/images/epipolar-rectified.png}
-  \caption[Epipolar geometry after image rectification]{Epipolar geometry after image rectification\protect\footnotemark}
-  \label{fig:epipolar-rectified}
-\end{figure}
-\footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
-
-\noindent As seen above figure \ref{fig:epipolar} depicts the left and right view of an object in point $X$.
-The figures \ref{fig:epipolar} and \ref{fig:epipolar-rectified} both illustrate the epipolar geometry on a pair of unrectified images and the result after the rectification was done.
+\noindent This results in an epipolar constraint \citep{cyganek2011introduction}:
+Each image point $X_i$ of a space point in the image plane, e.g. consider point $X$ in Figure \ref{fig:epipolar} must lie on the corresponding epipolar line $\vec{O_LX}$.
+More concrete focusing on Figure \ref{fig:epipolar}: this constraint states that the correspondence for a point on the epipolar line $\vec{O_LX}$ must lie on the line $\vec{e_rX_r}$.
+As seen above Figure \ref{fig:epipolar} depicts the left and right view of an object in point $X$.
+\newline\newline\noindent The Figures \ref{fig:epipolar} and \ref{fig:epipolar-rectified} both illustrate the epipolar geometry on a pair of unrectified images and the result after the rectification was done.
 Rectification\footnote{Affine transformation (rotation and translation) neglecting geometric distortion to rectify the images.} is necessary to reduce the search-space from two-dimensional to one-dimensional.
 For determining the exact position of $X$ (possible positions $X_i$ with $i = [1 \dots 3]$) the diagonal has to be scanned in the unrectified image.
 In the rectified image only the horizontal needs to be investigated.
@@ -186,14 +184,25 @@ After the rectification process the following two statements come true:
 \end{itemize}
 
 \noindent In conclusion, corresponding points are constrained to be on the same line and thus depth can be inferred by using triangulation and camera parameters.
-Based on this the investigations of stereo correspondence and the actual depth calculation using triangulation is discussed in more detail in the next sections.
+Based on this, the investigations of stereo correspondence and the actual depth calculation using triangulation is discussed in more detail in the next sections.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.7\textwidth]{src/images/epipolar-rectified.png}
+  \caption[Epipolar geometry after image rectification]{Epipolar geometry after image rectification\protect\footnotemark}
+  \label{fig:epipolar-rectified}
+\end{figure}
+\footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
+
+%explicit
+\newpage
 
 \section{Stereo correspondence}
 
 Stereo correspondence can be seen as a pixel labelling problem \citep{wanner2013reconstructing, cyganek2011introduction} between two (or more) stereo images.
 The essential problem is to find corresponding pixels in images of different cameras and needs to be solved.
 Without knowing which points belong to each other in two separate stereo images, no conclusions can be drawn for instance calculating the disparity.
-Henceforth while talking about images for stereo matching, rectified images are implicitly meant.
+Henceforth, while talking about images for stereo matching, rectified images are implicitly meant.
 If images are existing in an unrectified unaligned version then as a preprocessing step the images will be rectified.
 
 \subsection*{Constraints}
@@ -204,10 +213,10 @@ From the pioneer work of \citeauthor{marr1976cooperative} \citep{marr1976coopera
 
 \begin{description}
   \item[Uniqueness] \hfill \\ As each pixel on a surface has one unique physical position in space, each pixel from each image has at most one disparity value.
-  \item[Continuity] \hfill \\ The term smoothness constraint is also mentioned in the literature. Disparity can vary but smoothly almost everywhere in an image except at object boundaries which represent a discontinuity in depth, i.e. for adjacent points usually holds $||X_{L_1} - X_{R_1}| - |X_{L_2} - X_{R_2}||$.
+  \item[Continuity] \hfill \\ The term smoothness constraint is also mentioned in the literature. Disparity can vary but smoothly almost everywhere in an image except at object boundaries which represent a discontinuity in depth, i.e. the difference of adjacent points should be small $||X_{L_1} - X_{R_1}| - |X_{L_2} - X_{R_2}|| < \varepsilon$.
   \item[Epipolar] \hfill \\ Recapture of the epipolar constraint from the section before: corresponding image points have to lie on the corresponding epipolar lines. If the epipolar lines are known to be parallel to the x-axis, the search space can be reduced to a 1D search space along the epipolar lines.
-  \item[Ordering] \hfill \\ Following up the epipolar constraint: if the epipolar lines run parallel to the x-axis, multiple consecutive image points have to lie on the same corresponding epipolar line in the same ordering.
-  \item[Limit] \hfill \\ There is a defined disparity maximum (limit) $d_{max}$ holding $|X_L - X_R| < d_{max}$, defining the number of disparities which can be found in a stereo image. Hence, $d(x,y)$ is in the range $[0 \dots d_{max} - 1]$.
+  \item[Ordering] \hfill \\ Following up the epipolar constraint: if the epipolar lines run in parallel to the x-axis, multiple consecutive image points have to lie on the same corresponding epipolar line in the same ordering.
+  \item[Limit] \hfill \\ There is a defined disparity maximum (limit) $d_{max}$ holding $|X_L - X_R| < d_{max}$, defining the maximum disparity value which can be found in a stereo image. Hence, $d(x,y)$ is in the range $[0 \dots d_{max} - 1]$.
   \item[Lambertian] \hfill \\ Algorithms for stereo matching also rely on the assumption of opaque lambertian surfaces, meaning a surface that reflects light equally into all directions and thus appears equally bright independent from where light is coming and where the camera is placed. Thus the algorithms can expect the intensities and colors of corresponding points to be almost the same.
 \end{description}
 
@@ -215,17 +224,17 @@ From the pioneer work of \citeauthor{marr1976cooperative} \citep{marr1976coopera
 
 \subsection*{Common pitfalls}
 
-Algorithms are using different metrics to analyze along scanlines, in whole areas or at a global view similarities in images to then estimate the disparity.
+Algorithms are using different metrics to analyze similarities in images along scanlines, in whole areas, or at a global view to then estimate the disparity.
 This can be challenging especially considering the upcoming traps.
-On the one hand potential issues from the camera setup, such as:
+On the one hand, potential issues from the camera setup can be challenging, such as:
 
 \begin{itemize}
   \item photometric distortions,
   \item noise,
-  \item calibration error of the cameras,
+  \item calibration error of the cameras.
 \end{itemize}
 
-\noindent can be challenging. On the other hand the scenery can be tricky:
+\noindent On the other hand, the scenery can be tricky:
 
 \begin{itemize}
   \item specularities and reflections,
@@ -247,8 +256,7 @@ there exist two arrays with $length = 5$, one in the left and one in the right i
 Assuming the top row $[p \dots t]$ reflects one row in the left image.
 The bottom row $[u \dots y]$ accordingly the same row in the right image.
 The pixel $p$, $q$, $w$ and $y$ are unmatched, e.g. occluded.
-Having a function $d(z)$ which returns the disparity for a given element $z$ in those arrays.
-$d(r) = -2$ means the shift two to the left.
+Having a function $d(z)$ which returns the disparity for a given element $z$ in those arrays, $d(r) = -2$ means the shift two to the left.
 Accordingly $d(s) = -2$ and $d(t) = -1$.
 
 \begin{figure}[h!]
@@ -259,16 +267,16 @@ Accordingly $d(s) = -2$ and $d(t) = -1$.
 \end{figure}
 
 \noindent Up to this point the epipolar geometry and the challenge with stereo matching were introduced.
-The upcoming section defines disparity, illustrates the disparity map and the depth calculation.
+The upcoming section defines disparity, illustrates the disparity map, and the depth calculation.
 
 \section{Disparity map between stereo images}
 
 In the last two sections epipolar geometry and the problem with stereo correspondence were introduced.
-In this section the focus is on the term disparity, how disparity can be visualized via disparity maps and how the depth can be calculated out of those disparity values.
+In this section the focus is on the term disparity, how disparity can be visualized via disparity maps, and how the depth can be calculated out of those disparity values.
 
 \subsection*{Disparity}
 
-The disparity is the shift of an pixel / object (feature) between two or more images.
+The disparity is the shift of a pixel / object (feature) between two or more images.
 An object may appear at position $(x_1,y_1)$ in the left one and at position $(x_2,y_2)$ in the right one.
 The disparity is the shift from the left position to the right one.
 With $P_i$ declaring a point, left or right side, the following represents the disparity for two points in a two-dimensional space utilizing the pythagorean theorem:
@@ -290,12 +298,11 @@ With $P_i$ declaring a point, left or right side, the following represents the d
 \end{equation}
 
 \noindent where $d(x,y)$ is the function which delivers values out of the disparity space $(x,y,d)$ computed by the algorithms.
-In the next section the disparity map is outlined which represents the disparity map.
 \newline\newline\noindent Resulting in matching pixels from one image to another, the disparity for each pixel-wise combination is calculated as seen in the previous subsection (simplified stereo matching) and presented here.
 Such disparities can also be seen as the inversed distances to observed objects.
-As a matter of fact at the border of each image some pixels can not be calculated caused by the non-existing counterpart for matching.
+As a matter of fact, at the border of each image some pixels can not be calculated caused by the non-existing counterpart for matching.
 Those pixels with no fellow are called 'occluded' pixels.
-For example in some cases pixels are hidden in one image by another object due to the blocking line of sight by another object.
+For example, in some cases pixels are hidden in one image by an object due to the blocking line of sight of this object.
 
 \subsection*{Disparity map}
 
