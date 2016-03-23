@@ -103,6 +103,44 @@ The evaluation is done with simple python scripts reflecting the evaluation chai
 %\umlclass{FrameResult}{}{}
 %\umlclass{EvalResultMetric}{}{}
 
+%todo move to impl
+\section{Disparity algorithms on images}
+
+Deciding which algorithms should be describe was not an easy task.
+On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
+On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
+For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
+As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
+Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
+Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
+The parameters used for each algorithm are described in the implementation chapter.
+This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
+
+%Softly explain what is available right now (maybe shortly point out the top 3 algorithms of the Middlebury evaluation). Also how good they work, maybe with sample images from middlebury evaluation.
+
+%todo list parameters
+
+%todo move to impl
+\section{Disparity algorithms on videos}
+
+At the current point in time, no real disparity algorithm for especially videos exists yet.
+As a video is defined by multiple consecutive frames, every disparity algorithm for images can be applied on videos.
+The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
+None the less it is possible to focus on some other details, for instance:
+
+\begin{itemize}
+  \item possible outliers in the sense of frames,
+  \item mean performance (error rate) of those algorithms on a complete scene,
+  \item runtime variety in a sequence,
+  \item analyzing the impact of noise, and
+  \item trying to smooth noisy areas in the resulting disparity map with other frames.
+\end{itemize}
+
+\noindent Noise can occur through video compression.
+As video sensors tend to be noisier than image sensors it also more present in stereoscopic videos, if not rendered by a computer.
+As noise can be simulated and added onto the rendered video, it is investigated how noise disturb stereo matcher.
+As these ideas are more explained in the implementation chapter \ref{chap:impl} the following subsection a novel approach for videos are examined.
+
 \section{Evaluation engine for videos}
 
 In contrast to other implementations, input and output are clearly defined and thus different techniques can be adapted easily.

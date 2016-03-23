@@ -29,94 +29,6 @@ Assuming the disparity map $D$ is known \textit{a priori}: one image needs to be
 The matching cost are calculated iteratively as the disparity needs to be known a priori.
 For a deeper explanation of how the mutual information are exactly calculated and used in the SGM method compare \citep{hirschmuller2005accurate, hirschmuller2007evaluation, hirschmuller2008stereo, hirschmuller2011semi}.
 
-\section{Solving optimization problems}
-
-Many problems in computer vision can be described in terms of energy minimization for instance image smoothing, the stereo correspondence problems as described in chapter \ref{chap:foundations} and many other.
-Thus solving of optimization problems is a key part in modern stereo matcher algorithms.
-They solve the pixel labelling problem as described in chapter \ref{chap:foundations}.
-Most of the current disparity algorithms are using global methods to solve a energy minimization problem.
-Usually they utilize Markov random fields (MRF) based energy functions.
-As such MRF based energy functions are NP-hard approximation algorithms like the following are used:
-
-\begin{itemize}
-  \item dynamic programming,
-  \item belief propagation,
-  \item graph cuts.
-\end{itemize}
-
-\noindent In this section an introduction into MRF-based energy functions is given.
-Additionally, the ideas how the above techniques help to solve such problems are explained.
-
-\newpage
-\subsection*{Markov random fields}
-
-Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables, see \ref{fig:markov}.
-The so called labelling problem (the stereo problem) is formulated in such a way \citep{tamassia2013handbook}.
-The core problem is to find exactly one label for each pixel, represented as a node in MRF, representing the disparity for this pixel.
-With MRF the likelihood of a pixel having exactly this label (disparity) is expressed.
-
-%todo continue here with MRF explanation
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.4\textwidth]{src/images/mrf-example.png}
-  \caption[Example of Markov random fields]{Example of Markov random fields\protect\footnotemark}
-  \label{fig:markov}
-\end{figure}
-\footnotetext{Source (accessed 03/2016): \url{https://en.wikipedia.org}.}
-
-\subsection*{Dynamic programming}
-
-In general dynamic programming means having a method for an optimization problem to be minimized which can be parted into smaller chunks.
-Then these chunks get solved individually and in the end the optimization problem is minimized \citep{angel1972dynamic, bellman2015applied}.
-For stereo matching this applies to the partition of a two-dimensional search problem into a series of isolated one-dimensional search problems on each pair of epipolar lines.
-These problems are then solved independently.
-With dynamic programming the following energy function (introduced in the foundations chapter \ref{chap:foundations} can be solved independently per scanline.
-
-\begin{equation}
-  E(d) = E_{data}(d) + \lambda E_{smooth}(d)
-\end{equation}
-
-%todo more
-Blabla \citep{cyganek2011introduction}.
-
-\subsection*{Belief propagation}
-
-Belief propagation is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields.
-Key part of belief propagation are factor graphs.
-
-Probabilistic model with Markov random fields. \citep{yedidia2003understanding}
-
-\begin{itemize}
-  \item Define factor graphs
-  \item Link to Bayesian network.
-  \item Link to Markov random fields.
-  \item Maybe small explanation of how the sampling procedure to obtain the maximum works.
-\end{itemize}
-
-\subsection*{Graph cuts}
-
-\begin{itemize}
-  \item Explain the problem! \citep{boykov2001fast}
-  \item Define a graph.
-  \item Show the use of a graph in computer vision.
-  \item Explain the $\alpha$-$\beta$-swap algorithm.
-  \item Explain the $\alpha$-expansion algorithm.
-\end{itemize}
-
-\section{Disparity algorithms on images}
-
-Deciding which algorithms should be describe was not an easy task.
-On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
-On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
-For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
-As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
-Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
-Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
-The parameters used for each algorithm are described in the implementation chapter.
-This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
-
-%Softly explain what is available right now (maybe shortly point out the top 3 algorithms of the Middlebury evaluation). Also how good they work, maybe with sample images from middlebury evaluation.
-
 \subsection*{OpenCV BM and SGBM}
 
 The OpenCV\citep{opencv_library} implementation of block-matching and the semi-global block-matching idea of \citeauthor{hirschmuller2005accurate} are taken into account for the later implementation.
@@ -128,9 +40,21 @@ Negative disparity can appear if the stereo cameras are verged or inclined towar
 The WLS filtering results in disparity ranging from $0$ to $D_{max}$, as set before.
 Thus the negative disparity is $-1$.
 
-%todo list parameters
+\section{ELAS: Efficient large-scale stereo matching}
 
-\subsection*{Middlebury MRF Library}
+\citeauthor{Geiger2010ACCV, Geiger2011IV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
+A support point is like a features, it is defined as pixels which can be robustly matched due to their texture and uniqueness.
+The basic principle is then the following:
+
+%todo explain a bit more.
+\begin{itemize}
+  \item For a sparse set of support points the disparity is calculated,
+  \item then the coordinates of the support points are used to create a two-dimensional mesh via Delaunay triangulation.
+\end{itemize}
+
+\noindent With this aproach a dense disparity map is generated. Side note: the only parameter is the number of max disparities.
+
+\section{Middlebury MRF library}
 
 The Middlebury MRF library\citep{scharstein2014high} utilizes a global energy function consisting of Markov random fields and offers the following methods to solve this energy function:
 
@@ -166,41 +90,78 @@ The Middlebury MRF library\citep{scharstein2014high} utilizes a global energy fu
 \label{tab:parameter-middlebury-library}
 \end{table}
 
-\newpage
+\subsection{Solving optimization problems}
 
-\subsection*{ELAS: Efficient large-scale stereo matching}
-
-\citeauthor{Geiger2010ACCV, Geiger2011IV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
-A support point is like a features, it is defined as pixels which can be robustly matched due to their texture and uniqueness.
-The basic principle is then the following:
-
-%todo explain a bit more.
-\begin{itemize}
-  \item For a sparse set of support points the disparity is calculated,
-  \item then the coordinates of the support points are used to create a two-dimensional mesh via Delaunay triangulation.
-\end{itemize}
-
-\noindent With this aproach a dense disparity map is generated. Side note: the only parameter is the number of max disparities.
-
-\section{Disparity algorithms on videos}
-
-At the current point in time, no real disparity algorithm for especially videos exists yet.
-As a video is defined by multiple consecutive frames, every disparity algorithm for images can be applied on videos.
-The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
-None the less it is possible to focus on some other details, for instance:
+Many problems in computer vision can be described in terms of energy minimization for instance image smoothing, the stereo correspondence problems as described in chapter \ref{chap:foundations} and many other.
+Thus solving of optimization problems is a key part in modern stereo matcher algorithms.
+They solve the pixel labelling problem as described in chapter \ref{chap:foundations}.
+Most of the current disparity algorithms are using global methods to solve a energy minimization problem.
+Usually they utilize Markov random fields (MRF) based energy functions.
+As such MRF based energy functions are NP-hard approximation algorithms like the following are used:
 
 \begin{itemize}
-  \item possible outliers in the sense of frames,
-  \item mean performance (error rate) of those algorithms on a complete scene,
-  \item runtime variety in a sequence,
-  \item analyzing the impact of noise, and
-  \item trying to smooth noisy areas in the resulting disparity map with other frames.
+  \item dynamic programming,
+  \item belief propagation,
+  \item graph cuts.
 \end{itemize}
 
-\noindent Noise can occur through video compression.
-As video sensors tend to be noisier than image sensors it also more present in stereoscopic videos, if not rendered by a computer.
-As noise can be simulated and added onto the rendered video, it is investigated how noise disturb stereo matcher.
-As these ideas are more explained in the implementation chapter \ref{chap:impl} the following subsection a novel approach for videos are examined.
+\noindent In this section an introduction into MRF-based energy functions is given.
+Additionally, the ideas how the above techniques help to solve such problems are explained.
+
+\subsubsection{Markov random fields}
+
+Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables, see \ref{fig:markov}.
+The so called labelling problem (the stereo problem) is formulated in such a way \citep{tamassia2013handbook}.
+The core problem is to find exactly one label for each pixel, represented as a node in MRF, representing the disparity for this pixel.
+With MRF the likelihood of a pixel having exactly this label (disparity) is expressed.
+
+%todo continue here with MRF explanation
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.4\textwidth]{src/images/mrf-example.png}
+  \caption[Example of Markov random fields]{Example of Markov random fields\protect\footnotemark}
+  \label{fig:markov}
+\end{figure}
+\footnotetext{Source (accessed 03/2016): \url{https://en.wikipedia.org}.}
+
+\subsubsection{Dynamic programming}
+
+In general dynamic programming means having a method for an optimization problem to be minimized which can be parted into smaller chunks.
+Then these chunks get solved individually and in the end the optimization problem is minimized \citep{angel1972dynamic, bellman2015applied}.
+For stereo matching this applies to the partition of a two-dimensional search problem into a series of isolated one-dimensional search problems on each pair of epipolar lines.
+These problems are then solved independently.
+With dynamic programming the following energy function (introduced in the foundations chapter \ref{chap:foundations} can be solved independently per scanline.
+
+\begin{equation}
+  E(d) = E_{data}(d) + \lambda E_{smooth}(d)
+\end{equation}
+
+%todo more
+Blabla \citep{cyganek2011introduction}.
+
+\subsubsection{Belief propagation}
+
+Belief propagation is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields.
+Key part of belief propagation are factor graphs.
+
+Probabilistic model with Markov random fields. \citep{yedidia2003understanding}
+
+\begin{itemize}
+  \item Define factor graphs
+  \item Link to Bayesian network.
+  \item Link to Markov random fields.
+  \item Maybe small explanation of how the sampling procedure to obtain the maximum works.
+\end{itemize}
+
+\subsubsection{Graph cuts}
+
+\begin{itemize}
+  \item Explain the problem! \citep{boykov2001fast}
+  \item Define a graph.
+  \item Show the use of a graph in computer vision.
+  \item Explain the $\alpha$-$\beta$-swap algorithm.
+  \item Explain the $\alpha$-expansion algorithm.
+\end{itemize}
 
 \section{Spatiotemporal consistency}
 
