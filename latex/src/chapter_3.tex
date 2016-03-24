@@ -102,7 +102,21 @@ As such MRF based energy functions are \textit{NP-hard} approximation algorithms
   \item graph cuts.
 \end{itemize}
 
+\noindent All of these methods have in common that they are supposed to solve so called inference problems, or at least approximate those.
+Markov random fields, mentioned before, is also called Markov network.
+Bayesian networks as well as Markov networks are so called graphical models.
+Such graphical models help to understand the reasoning behind those formulations and to actually build algorithms which solve those inference problems.
+Both networks express the dependencies of nodes as the conditional probability.
+A chain of nodes is the so called joint probability.
+This is then the product over-all (joint) probabilities.
+The goal of algorithms which solve inference problem is to compute certain marginal probabilities, i.e. the probability that some pixel reaches a specific label node \citep{cyganek2011introduction}.
+With inference the computation of these marginal probabilities is meant.
+Marginal probabilities are defined as the sums over all possible state of all the other nodes in the system.
+They are also called beliefs \citep{yedidia2003understanding}.
+
 \subsubsection{Markov random fields}
+
+%todo read me again and maybe write more
 
 Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables, see \ref{fig:markov}.
 A MRF is a graph $G = (V, E)$ with $V = {1,2,...N}$ denotes a set of vertices or nodes.
@@ -119,7 +133,7 @@ The Markov random field satisfies:
 \noindent where $N_i$ is the so called Markov blanket of node $i$.
 It describes that the graph should be conditionally independent of all of the other variables given its neighbors.
 A hop from one node to another can be seen as a chain of probabilities which have to occur, also called Markov chain.
-The main idea behind MRF in combination with computer vision problems is the formulate the so called labelling problem in such a way, that each pixel has a likelihood to belong to a certain label \citep{tamassia2013handbook}.
+The main idea behind MRF in combination with computer vision problems is to formulate the so called labelling problem in such a way, that each pixel has a likelihood to belong to a certain label \citep{tamassia2013handbook}.
 The core problem then is to find exactly one label for each pixel, represented as a node in a MRF.
 This label represents then the optimal solution to an underlying problem, in the case of stereo correspondence, the disparity for a pixel \citep{cyganek2011introduction}.
 \newline\newline\noindent In contrast to MRF there also exist Bayesian networks.
@@ -131,11 +145,13 @@ Bayesian networks overcome this limitations.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.5\textwidth]{src/images/mrf-example.png}
+  \includegraphics[width=0.6\textwidth]{src/images/mrf-example.png}
   \caption[Example of Markov random fields]{Example of Markov random fields\protect\footnotemark}
   \label{fig:markov}
 \end{figure}
 \footnotetext{Source (accessed 03/2016): \url{https://en.wikipedia.org}.}
+
+\subsubsection{Factor graph}
 
 \noindent As those problems are \textit{NP-hard}, there exist several approximation algorithms which are outlined in the following subsections.
 All of these approximation algorithms work on so called factor graphs.
@@ -146,6 +162,7 @@ An important notion of factor graphs is the message which can be passed from a n
 There a few exceptions, if the factor graph contains no cycles, the solution can be exact computed with message passing (also called belief propagation) algorithms which work on a tree.
 Otherwise only an approximation is possible.
 
+%todo more
 
 \subsubsection{Dynamic programming}
 
@@ -159,11 +176,19 @@ With dynamic programming the following energy function (introduced in the founda
   E(d) = E_{data}(d) + \lambda E_{smooth}(d)
 \end{equation}
 
+\noindent Dynamic programming has two benefits, it is solvable efficiently in polynomial time and it enforces the ordering constraint (as it is solved per scanline).
+But it can lead to streaking effects, meaning that the result image seems to be constructed of many independent layers.
+
 \subsubsection{Belief propagation}
 
 Belief propagation is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}.
 
-
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{src/images/belief-propagation.png}
+  \caption[Illustration of messages passed in BP.]{Illustration of messages passed in BP \citep{yedidia2003understanding}.}
+  \label{fig:markov}
+\end{figure}
 
 \subsubsection{Graph cuts}
 
@@ -175,6 +200,8 @@ The graph should be partitioned into two sets, $S$ and $T$, where $s \in S$ and 
 This set presents a subgraph such that the sum of edge weights spanning this partition is minimized.
 \newline\newline\noindent In the case of computer vision graph cuts is used as the following:
 
+%todo describe
+
 There exist two algorithms to solve such a graph:
 \begin{itemize}
   \item $\alpha$-expansion algorithm, and
@@ -183,8 +210,11 @@ There exist two algorithms to solve such a graph:
 
 \section{Spatiotemporal consistency}
 
-As mentioned in the section before no real disparity algorithm for videos exists yet.
-However a novel approach was presented by \citep{richardt2010real}, \citep{khoshabeh2011spatio} and \citep{hosni2012temporally}.
+Although stereo correspondence is a research field which has been heavily investigated for a few decades no real disparity algorithm for videos exists yet.
+One reason for that can be the lack of solid ground-truth data.
+Only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
+However, a novel approach was presented by \citep{richardt2010real}, \citep{khoshabeh2011spatio} and \citep{hosni2012temporally}.
+The basic idea behind all of those presented approaches is to handle occurring noise.
 
 Explain how the video restoration algorithms work (basically). They added noise. Blablabla.
 
