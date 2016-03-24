@@ -159,44 +159,7 @@ Here $d_a(x,y)$ is the actual disparity value for given $x$ and $y$.
 $d_e(x,y)$ is our expected disparity value from our ground-truth data.
 Hence the RMSE is the difference between values on average.
 
-\subsection*{mean absolute error in pixels}
-
-\subsection*{Error quantiles}
-
-A99: 99-percent error quantile in pixels.
-A50, A90.
-
-\subsection*{Precision and accuracy}
-
-\noindent In the beginning of implementing measuring instruments the idea of using accuracy and precision arose.
-
-\begin{equation}
-  \operatorname{accuracy}=\frac{TP + TN}{TP + FP + FN + TN}
-\end{equation}
-
-%todo insert stuff from here https://en.wikipedia.org/wiki/Accuracy_and_precision
-
-\begin{equation}
-  \operatorname{precision}=\frac{TP}{TP + FP}
-\end{equation}
-
-\begin{define}[Accuracy]
-"Accuracy is how close a measured value is to the actual (true) value." \citep{benoit2008quality}
-\end{define}
-
-\noindent Accuracy is similar to measuring the percentage of bad matching pixels against a given threshold.
-These outliers also show how close the computed disparity is to the ground-truth data.
-Thus accuracy gets already calculated in our disparity evaluation suite.
-
-\begin{define}[Precision]
-"Precision is how close the measured values are to each other." \citep{benoit2008quality}
-\end{define}
-
-\noindent This is the reason for not using both, accuracy and precision is a measuring instrument.
-Precision shows us after executing the evaluation process with the same algorithm and the same parameters at arbitrary times how close the results are to each other.
-The difference between the disparity algorithms and real-world experiments is that our algorithms always delivering the same results if nothing changed.
-
-\subsection*{Quality index}
+\subsection*{Energy efficiency}
 
 We defined an own quality index $QI$ for algorithms like the following:
 

@@ -24,6 +24,50 @@ With CMake it was possible to cross-compile the app for Linux and use a fast ser
 
 \section{Overview}
 
+\tikzstyle{rblock} = [text width=9em, rectangle, draw, fill=gray!25, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=gray!10, text centered, rounded corners, minimum height=3.2em]
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[node distance=5.2em, auto]
+    %input
+    \node [cloud] (right) {right image};
+    \node [cloud, right of=right, node distance=10em] (left) {left image};
+    \node [cloud, right of=left, node distance=10em] (disp) {ground-truth};
+    
+    %computation
+    \node [rblock, below of=right, xshift=3em] (exec) {(1) Algorithm \\\quad executer};
+    \node [rblock, below of=disp, xshift=-3em] (mask-creator) {(2) Mask creator};
+    
+    %output
+    \node [cloud, below of=exec] (map) {disparity map};
+    \node [cloud, below of=mask-creator] (masks) {masks};
+    
+    %evaluation
+    \node [rblock, below of=left, yshift=-10em] (evaluation) {(3) Disparity \\\quad evaluator};
+    
+    %final result
+    \node [cloud, below of=evaluation, xshift=-5em] (csv) {csv file};
+    \node [cloud, below of=evaluation, xshift=5em] (heatmaps) {heatmaps};
+    
+    %lines
+    \path [line] (right) -- (exec);
+    \path [line] (left) -- (exec);
+    \path [line] (left) -- (mask-creator);
+    \path [line] (disp) -- (mask-creator);
+    
+    \path [line] (exec) -- (map);
+    \path [line] (mask-creator) -- (masks);
+    
+    \path [line] (map) -- (evaluation);
+    \path [line] (masks) -- (evaluation);
+    
+    \path [line] (evaluation) -- (csv);
+    \path [line] (evaluation) -- (heatmaps);
+  \end{tikzpicture}
+  \caption{Processing pipeline of the implementation.}
+  \label{fig:impl-pipeline}
+\end{figure}
+
 Initially, a rapid monolithic prototype was built featuring the execution of different disparity algorithms, the creation of bitmasks and the evaluation of a given scene with different parameters.
 But as more datasets were found and various bitmasks as an evaluation method were established the need for a leaner process chain arose.
 Especially as disparity algorithms need some time to compute the disparity map for one frame.
@@ -362,34 +406,6 @@ Grayscale normally ranges from $0$ to $255$.
 Thus the disparity map is normalized to range from $0$ to $63$.
 
 Simply only disparity normalization.
-
-\section{Smoothing over time}
-
-After all disparity maps are obtained...
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.5\textwidth]{src/images/naive-algo-impl.png}
-  \caption[Naive smoothing algorithm illustration]{Naive smoothing algorithm illustration\protect\footnotemark}
-  \label{fig:naive}
-\end{figure}
-\footnotetext{Source (accessed 03/2016): \url{http://docs.opencv.org}.}
-
-\begin{itemize}
-  \item Smoothing with other pixel values
-  \item Smoothing with region (window size)
-  \item Smoothing via curve fitting
-\end{itemize}
-
-\subsection*{Advantage}
-
-
-
-\subsection*{Disadvantage}
-
-\noindent One huge disadvantage of this approach is that it does only work postwards after the disparity maps were created.
-It could be modified that the algorithm only considers frames already rendered $Input = \{ F_{t-t1} \le F_{t} \}$.
-But the current implementation does not support real-time processing.
 
 \section{Web result viewer for evaluation suite}
 
