@@ -299,46 +299,24 @@ None the less different anomalies can be further investigated while analyzing vi
   \end{table}
 \end{landscape}
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-left.png}
-  \caption{Left image, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-01}
-\end{figure}
+
 
 \begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-right.png}
-  \caption{Right image, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-02}
-\end{figure}
+\centering
+\begin{tabular}{cc}
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-heatmap-groundtruth.png}
-  \caption{Heatmap of ground-truth disparity, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-03}
-\end{figure}
+\subfloat[Left image]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-left.png}} &
+\subfloat[Right image]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-right.png}} \\
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-heatmap-sgbm.png}
-  \caption{Heatmap of computed disparity with OpenCV SGBM, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-04}
-\end{figure}
+\subfloat[Ground-truth disparity]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-heatmap-groundtruth.png}} &
+\subfloat[SGBM output]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-heatmap-sgbm.png}} \\
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-heatmap-elas.png}
-  \caption{Heatmap of computed disparity with ELAS, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-05}
-\end{figure}
+\subfloat[MRF ICM output]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-heatmap-mrf.png}} &
+\subfloat[ELAS output]{\includegraphics[width=0.47\textwidth]{src/images/svddd-03-heatmap-elas.png}} \\
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{src/images/svddd-03-heatmap-mrf.png}
-  \caption{Heatmap of computed disparity with MRF ICM, frame 01, scene 03 rabbit, SVDDD dataset.}
-  \label{fig:svddd-06}
+\end{tabular}
+\caption{Frame 01, scene 03 rabbit of the SVDDD dataset.}
+\label{fig:svddd}
 \end{figure}
 
 \begin{figure}[h!]

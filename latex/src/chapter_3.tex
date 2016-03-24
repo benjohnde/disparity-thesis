@@ -57,6 +57,8 @@ The basic principle is then the following:
   \item then the coordinates of the support points are used to create a two-dimensional mesh via Delaunay triangulation.
 \end{itemize}
 
+"To obtain dense results for all methods, missing disparities are interpolated using a piecewise constant function on the smallest valid neighbor in the same image line."
+
 \noindent With this aproach a dense disparity map is generated. Side note: the only parameter is the number of max disparities.
 
 \section{Middlebury MRF library}
