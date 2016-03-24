@@ -142,7 +142,7 @@ In addition the following are also considered:
   \operatorname{PBMP}=\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)| > \delta_t)
 \end{equation}
 
-Percentage of bad matching pixels for given threshold.
+\noindent Percentage of bad matching pixels for given threshold.
 
 \subsection*{Root-mean-squared error}
 
@@ -161,13 +161,11 @@ Hence the RMSE is the difference between values on average.
 
 \subsection*{Energy efficiency}
 
-We defined an own quality index $QI$ for algorithms like the following:
-
 \begin{equation}
-  QI_{algorithm} = \frac{clean\ pixels}{runtime\ in\ seconds}
+  EE_{alg} = \frac{clean\ pixels}{runtime\ in\ seconds}
 \end{equation}
 
-\noindent where $pixels_{clean}$ are defined as bad pixels in percent of non-occluded pixels and $runtime_{seconds}$ the runtime for this particular frame. $QI_{algorithm}$ is then calculated in the mean of all frames of a given sequence over all examined sequences and all datasets.
+\noindent where $clean\ pixels$ are defined as bad pixels in percent of non-occluded pixels and $runtime\ in\ seconds$ the runtime for this particular frame. $EE_{alg}$ is then calculated in the mean of all frames of a given sequence over all examined sequences and all datasets.
 
 \section{Measurement}
 
