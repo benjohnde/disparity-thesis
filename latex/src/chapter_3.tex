@@ -65,14 +65,16 @@ The basic principle is then the following:
 
 The Middlebury MRF library\citep{scharstein2014high, szeliski2008comparative} utilizes a global energy function consisting of Markov random fields and offers the following methods to solve this energy function:
 
-\begin{itemize}
+"In statistics, iterated conditional modes is a deterministic algorithm for obtaining the configuration that maximizes the joint probability of a Markov random field. It does this by iteratively maximizing the probability of each variable conditioned on the rest."
+
+\begin{enumerate}
   \item ICM (iterated conditional modes),
   \item Expansion (Graph cuts impl),
   \item Swap (Graph cuts impl),
   \item TRWS (sequential tree-reweighted max-product message passing),
   \item BPS (sequential belief propagation),
   \item BPM (MaxProdBP Matching).
-\end{itemize}
+\end{enumerate}
 
 \noindent Table \ref{tab:parameter-middlebury-library} lists all the possible parameters of the MRF library.
 
