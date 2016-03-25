@@ -33,34 +33,34 @@ With CMake it was possible to cross-compile the app for Linux and use a fast ser
     \node [cloud] (right) {right image};
     \node [cloud, right of=right, node distance=10em] (left) {left image};
     \node [cloud, right of=left, node distance=10em] (disp) {ground-truth};
-    
+
     %computation
     \node [rblock, below of=right, xshift=2em] (exec) {(1) Algorithm \\\quad executer};
     \node [rblock, below of=disp, xshift=-2em] (mask-creator) {(2) Mask creator};
-    
+
     %output
     \node [cloud, below of=exec] (map) {disparity map};
     \node [cloud, below of=mask-creator] (masks) {masks};
-    
+
     %evaluation
     \node [rblock, below of=left, yshift=-14em] (evaluation) {(3) Disparity \\\quad evaluator};
-    
+
     %final result
     \node [cloud, below of=evaluation, xshift=-5em] (csv) {csv file};
     \node [cloud, below of=evaluation, xshift=5em] (heatmaps) {heatmaps};
-    
+
     %lines
     \path [line] (right) -- (exec);
     \path [line] (left) -- (exec);
     \path [line] (left) -- (mask-creator);
     \path [line] (disp) -- (mask-creator);
-    
+
     \path [line] (exec) -- (map);
     \path [line] (mask-creator) -- (masks);
-    
+
     \path [line] (map) -- (evaluation);
     \path [line] (masks) -- (evaluation);
-    
+
     \path [line] (evaluation) -- (csv);
     \path [line] (evaluation) -- (heatmaps);
   \end{tikzpicture}
@@ -74,13 +74,12 @@ Especially as disparity algorithms need some time to compute the disparity map f
 Hence, as videos consist of multiple frames (in our datasets about 90 frames in mean) this is a time consuming task.
 Sometimes metrics change or a new metric is established, the threshold can be adjusted.
 These are the reasons for an approach towards microservices with which computed disparity maps can be evaluated repeatedly and independently.
-Thus, the monolith was rewritten partitioned in smaller microservices shaping four different components:
+Thus, the monolith was rewritten partitioned in smaller microservices shaping three different components:
 
 \begin{itemize}
-  \item DisparityAlgorithm,
-  \item PostDisparityMapSmoothing,
-  \item BitmaskCreator,
-  \item DisparityMapEvaluationSuite.
+  \item disparity algorithm executer,
+  \item mask creator,
+  \item evaluation engine.
 \end{itemize}
 
 \noindent The figure \ref{fig:overview-uml} shows the composition and figure XXX the evaluation chain of these microservices.
@@ -461,5 +460,3 @@ The following modules were actually implemented:
   \item Shell scripts for getting the docker containers and thus the work distributed among different instances\footnote{With instances virtual machines from DigitalOcean are meant.}.
   \item Evaluation processor for
 \end{itemize}
-
-
