@@ -262,7 +262,7 @@ Accordingly $d(s) = -2$ and $d(t) = -1$.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.3\textwidth]{src/images/stereo-matching.png}
-  \caption{Two arrays illustrating stereo matching on a 1D search space \citep{kack2004robust}.}
+  \caption[Two arrays illustrating stereo matching on a 1D search space]{Two arrays illustrating stereo matching on a 1D search space \citep{kack2004robust}.}
   \label{fig:stereo-matching}
 \end{figure}
 
@@ -324,7 +324,7 @@ Figure \ref{fig:tsukuba} shows the previous dataset of the University of Tsukuba
 \subfloat[right input image]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-imgR.png}} &
 \subfloat[ground-truth data]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-dgt.png}}
 \end{tabular}
-\caption{Tsukuba benchmark stereo image pair of the University of Tsukuba \citep{martull2012realistic}.}
+\caption[Tsukuba benchmark stereo image pair of the University of Tsukuba]{Tsukuba benchmark stereo image pair of the University of Tsukuba \citep{martull2012realistic}.}
 \label{fig:tsukuba}
 \end{figure}
 
@@ -418,8 +418,8 @@ Direct methods use intensity based measures.
   \item Most of the current algorithms works according to the following steps (see Figure \ref{fig:disparity-flow})
 \end{enumerate}
 
-\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=gray!25, text centered, rounded corners, minimum height=3em]
-\tikzstyle{cloud} = [text width=6.5em, ellipse, draw, fill=gray!10, text centered, rounded corners, minimum height=3em]
+\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=3em]
+\tikzstyle{cloud} = [text width=6.5em, ellipse, draw, fill=blue!6, text centered, rounded corners, minimum height=3em]
 \begin{figure}[h!]
   \centering
   \begin{tikzpicture}[node distance=4.8em, auto]
@@ -441,7 +441,7 @@ Direct methods use intensity based measures.
     \path [line] (computation) -- (disparity);
     \path [line] (disparity) -- (refinement);
   \end{tikzpicture}
-  \caption{Basic processing flow of typical disparity algorithms \citep{cyganek2011introduction, scharstein2002taxonomy}.}
+  \caption[Basic processing flow of typical disparity algorithms]{Basic processing flow of typical disparity algorithms, cf. \citep{cyganek2011introduction, scharstein2002taxonomy}.}
   \label{fig:disparity-flow}
 \end{figure}
 
