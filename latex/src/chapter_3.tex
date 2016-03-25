@@ -116,15 +116,32 @@ They are also called beliefs \citep{yedidia2003understanding}.
 
 \subsubsection{Markov random fields}
 
-%todo read me again and maybe write more
-
 Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables, see \ref{fig:markov}.
 A MRF is a graph $G = (V, E)$ with $V = {1,2,...N}$ denotes a set of vertices or nodes.
 Each node is associated with a random variable $u_j$ for $j = 1...N$.
 $E$ describes the edges $(i,j) \in E$ between the nodes $i$ and $j$.
 The neighborhood of a node $i$ is the set of nodes to which the node $i$ is adjacent, i.e. $j \in N$ if and only if $(i,j) \in E$.
 The neighborhood of a node $i$ is denoted as $N_i$.
-The Markov random field satisfies:
+For a simple undirected graph compare Figure \ref{fig:simple-graph}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}
+    [scale=1.0,auto=left,every node/.style={circle,fill=blue!20}]
+    \node (nA) at (5,9)  {A};
+    \node (nB) at (8,9)  {B};
+    \node (nC) at (10,7.5) {C};
+    \node (nD) at (8,6)  {D};
+    \node (nE) at (5,6)  {E};
+  
+    \foreach \from/\to in {nA/nE,nA/nB,nB/nC,nC/nD,nD/nB,nD/nE}
+      \draw (\from) -- (\to);
+  \end{tikzpicture}
+  \caption[Simple undirected unweighted graph]{Simple undirected unweighted graph}
+  \label{fig:simple-graph}
+\end{figure}
+
+\noindent The Markov random field satisfies:
 
 \begin{equation}
   P(u_i\ |\ \{u_j\}_{j \in V\\N}) = P(u_i\ |\ \{u_j\}_{j \in N_i}),
@@ -142,14 +159,27 @@ This implies two important aspects, the direction of a certain probability to ho
 MRF can not represent induced and non-transitive dependencies.
 Two independent random variables may be connected by an edge because of possible dependencies.
 Bayesian networks overcome this limitations.
+\newline\newline\noindent The underlying stereo model of the Middlebury MRF library is based on the research of \citeauthor{sun2003stereo}.
+They model stereo matching by three coupled MRF \citep{sun2003stereo}:
+\begin{itemize}
+  \item $D$ as the smooth disparity field,
+  \item $L$ for representing depth-discontinuities,
+  \item $O$ is a spatial binary state for handling occlusions.
+\end{itemize}
+\noindent Figure \ref{fig:mrf-stereo-matching} depicts the relationship between $D$, $L$ and $O$.
+The joint probability over $D$, $L$ and $O$ given a pair of stereo images $I = {I_L,I_R}$ is defined as:
+\begin{equation}
+  P(D,L,O|I) = \frac{P(I|D,L,O)P(D,L,O)}{P(I)}.
+\end{equation}
+They then approximate inference via belief propagation over this equation.
+For a deeper dive into this topic compare \citep{sun2003stereo, tamassia2013handbook, cyganek2011introduction, yedidia2003understanding, boykov2001fast, kolmogorov2006convergent, wainwright2005map}.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.6\textwidth]{src/images/mrf-example.png}
-  \caption[Example of Markov random fields]{Example of Markov random fields\protect\footnotemark}
-  \label{fig:markov}
+  \includegraphics[width=1.0\textwidth]{src/images/mrf-stereo-matching.png}
+  \caption[Stereo matching model by three coupled MRF's]{Stereo matching model by three coupled MRF's\citep{sun2003stereo}}
+  \label{fig:mrf-stereo-matching}
 \end{figure}
-\footnotetext{Source (accessed 03/2016): \url{https://en.wikipedia.org}.}
 
 \subsubsection{Factor graph}
 
@@ -159,10 +189,8 @@ A factor graph represents a factorized function and is bipartite\footnote{If the
 A MRF function is factorized in partial functions and then formulated in a factor graph.
 The solution to the problem represented by the factor graph is then approximated.
 An important notion of factor graphs is the message which can be passed from a node to another.
-There a few exceptions, if the factor graph contains no cycles, the solution can be exact computed with message passing (also called belief propagation) algorithms which work on a tree.
+There a few exceptions: for instance if the factor graph contains no cycles, the solution can then be exact computed with message passing algorithms (also called belief propagation) which work on a tree.
 Otherwise only an approximation is possible.
-
-%todo more
 
 \subsubsection{Dynamic programming}
 
@@ -181,14 +209,15 @@ But it can lead to streaking effects, meaning that the result image seems to be 
 
 \subsubsection{Belief propagation}
 
-Belief propagation is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}.
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.8\textwidth]{src/images/belief-propagation.png}
-  \caption[Illustration of messages passed in BP.]{Illustration of messages passed in BP \citep{yedidia2003understanding}.}
-  \label{fig:markov}
-\end{figure}
+Belief propagation (BP) is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}.
+As mentioned before, \citeauthor{sun2003stereo} presented a stereo model for belief propagation.
+BP works with messages which are passed from one node to another.
+This is the reason why BP is also known as the message-passing algorithm.
+The nodes exchange information about probabilities.
+In the case of stereo matching, the message contains the probability that the receiver node (a node in MRF) should hold a disparity which is consistent with all information already passed to it by a sender.
+The nodes are partitioned into low- and high-confidence ones.
+The messages also carry a property, the entropy.
+The entropy is high when sending from low- to high-confidence nodes and vice versa.
 
 \subsubsection{Graph cuts}
 
@@ -198,7 +227,7 @@ The goal is to delete enough edges so that each pixel is connected to exactly on
 Given a weighted graph $G$ with source $s$ and sink $t$ nodes.
 The graph should be partitioned into two sets, $S$ and $T$, where $s \in S$ and $t \in T$.
 This set presents a subgraph such that the sum of edge weights spanning this partition is minimized.
-\newline\newline\noindent In the case of computer vision graph cuts is used as the following:
+\newline\newline\noindent In the case of computer vision graph cuts are inspired by the combinatorial optimization methods for maximum flow \citep{cyganek2011introduction, cormen2009introduction}.
 
 %todo describe
 
@@ -216,11 +245,7 @@ Only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharste
 However, a novel approach was presented by \citep{richardt2010real}, \citep{khoshabeh2011spatio} and \citep{hosni2012temporally}.
 The basic idea behind all of those presented approaches is to handle occurring noise.
 
-\newpage
-
 Explain how the video restoration algorithms work (basically). They added noise. Blablabla.
-
-\newpage
 
 \begin{itemize}
   \item Small description what is currently available.
