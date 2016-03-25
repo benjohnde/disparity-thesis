@@ -228,14 +228,22 @@ Given a weighted graph $G$ with source $s$ and sink $t$ nodes.
 The graph should be partitioned into two sets, $S$ and $T$, where $s \in S$ and $t \in T$.
 This set presents a subgraph such that the sum of edge weights spanning this partition is minimized.
 \newline\newline\noindent In the case of computer vision graph cuts are inspired by the combinatorial optimization methods for maximum flow \citep{cyganek2011introduction, cormen2009introduction}.
-
-%todo describe
-
-There exist two algorithms to solve such a graph:
-\begin{itemize}
-  \item $\alpha$-expansion algorithm, and
-  \item $\alpha$-$\beta$-swap algorithm.
-\end{itemize}
+There exist two basic variations of the maximum flow problem, called $\alpha$-$\beta$-swap and $\alpha$-expansion.
+Initially, three labels exist, that are $\alpha$, $\beta$ and $\lambda$. 
+Normally, one step would be to change the label of a pixel, calculate the energy again and then infer if the change was good or not, depending on the delta.
+For instance one pixel labelled with $\lambda$ would then be $\beta$.
+The $\alpha$-$\beta$-swap algorithm whole areas of $\alpha$ are swapped with $\beta$ with $\lambda$ being unchanged.
+In an $\alpha$-expansion a huge number of pixels labelled $\beta$ and $\lambda$ are changed into $\alpha$.
+But in each of those methods the outcome is then measured.
+In the foundations Chapter \ref{chap:foundations} the following equation was introduced:
+\begin{equation}
+  D = \arg\min_{d} E(d).
+\end{equation}
+\noindent If the outcome of such a swap or expansion is better, meaning $E(D_{after}) < E(D_{before})$, the algorithm continues.
+If not, the algorithm stops.
+Thus, both algorithms are expected to be stopped after the first unsuccessful run (i.e. energy increases).
+The difficulty is to find the optimal swap move and the initial seed.
+Both is described in \citep{boykov2001fast, sinha2004graph, tappen2003comparison, ramin2004energy}.
 
 \section{Spatiotemporal consistency}
 
@@ -243,7 +251,9 @@ Although stereo correspondence is a research field which has been heavily invest
 One reason for that can be the lack of solid ground-truth data.
 Only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
 However, a novel approach was presented by \citep{richardt2010real}, \citep{khoshabeh2011spatio} and \citep{hosni2012temporally}.
-The basic idea behind all of those presented approaches is to handle occurring noise.
+\newline\newline\noindent The basic idea behind all of those presented approaches is to handle occurring noise.
+
+
 
 Explain how the video restoration algorithms work (basically). They added noise. Blablabla.
 
@@ -254,4 +264,6 @@ Explain how the video restoration algorithms work (basically). They added noise.
   \item Also point out the lack of ground truth data. This is a huge problem.
   \item Link to datasets!
 \end{itemize}
+
+Also outline the following approach: \citep{lee2012local}.
 
