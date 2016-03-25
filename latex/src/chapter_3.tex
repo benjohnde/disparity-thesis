@@ -3,27 +3,29 @@
 
 In this chapter the related work regarding disparity algorithms is treated.
 As integration of some disparity algorithms for the later evaluation was part of this thesis, the ones which were actually implemented are examined in more detail.
-The well-known semi-global matcher by \citeauthor{hirschmuller2005accurate} is introduced and the OpenCV implementations are mentioned.
-An approach by \citeauthor{Geiger2010ACCV} to enable fast matching of high-resolution images is discussed.
+The well-known semi-global matcher by \citeauthor{hirschmuller2005accurate}, also implemented in the OpenCV library \citep{opencv_library}, is introduced.
+OpenCV\footnote{\url{http://opencv.org}} is an extensive image processing framework with the main goal towards real-time computer vision.
+\citeauthor{Geiger2010ACCV} introduce an approach that enables fast matching of high-resolution images, which is also outlined in the upcoming section.
 Both approaches utilize local methods for estimating disparity maps.
 One candidate adopting global methods is the Middlebury MRF library, which is also introduced in this chapter.
-This implies solving optimization problems (i.e. the minimization of a global energy cost function).
-Thus, the methods implemented by the library to solve such optimization problems are outlined.
-In the end, a short outlook on spatiotemporal consistency regarding disparity algorithms applied on videos is presented.
+It implies solving optimization problems (i.e. the minimization of a global energy cost function).
+The library’s implemented methods to solve such optimization problems are outlined in greater detail.
+In the end, an outlook on spatiotemporal consistency applied on videos is presented.
 
 \section{Semi-global matching}
 
-\citeauthor{hirschmuller2005accurate} combines two different methods, global- and local-matching for determining accurate disparity at a lower runtime as other global algorithms, which tend to run pretty long on current hardware \citep{hirschmuller2005accurate, hirschmuller2008stereo}.
-\newline\newline\noindent The semi-global matching (SGM) method utilizes pixel-wise matching of so called mutual information (MI) via entropy $H$, their joint-entropy of a pair of images and combining those with the approximation of a global two-dimensional smoothness constraint:
+\citeauthor{hirschmuller2005accurate} combines two different methods, global- and local-matching for determining accurate disparity at a lower runtime as other global algorithms,  which are time consuming even on current hardware \citep{hirschmuller2005accurate, hirschmuller2008stereo}.
+\newline\newline\noindent The semi-global matching (SGM) method utilizes pixel-wise matching of so called mutual information (MI) via entropy $H$.
+The joint entropy of two images $I_1$ and $I_2$ results from the sum of their combined entropy and a global two-dimensional smoothness constraint $H_{I_1,I_2}$ which leads to the following cost:
 
 \begin{equation}
   MI_{I_1,I_2} = H_{I_1} + H_{I_2} + H_{I_1,I_2}.
 \end{equation}
 
-\noindent The previous discussed one-dimensional constraints are applied as well.
-Calculating the matching cost based on mutual information is insensitive to recording differences and illumination changes \citep{hirschmuller2005accurate, viola1997alignment}.
+\noindent The discussed one-dimensional constraints from Chapter \ref{chap:foundations} are applied as well.
+Calculating the matching cost based on mutual information is insensitive to different video recording conditions and illumination changes \citep{hirschmuller2005accurate, viola1997alignment}.
 The joint entropy $H_{I_1,I_2}$ is low (meaning low information content) for rectified images as one image can be predicted by the other.
-The MI matching cost are defined as the following:
+The MI matching cost is defined as the following:
 
 \begin{equation}
   mi_{I_1,I_2}(i,k) = h_{I_1}(i) + h_{I_2}(k) - h_{I_1,I_2}(i,k),
@@ -46,24 +48,24 @@ For a deeper explanation of how the mutual information are exactly calculated an
 
 \subsection*{OpenCV BM and SGBM}
 
-The OpenCV library \citep{opencv_library} offers with its current version 3.1.0 two implementations for disparity estimation, block matching and semi-global block matching based on the idea of \citeauthor{hirschmuller2005accurate}.
+The OpenCV library \citep{opencv_library}, currently at version 3.1.0, offers two implementations for disparity estimation, block matching and semi-global block matching based on the idea of \citeauthor{hirschmuller2005accurate}.
 This version also contains a new filter, which was initially introduced with version 3.0.0, named \textit{Disparity WLS Filter}\footnote{\url{http://docs.opencv.org/3.1.0/d9/d51/classcv_1_1ximgproc_1_1DisparityWLSFilter.html}}.
 WLS stands for weighted least squares (in the form of a fast global smoother).
 This disparity filter smoothes the disparity and also performs a left-right-consistency check to refine the results in especially half-occluded and uniform areas \citep{min2014fast}.
 This yields to better and more accurate results but has the drawback of loosing negative disparity values.
-Negative disparity can appear if the stereo cameras are verged or inclined towards each other.
-The WLS filtering results in disparity ranging from $0$ to $D_{max}$, as set before.
+Negative disparity appears if the stereo cameras are verged or inclined towards each other.
+The WLS filtering results in disparity ranging from $0$ to $D_{max}$, which is set beforehand as a parameter.
 Thus the negative disparity is $-1$.
 
 \section{ELAS: Efficient large-scale stereo matching}
 
-\citeauthor{Geiger2010ACCV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
+\citeauthor{Geiger2010ACCV} propose a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
 A support point is like a feature, a point which can be robustly matched.
-For those support points a sparse disparity map is calculated.
+For those support points, a sparse disparity map is calculated.
 For more robustness, only the support points which can be matched left-to-right and right-to-left are retained.
 To remove ambiguities, the ratio between the best and the second best match of all points is taken into account.
 If the ratio exceeds a fixed threshold, the points are removed.
-Support points which have a different disparity value than all adjacent points are outliers and removed as well.
+A support point which has a different disparity value than all its neighbor (adjacent) points, is categorized as an outlier and removed as well.
 As the found support points may not cover the whole image, additional support points in the image corners are added.
 They adopt the disparity value of their nearest neighbor.
 Then, image coordinates of the remaining support points are used to create a 2D mesh via Delaunay triangulation.
@@ -89,10 +91,11 @@ Also, the generalized concepts of how the above techniques help to solve such op
 
 \subsection{Solving optimization problems}
 
-Many problems in computer vision can be described in terms of energy minimization for instance image smoothing, the stereo correspondence problems as described in Chapter \ref{chap:foundations} and many other.
+Many problems in computer vision, for instance image smoothing, can be described in terms of energy minimization.
+The stereo correspondence problem is formulated in such a way as described in Chapter \ref{chap:foundations}.
 Thus, solving of optimization problems is a key part in modern stereo matcher algorithms.
 They solve the labelling problem as described in Chapter \ref{chap:foundations}.
-Most of the current disparity algorithms are using global methods to solve an energy minimization problem.
+Most of the current disparity algorithms use global methods to solve an energy minimization problem.
 Usually they utilize Markov random fields (MRF) based energy functions.
 As such MRF based energy functions are \textit{NP-hard} approximation algorithms like the following are typically used \citep{tappen2003comparison, cyganek2011introduction}:
 
@@ -102,27 +105,27 @@ As such MRF based energy functions are \textit{NP-hard} approximation algorithms
   \item graph cuts.
 \end{itemize}
 
-\noindent All of these methods have in common that they are supposed to solve so called inference problems, or at least approximate those.
-Markov random fields, mentioned before, is also called Markov network.
+\noindent All of these methods have in common that they are supposed to solve so called inference problems, or at least provide approximated solutions.
+Markov random fields, mentioned before, are also known as Markov network.
 Bayesian networks as well as Markov networks are so called graphical models.
 Such graphical models help to understand the reasoning behind those formulations and to actually build algorithms which solve those inference problems.
 Both networks express the dependencies of nodes as the conditional probability.
-A chain of nodes is the so called joint probability.
-This is then the product over-all (joint) probabilities.
-The goal of algorithms which solve inference problem is to compute certain marginal probabilities, i.e. the probability that some pixel reaches a specific label node \citep{cyganek2011introduction}.
+A chain of nodes is called the joint probability\footnote{The joint probability $P(A \land B)$ is the probability of event A and event B occurring. It is the probability of the intersection of two or more events.}.
+This then is the product over-all probabilities.
+The goal of algorithms which solve inference problem is to compute certain marginal probabilities\footnote{The marginal probability is an unconditional probability as it is not conditioned on another event.}, i.e. the probability that some pixel reach a specific label node \citep{cyganek2011introduction}.
 With inference the computation of these marginal probabilities is meant.
 Marginal probabilities are defined as the sums over all possible state of all the other nodes in the system.
 They are also called beliefs \citep{yedidia2003understanding}.
 
 \subsubsection{Markov random fields}
 
-Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables, see \ref{fig:markov}.
-A MRF is a graph $G = (V, E)$ with $V = {1,2,...N}$ denotes a set of vertices or nodes.
+Markov random fields (MRF), also called Markov network, are used to formulate problems in a probabilistic way represented as an undirected graph consisting of random variables.
+For a simple undirected graph compare Figure \ref{fig:simple-graph}.
+\newline\newline\noindent A MRF is a graph $G = (V, E)$ where $V = {1,2,...N}$ denotes a set of vertices or nodes.
 Each node is associated with a random variable $u_j$ for $j = 1...N$.
 $E$ describes the edges $(i,j) \in E$ between the nodes $i$ and $j$.
 The neighborhood of a node $i$ is the set of nodes to which the node $i$ is adjacent, i.e. $j \in N$ if and only if $(i,j) \in E$.
 The neighborhood of a node $i$ is denoted as $N_i$.
-For a simple undirected graph compare Figure \ref{fig:simple-graph}.
 
 \begin{figure}[h!]
   \centering
@@ -150,15 +153,15 @@ For a simple undirected graph compare Figure \ref{fig:simple-graph}.
 \noindent where $N_i$ is the so called Markov blanket of node $i$.
 It describes that the graph should be conditionally independent of all of the other variables given its neighbors.
 A hop from one node to another can be seen as a chain of probabilities which have to occur, also called Markov chain.
-The main idea behind MRF in combination with computer vision problems is to formulate the so called labelling problem in such a way, that each pixel has a likelihood to belong to a certain label \citep{tamassia2013handbook}.
-The core problem then is to find exactly one label for each pixel, represented as a node in a MRF.
-This label represents then the optimal solution to an underlying problem, in the case of stereo correspondence, the disparity for a pixel \citep{cyganek2011introduction}.
-\newline\newline\noindent In contrast to MRF there also exist Bayesian networks.
-A Bayesian network is a directed graph there as MRF is undirected.
-This implies two important aspects, the direction of a certain probability to hop from one node to another.
-MRF can not represent induced and non-transitive dependencies.
+The main idea behind MRF in combination with computer vision problems is to formulate the labelling problem in such a way, that each pixel has a likelihood to belong to a certain label \citep{tamassia2013handbook}.
+The core problem is to find exactly one label for each pixel, which is represented as a node in a MRF.
+This label represents the optimal solution to an underlying problem, in the case of stereo correspondence: the disparity of a pixel regarding a reference pixel \citep{cyganek2011introduction}.
+\newline\newline\noindent Contrary to MRF, also Bayesian networks exist.
+A Bayesian network is a directed graph whereby MRF is undirected.
+This implies an important aspect: the direction of a certain probability to hop from one node to another.
+Whereby MRF can not represent induced and non-transitive dependencies.
 Two independent random variables may be connected by an edge because of possible dependencies.
-Bayesian networks overcome this limitations.
+Bayesian networks overcome these limitations.
 \newline\newline\noindent The underlying stereo model of the Middlebury MRF library is based on the research of \citeauthor{sun2003stereo}.
 They model stereo matching by three coupled MRF \citep{sun2003stereo}:
 \begin{itemize}
@@ -167,7 +170,7 @@ They model stereo matching by three coupled MRF \citep{sun2003stereo}:
   \item $O$ is a spatial binary state for handling occlusions.
 \end{itemize}
 \noindent Figure \ref{fig:mrf-stereo-matching} depicts the relationship between $D$, $L$ and $O$.
-The joint probability over $D$, $L$ and $O$ given a pair of stereo images $I = {I_L,I_R}$ is defined as:
+The conditional probability\footnote{Bayes' theorem: $P(A|B)$, a conditional probability, is the probability of event A occurring, given that event B occurs. $P(A|B) = \frac{P(B|A)P(A)}{P(B)}$ where $P(A)$ and $P(B)$ are the marginal probabilities of event $A$ and $B$. $P(B|A)$ is the probability of observing event B given that A is true.} over $D$, $L$ and $O$ given a pair of stereo images $I = {I_L,I_R}$ is defined as:
 \begin{equation}
   P(D,L,O|I) = \frac{P(I|D,L,O)P(D,L,O)}{P(I)}.
 \end{equation}
@@ -176,29 +179,29 @@ For a deeper dive into this topic compare \citep{sun2003stereo, tamassia2013hand
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=1.0\textwidth]{src/images/mrf-stereo-matching.png}
+  \includegraphics[width=0.9\textwidth]{src/images/mrf-stereo-matching.png}
   \caption[Stereo matching model by three coupled MRF's]{Stereo matching model by three coupled MRF's\citep{sun2003stereo}}
   \label{fig:mrf-stereo-matching}
 \end{figure}
 
 \subsubsection{Factor graph}
 
-\noindent As those problems are \textit{NP-hard}, there exist several approximation algorithms which are outlined in the following subsections.
-All of these approximation algorithms work on so called factor graphs.
+\noindent As those problems are \textit{NP-hard}, there several approximation algorithms exist which are outlined in the following subsections.
+All of these approximation algorithms work on factor graphs.
 A factor graph represents a factorized function and is bipartite\footnote{If the nodes of a graph can be divided into two disjoint sets, for instance $U$ and $V$, such that every edge connects a node $U$ to one in $V$, then the graph is bipartite.}.
 A MRF function is factorized in partial functions and then formulated in a factor graph.
 The solution to the problem represented by the factor graph is then approximated.
 An important notion of factor graphs is the message which can be passed from a node to another.
-There a few exceptions: for instance if the factor graph contains no cycles, the solution can then be exact computed with message passing algorithms (also called belief propagation) which work on a tree.
+There a few exceptions: for instance if the factor graph contains no cycles, the solution can be computed exactly with message passing algorithms (also called belief propagation), which work on a tree.
 Otherwise only an approximation is possible.
 
 \subsubsection{Dynamic programming}
 
-In general, dynamic programming means having an optimization problem which can be parted into smaller chunks.
-Then these chunks get solved individually and in the end, these chunks are connected and the optimization problem is minimized \citep{angel1972dynamic, bellman2015applied, cyganek2011introduction}.
+In general, dynamic programming means means dividing an optimization problem into smaller chunks.
+These chunks get solved individually and in the end, they are connected and the optimization problem is minimized \citep{angel1972dynamic, bellman2015applied, cyganek2011introduction}.
 For stereo matching this applies to the partition of a two-dimensional search problem into a series of isolated one-dimensional search problems on each pair of epipolar lines.
 These problems are then solved independently.
-With dynamic programming the following energy function (introduced in the foundations Chapter \ref{chap:foundations} can be solved independently per scanline.
+With dynamic programming the following energy function (introduced in the foundations Chapter \ref{chap:foundations}) can be solved independently per scanline.
 
 \begin{equation}
   E(d) = E_{data}(d) + \lambda E_{smooth}(d)
@@ -209,7 +212,7 @@ But it can lead to streaking effects, meaning that the result image seems to be 
 
 \subsubsection{Belief propagation}
 
-Belief propagation (BP) is in general a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}.
+Belief propagation (BP) in general is a technique to perform inference on a probabilistic model like Bayesian networks or Markov random fields \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}.
 As mentioned before, \citeauthor{sun2003stereo} presented a stereo model for belief propagation.
 BP works with messages which are passed from one node to another.
 This is the reason why BP is also known as the message-passing algorithm.
@@ -217,25 +220,25 @@ The nodes exchange information about probabilities.
 In the case of stereo matching, the message contains the probability that the receiver node (a node in MRF) should hold a disparity which is consistent with all information already passed to it by a sender.
 The nodes are partitioned into low- and high-confidence ones.
 The messages also carry a property, the entropy.
-The entropy is high when sending from low- to high-confidence nodes and vice versa.
+The entropy is high when sending from low- to high-confidence nodes and vice versa (cf. \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}).
 
 \subsubsection{Graph cuts}
 
-For approximating problems formulated in a Markov random field there also exist so called graph cuts algorithms \citep{boykov2001fast, cyganek2011introduction}.
-In general, graph cuts work like the following: assuming a graph $G$ with nodes $N$ and some edges $E$.
+For approximating problems formulated in a Markov random field there also exist graph cuts algorithms \citep{boykov2001fast, cyganek2011introduction}.
+In general, graph cuts assume a graph $G$ with a set of nodes $N$ and connected by a set of edges $E$.
 The goal is to delete enough edges so that each pixel is connected to exactly one label node.
 Given a weighted graph $G$ with source $s$ and sink $t$ nodes.
 The graph should be partitioned into two sets, $S$ and $T$, where $s \in S$ and $t \in T$.
 This set presents a subgraph such that the sum of edge weights spanning this partition is minimized.
-\newline\newline\noindent In the case of computer vision graph cuts are inspired by the combinatorial optimization methods for maximum flow \citep{cyganek2011introduction, cormen2009introduction}.
-There exist two basic variations of the maximum flow problem, called $\alpha$-$\beta$-swap and $\alpha$-expansion.
-Initially, three labels exist, that are $\alpha$, $\beta$ and $\lambda$. 
+\newline\newline\noindent In the case of computer vision, graph cuts are inspired by the combinatorial optimization methods for maximum flow \citep{cyganek2011introduction, cormen2009introduction}.
+Two basic variations of the maximum flow problem exist, called $\alpha$-$\beta$-swap and $\alpha$-expansion.
+Initially, three labels exist: $\alpha$, $\beta$ and $\lambda$. 
 Normally, one step would be to change the label of a pixel, calculate the energy again and then infer if the change was good or not, depending on the delta.
 For instance one pixel labelled with $\lambda$ would then be $\beta$.
-The $\alpha$-$\beta$-swap algorithm whole areas of $\alpha$ are swapped with $\beta$ with $\lambda$ being unchanged.
+The $\alpha$-$\beta$-swap algorithm interchanges whole areas of $\alpha$ with $\beta$ whereby areas of $\lambda$ remain unchanged.
 In an $\alpha$-expansion a huge number of pixels labelled $\beta$ and $\lambda$ are changed into $\alpha$.
 But in each of those methods the outcome is then measured.
-In the foundations Chapter \ref{chap:foundations} the following equation was introduced:
+In Chapter \ref{chap:foundations} the following equation was introduced:
 \begin{equation}
   D = \arg\min_{d} E(d).
 \end{equation}
@@ -247,7 +250,7 @@ Both is described in \citep{boykov2001fast, sinha2004graph, tappen2003comparison
 
 \section{Spatiotemporal consistency}
 
-Although stereo correspondence is a research field which has been heavily investigated for a few decades no real disparity algorithm for videos exists yet.
+Although stereo correspondence is a research field which has been heavily investigated for a few decades, no real disparity algorithm for videos yet exists.
 One reason for that can be the lack of solid ground-truth data.
 Only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
 However, a novel approach was presented by \citep{richardt2010real}, \citep{khoshabeh2011spatio} and \citep{hosni2012temporally}.
