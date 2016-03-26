@@ -284,9 +284,17 @@ Thus, object edges and depth-discontinuity areas are preserved.
 By applying this algorithm they benefit from three properties of the algorithm: variation regularization, spatial smoothness and temporal consistency, which are established at the same time.
 This leads to more accurate and spatiotemporal consistent maps.
 To simulate real scenery they added gaussian noise to rendered sequences, distributed as $\mathcal{N}(0,20)$\footnote{Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.}.
-The outcome are better results when comparing bad pixels (threshold of 1) and visually clearly better disparity maps.
+The outcome are better results when comparing bad pixels (threshold of 1) and visually clearly better disparity maps as depict in Figure \ref{fig:spatiotemporal}.
 As this approach works on computed disparity maps, current image-based disparity algorithms can thereby be easily adapted to the video domain.
-\newline\newline\noindent Yet another approach regarding video disparity estimation utilizing the spatiotemporal method above is presented by \citeauthor{lee2012local} \citep{lee2012local}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{src/images/spatiotemporal.png}
+  \caption[Spatiotemporal disparity refinement with the augmented Lagrangian method for TV]{Spatiotemporal disparity refinement with the augmented Lagrangian method for TV \citep{khoshabeh2011spatio}. Top: Original. Middle: Disparity. Bottom: Processed.}
+  \label{fig:spatiotemporal}
+\end{figure}
+
+\noindent Yet another approach regarding video disparity estimation utilizing the spatiotemporal method above is presented by \citeauthor{lee2012local} \citep{lee2012local}.
 They focus on salient regions in the video.
 Motion is an important factor in video processing.
 There exist algorithms for estimating salient regions in videos.
