@@ -4,13 +4,13 @@
 In this chapter the related work regarding disparity algorithms is treated.
 As integration of some disparity algorithms for the later evaluation was part of this thesis, the ones which were actually implemented are examined in more detail.
 The well-known semi-global matcher by \citeauthor{hirschmuller2005accurate}, also implemented in the OpenCV library \citep{opencv_library}, is introduced.
-OpenCV\footnote{\url{http://opencv.org}} is an extensive image processing framework with the main goal towards real-time computer vision.
+OpenCV\footnote{\url{http://opencv.org}} is an extensive image processing framework, with the main goal towards real-time computer vision.
 \citeauthor{Geiger2010ACCV} introduce an approach that enables fast matching of high-resolution images, which is also outlined in the upcoming section.
 Both approaches utilize local methods for estimating disparity maps.
-One candidate adopting global methods is the Middlebury MRF library, which is also introduced in this chapter.
+One candidate adopting global methods is the Middlebury MRF library, which is also introduced.
 It implies solving optimization problems (i.e. the minimization of a global energy cost function).
 The library’s implemented methods to solve such optimization problems are outlined in greater detail.
-In the end, an outlook on spatiotemporal consistency applied on videos is presented.
+In the end, an outlook on disparity algorithms on stereoscopic videos is given, which includes an approach towards spatiotemporal consistency and remapping of the disparity range.
 
 \section{Semi-global matching}
 
@@ -114,7 +114,7 @@ A chain of nodes is called the joint probability\footnote{The joint probability 
 This then is the product over-all probabilities.
 The goal of algorithms which solve inference problem is to compute certain marginal probabilities\footnote{The marginal probability is an unconditional probability as it is not conditioned on another event.}, i.e. the probability that some pixel reach a specific label node \citep{cyganek2011introduction}.
 With inference the computation of these marginal probabilities is meant.
-Marginal probabilities are defined as the sums over all possible state of all the other nodes in the system.
+Marginal probabilities are defined as the sums over all possible states of all the other nodes in the system.
 They are also called beliefs \citep{yedidia2003understanding}.
 
 \subsubsection{Markov random fields}
@@ -227,6 +227,10 @@ In the case of stereo matching, the message contains the probability that the re
 The nodes are partitioned into low- and high-confidence ones.
 The messages also carry a property, the entropy.
 The entropy is high when sending from low- to high-confidence nodes and vice versa (cf. \citep{yedidia2003understanding, tappen2003comparison, cyganek2011introduction}).
+The nodes calculate a new state after an iteration as they know more about the other node's properties, i.e. marginal probabilities of distant and not directly connected nodes.
+Also the outcome of past iterations, which yields in joint- and conditional probabilities, influences the overall state of a node.
+When talking about disparity algorithms, the algorithm ends in a tree if no state is changed anymore and the exact energy can be inferred.
+In an acyclic graph the algorithm finishes if the overall energy does not improve anymore.
 
 \subsubsection{Graph cuts}
 
@@ -300,7 +304,7 @@ Motion is an important factor in video processing.
 There exist algorithms for estimating salient regions in videos.
 Generally, moving objects lean towards a higher degree of saliency.
 As typical disparity algorithms tend to have difficulties in estimating the disparity along moving edges and textureless areas, this can help to focus on especially those areas.
-They utilize motion cues in combination with a modified census transform with a noise buffer to obtain disparity maps.
+They utilize motion cues\footnote{Motion cues are responsible for the perception of motion.} in combination with a modified census transform\footnote{Census transform is basically an algorithm, implemented as a filter, for the classification of textures.} with a noise buffer to obtain disparity maps.
 These disparity maps are more accurate and robust towards the edges of moving objects and in textureless areas.
 Finally, they also apply the previously introduced method to derive a spatiotemporal consistency.
 \newline\newline\noindent The work of \citeauthor{richardt2010real} \citep{richardt2010real}, \citeauthor{hosni2012temporally} \citep{hosni2012temporally} is build on the same principle, which has its origin in the basic approach of \citeauthor{davis2003spacetime} \citep{davis2003spacetime}.
@@ -312,14 +316,16 @@ As a result object borders may be over smoothed and get lost in a non-static sce
 They overcome this issue by assuming that the disparity of an object is approximately constant over a small time window and applying weighted box filter.
 Therefore they build a 3D filter kernel, which weights the pixels.
 Pixels which belong to the same object get a high weight and pixels belonging to a different object a lower weight.
-Tying in with this approach, \citeauthor{richardt2010real} \citep{richardt2010real} rewrote the filter as a so called dual-cross-bilateral filter.
+\newline\newline\noindent Tying in with this approach, \citeauthor{richardt2010real} \citep{richardt2010real} rewrote the filter as a so called dual-cross-bilateral filter.
 Instead of using a custom weight model to preserve edges they utilize a bilateral filter which is a common edge-preserving smoothing technique.
 The cross-bilateral filter preserves those edges while smoothing with respect to a different image.
 A method for especially stereoscopic images is to use adaptive support weights for correspondence search (cf. \citep{yoon2006adaptive}).
 This variant smoothes the cost space while preserving edges in both input images.
 This combined filter is then named the dual-cross-bilateral (DCB) filter.
 Their approach clearly visibly reduces errors as can be seen in Figure \ref{fig:dbcgrid}.
-From left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid.
+The Figure shows a selected frame of a recorded 'skydiving' stereo video, from left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid \citep{richardt2010real}.
+\newline\newline\noindent They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
+At this point in time their implementation is the fastest technique in the Middlebury\footnote{\url{http://vision.middlebury.edu/stereo/eval3/}} benchmark.
 
 \begin{figure}[h!]
   \centering
@@ -328,22 +334,21 @@ From left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid
   \label{fig:dbcgrid}
 \end{figure}
 
-\noindent They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
-At this point in time their implementation is the fastest technique in the Middlebury\footnote{\url{http://vision.middlebury.edu/stereo/eval3/}} benchmark.
-
 \subsection{Remapping the disparity range of stereoscopic videos}
 
 \citeauthor{lang2010nonlinear} examine the problem of remapping the disparity range of stereoscopic images and video \citep{lang2010nonlinear}.
 Remapping of disparity range can be necessary for various reasons.
 Humans notice the projected stereo content differently, depending on the screen size and the distance to the screen.
 Another problem is negative disparity.
-For instance displaying a close object on a distant screen may result in a negative disparity and humans then experience the viewing as uncomfortable.
+For instance, displaying a close object on a distant screen may result in a negative disparity and then, humans may experience the viewing as uncomfortable.
 This can lead to temporary diplopia.
 Those issues are a real problem in the film industry regarding 3D movie productions.
-The disparity for the best human experience should lie in the comfort zone which is the area where eyes feel comfortable.
-Too high positive disparity can lead to retina rivalry areas which is muscular intense due to focus issues whereas negative disparity can even lead to painful retina rivalry areas.
-This leads to the need of changing the disparity after a stereoscopic movie was recorded.
-They introduce a set of basic disparity mapping operators for the control and the retargeting of the depth of stereoscopic videos afterwards.
+The disparity for the best human experience should lie in the so called comfort zone, which is the area where eyes feel comfortable.
+Too high positive disparity can lead to retina rivalry areas, which are muscular intense due to focus issues, whereas negative disparity can even result in painful retina rivalry areas.
+This entails the need of changing the disparity after a stereoscopic movie was recorded.
+For this purpose, they introduce a set of basic disparity mapping operators for the control and the retargeting of the depth of stereoscopic videos.
 To actually use those operators stereoscopic warping of video streams is also presented.
-Basically those disparity mapping operators define editing operations how disparity can be modified.
-Stereoscopic warping is image warping with those disparity mapping operators to a new range such that the resulting output view fulfills a stereoscopic, a temporal and a saliency constraint (cf. \citep{lang2010nonlinear}).
+Basically, those disparity mapping operators define editing operations how the disparity can be modified.
+The goal is to map the disparity to a new range such that the resulting output view fulfills a stereoscopic, a temporal and a saliency constraint (cf. \citep{lang2010nonlinear}), i.e. provide consistent disparity values according to the new range.
+These constraints are identical to related work on video retargeting \citep{krahenbuhl2009system}.
+Stereoscopic warping is image warping with the help of disparity mapping operators.
