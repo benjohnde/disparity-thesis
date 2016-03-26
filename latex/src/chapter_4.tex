@@ -21,6 +21,7 @@ Everything is based on OpenCV.
 In addition the Boost library was used for some simple tasks like creating an array of arbitrary length for keeping a simple binary state or parsing the command line options.
 The build-chain consists of some shell scripts and CMake as makefile generator.
 With CMake it was possible to cross-compile the app for Linux and use a fast server-instance from DigitalOcean\footnote{\url{https://www.digitalocean.com}} for the generation of the disparity maps and to actually evaluate those.
+\noindent Especially a docker image was created\footnote{\url{https://github.com/benjohnde/dockerbase-opencv}}.
 
 %todo remove me
 \newpage
@@ -149,25 +150,7 @@ The evaluation is done with simple python scripts reflecting the evaluation chai
 %\umlclass{FrameResult}{}{}
 %\umlclass{EvalResultMetric}{}{}
 
-%todo move to impl
-\section{Disparity algorithms on images}
-
-Deciding which algorithms should be describe was not an easy task.
-On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
-On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
-For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
-As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
-Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
-Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
-The parameters used for each algorithm are described in the implementation chapter.
-This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
-
-%Softly explain what is available right now (maybe shortly point out the top 3 algorithms of the Middlebury evaluation). Also how good they work, maybe with sample images from middlebury evaluation.
-
-%todo list parameters
-
-%todo move to impl
-\section{Disparity algorithms on videos}
+\section{Evaluation engine for videos}
 
 At the current point in time, no real disparity algorithm for especially videos exists yet.
 As a video is defined by multiple consecutive frames, every disparity algorithm for images can be applied on videos.
@@ -186,8 +169,6 @@ None the less it is possible to focus on some other details, for instance:
 As video sensors tend to be noisier than image sensors it also more present in stereoscopic videos, if not rendered by a computer.
 As noise can be simulated and added onto the rendered video, it is investigated how noise disturb stereo matcher.
 As these ideas are more explained in the implementation chapter \ref{chap:impl} the following subsection a novel approach for videos are examined.
-
-\section{Evaluation engine for videos}
 
 In contrast to other implementations, input and output are clearly defined and thus different techniques can be adapted easily.
 There exist combined frameworks which fulfill two tasks, disparity calculation (as the algorithm is implemented) and the final evaluation step.
@@ -237,7 +218,7 @@ The eval engine has two modes to be queried:
   \item with a configuration file ($config.json$) which leads to an output in a given folder for the web result viewer.
 \end{itemize}
 
-\section{Preprocessing}
+\subsection*{Preprocessing}
 
 Different tasks are executed before the actual disparity algorithm are invoked and the evaluation takes place:
 
@@ -246,50 +227,17 @@ Different tasks are executed before the actual disparity algorithm are invoked a
   \item Gaussian noise
 \end{itemize}
 
-\subsection*{Normalization}
+\subsection*{Postprocessing}
 
-No clue.
+Postprocessing only consists of one task: normalization of the disparity map.
+Some algorithms struggle with calculating a larger number than the number of disparities of $32$.
+Some datasets only calculated the disparity to be in a range from $0$ to $63$.
+Grayscale normally ranges from $0$ to $255$.
+Thus the disparity map is normalized to range from $0$ to $63$.
 
-\subsection*{Gaussian noise}
+Simply only disparity normalization.
 
-randn\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}}
-
-%todo finish chapter of gaussian noise
-
-\citep{opencv_library}
-
-As seen in the related work chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
-Hence noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
-We use gaussian noise meaning that the noise is gaussian-distributed.
-
-$$f\left(x\right) = a e^{- { \frac{(x-b)^2 }{ 2 c^2} } }$$
-
-$$p_G(z) = \frac{1}{\sigma\sqrt{2\pi}} e^{ -\frac{(z-\mu)^2}{2\sigma^2} }$$
-
-\noindent In this example, $z$ represents the grey level which is added to the image matrix later on.
-$\mu$ is the mean value (= 0).
-$\sigma$ is the standard deviation.
-\newline\newline\noindent The $\sigma$ can be set in our evaluation suite in order to see how this distracts the image.
-
-\pgfmathdeclarefunction{gauss}{2}{%
-  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
-}
-
-\begin{figure}[h!]
-\center
-\begin{tikzpicture}
-\begin{axis}[every axis plot post/.append style={
-  mark=none,domain=-2:3,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
-  axis x line*=bottom, % no box around the plot, only x and y axis
-  axis y line*=left, % the * suppresses the arrow tips
-  enlargelimits=upper] % extend the axes a bit to the right and top
-  \addplot {gauss(0,0.5)};
-  \addplot {gauss(1,0.75)};
-\end{axis}
-\end{tikzpicture}
-\end{figure}
-
-\section{Fine-grained evaluation via bitmasks}
+\section{Fine-grained evaluation via masks}
 
 The evaluation would be trivial by just comparing the computed disparity map with its ground-truth companion.
 This trivial comparison would be a pitfall, as the results would be erroneous due to for instance unknown disparity or occluded regions.
@@ -364,11 +312,17 @@ OpenCV offers two different saliency categories to be computed:
 
 \noindent Explain how saliency detection works, implemented via OpenCV. Otsu's algorithms, threshold and K-Means algorithm \citep{hou2007saliency}.
 
-\subsection*{Unknown disparity}
-
-Is -1.
-
 \section{Integration of existing algorithms}
+
+Deciding which algorithms should be describe was not an easy task.
+On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
+On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
+For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
+As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
+Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
+Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
+The parameters used for each algorithm are described in the implementation chapter.
+This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
 
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,
     text width=5em, text centered, rounded corners, minimum height=4em]
@@ -399,15 +353,50 @@ This does not exist currently, so we use the Middlebury Test Suite with its algo
 Input: ImageLEFT, ExpectedLEFT, ImageRIGHT, ExpectedRIGHT
 Output: a good metric for showing good/bad disparity, a few ideas.
 
-\section{Postprocessing}
+\section{Image diminisher to simulate real use cases}
 
-Postprocessing only consists of one task: normalization of the disparity map.
-Some algorithms struggle with calculating a larger number than the number of disparities of $32$.
-Some datasets only calculated the disparity to be in a range from $0$ to $63$.
-Grayscale normally ranges from $0$ to $255$.
-Thus the disparity map is normalized to range from $0$ to $63$.
+\subsection*{Gaussian noise}
 
-Simply only disparity normalization.
+randn\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}}
+
+%todo finish chapter of gaussian noise
+
+\citep{opencv_library}
+
+As seen in the related work chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
+Hence noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
+We use gaussian noise meaning that the noise is gaussian-distributed.
+
+$$f\left(x\right) = a e^{- { \frac{(x-b)^2 }{ 2 c^2} } }$$
+
+$$p_G(z) = \frac{1}{\sigma\sqrt{2\pi}} e^{ -\frac{(z-\mu)^2}{2\sigma^2} }$$
+
+\noindent In this example, $z$ represents the grey level which is added to the image matrix later on.
+$\mu$ is the mean value (= 0).
+$\sigma$ is the standard deviation.
+\newline\newline\noindent The $\sigma$ can be set in our evaluation suite in order to see how this distracts the image.
+
+\pgfmathdeclarefunction{gauss}{2}{%
+  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+
+\begin{figure}[h!]
+\center
+\begin{tikzpicture}
+\begin{axis}[every axis plot post/.append style={
+  mark=none,domain=-2:3,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
+  axis x line*=bottom, % no box around the plot, only x and y axis
+  axis y line*=left, % the * suppresses the arrow tips
+  enlargelimits=upper] % extend the axes a bit to the right and top
+  \addplot {gauss(0,0.5)};
+  \addplot {gauss(1,0.75)};
+\end{axis}
+\end{tikzpicture}
+\end{figure}
+
+\subsection*{Video compression}
+
+FFMPEG \citep{FFMPEG2010}.
 
 \section{Web result viewer for evaluation suite}
 
@@ -441,17 +430,6 @@ The following features were implemented:
   \item Describe what could be done with the evaluation web suite in near future
   \item But for thesis evaluation a csv exporter was used.
 \end{itemize}
-
-\section{Processing huge amount of data}
-
-\begin{itemize}
-  \item Swarm
-  \item Bees
-  \item spawn workers with docker
-  \item aggregate results
-\end{itemize}
-
-\noindent Especially a docker image was created\footnote{\url{https://github.com/benjohnde/dockerbase-opencv}}.
 
 \section{Discussion}
 
