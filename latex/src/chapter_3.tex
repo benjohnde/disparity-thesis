@@ -310,7 +310,7 @@ A simple approach could be to smooth the disparity over time by applying a box f
 This would imply that the disparities inside this space-time window are constant.
 As a result object borders may be over smoothed and get lost in a non-static scene.
 They overcome this issue by assuming that the disparity of an object is approximately constant over a small time window and applying weighted box filter.
-Therefore they build a 3D filter kernel which weights the pixels.
+Therefore they build a 3D filter kernel, which weights the pixels.
 Pixels which belong to the same object get a high weight and pixels belonging to a different object a lower weight.
 Tying in with this approach, \citeauthor{richardt2010real} \citep{richardt2010real} rewrote the filter as a so called dual-cross-bilateral filter.
 Instead of using a custom weight model to preserve edges they utilize a bilateral filter which is a common edge-preserving smoothing technique.
@@ -318,7 +318,17 @@ The cross-bilateral filter preserves those edges while smoothing with respect to
 A method for especially stereoscopic images is to use adaptive support weights for correspondence search (cf. \citep{yoon2006adaptive}).
 This variant smoothes the cost space while preserving edges in both input images.
 This combined filter is then named the dual-cross-bilateral (DCB) filter.
-They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
+Their approach clearly visibly reduces errors as can be seen in Figure \ref{fig:dbcgrid}.
+From left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{src/images/dbcgrid.png}
+  \caption[Disparity maps of a selected frame of the 'skydiving' stereo video]{Disparity maps of a selected frame of the 'skydiving' stereo video \citep{richardt2010real}.}
+  \label{fig:dbcgrid}
+\end{figure}
+
+\noindent They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
 At this point in time their implementation is the fastest technique in the Middlebury\footnote{\url{http://vision.middlebury.edu/stereo/eval3/}} benchmark.
 
 \subsection{Remapping the disparity range of stereoscopic videos}
