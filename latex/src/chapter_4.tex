@@ -23,6 +23,12 @@ The build-chain consists of some shell scripts and CMake as makefile generator.
 With CMake it was possible to cross-compile the app for Linux and use a fast server-instance from DigitalOcean\footnote{\url{https://www.digitalocean.com}} for the generation of the disparity maps and to actually evaluate those.
 \noindent Especially a docker image was created\footnote{\url{https://github.com/benjohnde/dockerbase-opencv}}.
 
+%todo describe docker image and deployment
+%todo describe desktop tower
+%todo python scripts for evaluation were used
+%todo some fun facts like the overall evaluation time needed
+%todo the amount of processed data
+
 \section{Overview}
 
 \tikzstyle{rblock} = [text width=9em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=4em]
@@ -69,7 +75,15 @@ With CMake it was possible to cross-compile the app for Linux and use a fast ser
   \label{fig:impl-pipeline}
 \end{figure}
 
-Initially, a rapid monolithic prototype was built featuring the execution of different disparity algorithms, the creation of bitmasks and the evaluation of a given scene with different parameters.
+%todo describe evolution
+%todo describe general flow
+%todo describe why it was built
+%todo describe folder structure
+%todo describe OpenEXR file format
+%todo describe csv format of output
+%todo create uml diagrams for basic implementation
+
+\noindent Initially, a rapid monolithic prototype was built featuring the execution of different disparity algorithms, the creation of bitmasks and the evaluation of a given scene with different parameters.
 But as more datasets were found and various bitmasks as an evaluation method were established the need for a leaner process chain arose.
 Especially as disparity algorithms need some time to compute the disparity map for one frame.
 Hence, as videos consist of multiple frames (in our datasets about 90 frames in mean) this is a time consuming task.
