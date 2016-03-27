@@ -16,9 +16,9 @@ To round the evaluation suite up, a small web viewer to visualize the results wa
 
 \section{Preliminaries}
 
-As development platform a MacBookPro was used with the following specifications: i5-4258U CPU @ 2.40GHz, 8 GB RAM, a fast SSD.
-For the later evaluation phase a desktop computer with an i5-2500k @ 3.0GHz was used.
-As IDE CLion\footnote{\url{https://www.jetbrains.com/clion/}} from JetBrains was used.
+As development platform a MacBookPro was used with the following specifications: i5-4258U CPU @ 2.40GHz (dual-core), 8 GB RAM, a fast SSD.
+For the later evaluation phase a desktop computer with an i5-2500k @ 3.30GHz (quad-core) was considered.
+The programming part was done with Atom\footnote{\url{https://atom.io}}, a modern text editor, and CLion\footnote{\url{https://www.jetbrains.com/clion/}} from JetBrains, a cross-platform IDE especially for C++.
 CMake as a cross-compiling makefile generator was utilized.
 Everything except the web result viewer was implemented using C++.
 As a timer saver and for reducing code duplicates OpenCV as master library was used.
@@ -27,12 +27,12 @@ With CMake it was possible to cross-compile the app for Linux and use a fast ser
 To not rely on different environments, a docker\footnote{\url{https://github.com/benjohnde/dockerbase-opencv}} image was created, open-sourced and used.
 Docker helps developers to build, ship and run distributed applications.
 A docker image serves as basis for containerized virtual environments.
-Those docker containers work in a chroot\footnote{Chroot stands for "change root" and helps to change the accessible root directory for a current process.} environment and are isolated from other processes.
+Those docker containers work in a chroot\footnote{Chroot stands for "change root" and helps to change the root directory for a current process.} environment and are isolated from other processes.
 It is not a complete virtualized machine as it runs on the system's kernel.
+\newline\newline\noindent The final evaluation was done with python.
 
+%todo brief description of processing chain
 %todo python scripts for evaluation were used
-%todo some fun facts like the overall evaluation time needed
-%todo the amount of processed data
 
 \section{Overview}
 
