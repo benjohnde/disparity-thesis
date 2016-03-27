@@ -1,16 +1,19 @@
 \chapter{Implementation}
 \label{chap:impl}
 
+In this chapter, the thoughts made beforehand are outlined.
+The following sections also describe accurately the implementation, its components and the subsequent evaluation pipeline for disparity maps.
 Chapter \ref{chap:related} pointed out that no real algorithm for stereoscopic video disparity exist yet.
-Other issues for more research in that area are:
-
-\begin{itemize}
-  \item No evaluation engine for videos exist yet.
-  \item Currently only little datasets regarding ground-truth data for stereoscopic videos are available.
-\end{itemize}
-
-\noindent Thus, the decision towards an own evaluation engine was made.
-In this chapter the implementation, its components and the novel approach concerning the subsequent optimization of disparity maps are described.
+For stereoscopic videos no evaluation engine yet exists.
+Datasets with high-resolution stereo videos are rarely spread.
+Source code for existing disparity algorithms are open-sourced and available for the public domain only in few cases.
+Additionally, there exist a lot of different unaligned code for evaluation and comparing disparity maps.
+Thus, the decision towards a new implementation of an evaluation suite, built on OpenCV, was made.
+Found source code of disparity algorithms was refloated and integrated.
+Thus, found disparity algorithms were integrated.
+Different masks for fine-grained evaluation were implemented as well.
+An image diminisher which alters stereo images by adding noise, to simulate real scenery, or artifacts from video compression.
+To round the evaluation suite up, a small web viewer to visualize the results was created.
 
 \section{Preliminaries}
 
