@@ -324,6 +324,8 @@ This variant smoothes the cost space while preserving edges in both input images
 This combined filter is then named the dual-cross-bilateral (DCB) filter.
 Their approach clearly visibly reduces errors as can be seen in Figure \ref{fig:dbcgrid}.
 The Figure shows a selected frame of a recorded 'skydiving' stereo video, from left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid \citep{richardt2010real}.
+%todo maybe a bit more about DBC Grid vs Temporal DBC Grid
+%todo hint 5 frames are observed for calculating the disparity map of one frame
 \newline\newline\noindent They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
 At this point in time their implementation is the fastest technique in the Middlebury\footnote{\url{http://vision.middlebury.edu/stereo/eval3/}} benchmark.
 
@@ -352,3 +354,6 @@ Basically, those disparity mapping operators define editing operations how the d
 The goal is to map the disparity to a new range such that the resulting output view fulfills a stereoscopic, a temporal and a saliency constraint (cf. \citep{lang2010nonlinear}), i.e. provide consistent disparity values according to the new range.
 These constraints are identical to related work on video retargeting \citep{krahenbuhl2009system}.
 Stereoscopic warping is image warping with the help of disparity mapping operators.
+
+%todo one or two sentences about the outcome
+

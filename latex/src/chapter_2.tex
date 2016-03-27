@@ -605,7 +605,7 @@ For each scenery the window size should be adjusted individually.
 
 \section{Sub-pixel accuracy}
 
-As seen in the sections before the disparity algorithms produce a disparity map consisting of integer values only.
+As seen in the sections before, the disparity algorithms produce a disparity map consisting of integer values only.
 For most of the imaginable applications integer values should be enough.
 However, the world is continuous and there are applications which rely on accurate disparity estimations.
 For instance, having no sub-pixel values, image-based rendering produces an image for visualizing the disparity map, which can appear to be made up of many thin shearing layers \citep{scharstein2002taxonomy}.
@@ -614,7 +614,7 @@ In this particular case \citep{scharstein2002taxonomy}, a second-order polynomia
 The curve is fitted around three or more values of the matching measure.
 The point of interest lies in the center of the chosen window (as Figure \ref{fig:sub-pixel-estimation} depicts).
 The minimum of this parabola is the searched value \citep{cyganek2011introduction, scharstein2014high}.
-\newline\newline\noindent Curve fitting with a second-order-polynomial in figure \ref{fig:sub-pixel-estimation} works with three data points: $(d_{i-1}, m_{i-1})$, $(d_{i}, m_{i})$ and $(d_{i+1}, m_{i+1})$.
+\newline\newline\noindent Curve fitting with a second-order-polynomial in Figure \ref{fig:sub-pixel-estimation} works with three data points: $(d_{i-1}, m_{i-1})$, $(d_{i}, m_{i})$ and $(d_{i+1}, m_{i+1})$.
 $d_i$ is the found integer value for disparity and $m_i$ is a match value for the displacement $d_i$.
 With the curve fit a new minimum value $d_x$ is found which no longer needs to lie on the integer grid.
 
