@@ -50,7 +50,7 @@ Thus, the monolith was rewritten partitioned in smaller microservices shaping th
   \item evaluation engine.
 \end{itemize}
 
-\tikzstyle{rblock} = [text width=9em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=4em]
+\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=blue!6, text centered, rounded corners, minimum height=3.2em]
 \begin{figure}[h!]
   \centering
@@ -101,6 +101,7 @@ Thus, the monolith was rewritten partitioned in smaller microservices shaping th
 %todo describe OpenEXR file format
 %todo describe csv format of output
 %todo create uml diagrams for basic implementation
+%todo producing heatmaps
 
 \noindent The figure \ref{fig:overview-uml} shows the composition and figure XXX the evaluation chain of these microservices.
 The output which each one of those microservices in the chain can generate or operate on is structured in a simple folder tree:
@@ -165,6 +166,8 @@ The evaluation is done with simple python scripts reflecting the evaluation chai
 %\umlclass{EvalResult}{}{}
 %\umlclass{FrameResult}{}{}
 %\umlclass{EvalResultMetric}{}{}
+
+\newpage
 
 \section{Evaluation engine for videos}
 
@@ -253,28 +256,43 @@ Thus the disparity map is normalized to range from $0$ to $63$.
 
 Simply only disparity normalization.
 
+\newpage
+
 \section{Fine-grained evaluation via masks}
 
 The evaluation would be trivial by just comparing the computed disparity map with its ground-truth companion.
-This trivial comparison would be a pitfall, as the results would be erroneous due to for instance unknown disparity or occluded regions.
-As remedy bitmasks are introduced to simply focus on interesting pixels.
-In this section the following bitmasks are introduced and how they are calculated:
+This trivial comparison would be a pitfall, as the results would be erroneous due to a variety of reasons.
+To give an example, occluded regions would lead to a higher error rate.
+As remedy, masks are introduced to simply focus on interesting pixels.
+Masks are normal matrices of the size of the input image and they reflect two states $0$ and $1$ like a bit, whereas $1$ stands for masked.
+In the literature they sometimes also named bitmasks.
+In this section the following masks are introduced and how they are determined:
 
 \begin{itemize}
-  \item Depth-discontinuity
-  \item Textured regions recognition
-  \item Discover occluded pixels
-  \item Saliency detection
-  \item Unknown disparity
+  \item depth-discontinuity,
+  \item textured regions,
+  \item occluded pixels,
+  \item salient regions.
 \end{itemize}
 
-%todo motivational introduction to bitmasks
-First describe the motivational introduction to bitmasks why would one use those?
+\noindent Programmatically they are represented through the OpenCV matrix class \texttt{cv::Mat} which can not work as a binary matrix and obtain just two states.
+Thus, a \texttt{cv::Mat} with \texttt{CV\_8U1} is initialized, which means one color channel utilizing 8-bit unsigned for the values.
+In this matrix, $255$ represents a $1$.
 
 \subsection*{Depth-discontinuity}
 
-Determining correspondence can fail in textureless or depth-discontinuous regions as mentioned above.
-Thus it is also interesting how the algorithms handle such regions. For this purpose a depth-discontinuity mask was implemented as well.
+Determining correspondence can fail in textureless or depth-discontinuous regions as mentioned beforehand.
+Thus, it is interesting to see how disparity algorithms handle such regions.
+For this purpose, a depth-discontinuity mask was implemented.
+\newline\newline\noindent Depth-discontinuity is observed in a ground-truth disparity map. $gap$ and $width$ are both input parameter.
+\newline\newline\noindent The image gets dilated to get the maximum disparity of a pixels neighbor.
+Then, the image gets eroded for estimating the minimum disparity of pixels neighbor.
+Finally, the depth-discontinuity areas are the ones with maximum - truth > gap.
+
+
+
+"Stereo vision algorithms typically compute erroneous results in regions where there is a sudden change in the depth between objects in the scene. They are defined in [1] as regions where neighboring disparities differ by more than a certain gap, dilated by a window of a given width."
+\citep{scharstein2002taxonomy, cyganek2011introduction}.
 
 Explain:
 
@@ -287,8 +305,11 @@ Explain:
 
 \subsection*{Textured regions recognition}
 
-As stereo matching algorithms act on the assumption that the disparity is smooth, especially if contrast and color intensity do not change drastically, it can be interesting to see how those algorithms treat textured and textureless regions.
-Thus a bitmask for textured regions recognition was implemented.
+"Stereo vision algorithms typically compute erroneous results in regions where there is a little or no texture in the scene. They are defined in [1] as regions where the squared horizontal intensity gradient averaged over a square window of a given size is below a given threshold."
+\citep{scharstein2002taxonomy, cyganek2011introduction}.
+
+Stereo matching algorithms act on the assumption, that disparity is smooth, especially if contrast and color intensity do not change drastically.
+It can be interesting to see how those algorithms treat textured and textureless regions.
 
 Explain (shortly):
 
