@@ -29,20 +29,17 @@ Docker helps developers to build, ship and run distributed applications.
 A docker image serves as basis for containerized virtual environments.
 Those docker containers work in a chroot\footnote{Chroot stands for "change root" and helps to change the root directory for a current process.} environment and are isolated from other processes.
 It is not a complete virtualized machine as it runs on the system's kernel.
-\newline\newline\noindent The final evaluation was done with python.
-
-%todo brief description of processing chain
-%todo python scripts for evaluation were used
+Some python scripts were written for the upcoming evaluation to combine all components in a chain.
 
 \section{Overview}
 
-Initially, a rapid monolithic prototype was built featuring the execution of different disparity algorithms, the creation of bitmasks and the evaluation of a given scene with different parameters.
-But as more datasets were found and various bitmasks as an evaluation method were established the need for a leaner process chain arose.
+Initially, a rapid monolithic prototype was built, featuring the execution of different disparity algorithms for each frame, the creation of masks and the evaluation of a given scene with different quality metrics.
+But as more datasets were found and various masks as an evaluation method were established, the need for a leaner process chain arose.
 Especially as disparity algorithms need some time to compute the disparity map for one frame.
-Hence, as videos consist of multiple frames (in our datasets about 90 frames in mean) this is a time consuming task.
-Sometimes metrics change or a new metric is established, the threshold can be adjusted.
-These are the reasons for an approach towards microservices with which computed disparity maps can be evaluated repeatedly and independently.
-Thus, the monolith was rewritten partitioned in smaller microservices shaping three different components:
+Hence, as videos consist of multiple frames (in our datasets about 100 frames in mean) this is a time consuming task.
+Sometimes metrics change, the threshold is adjusted or a new metric is found.
+\newline\newline\noindent As a result, an approach towards small services with which computed disparity maps can be evaluated repeatedly and independently.
+Thus, the monolithic prototype was rewritten and partitioned in smaller microservices shaping three different components:
 
 \begin{itemize}
   \item disparity algorithm executer,
@@ -50,9 +47,15 @@ Thus, the monolith was rewritten partitioned in smaller microservices shaping th
   \item evaluation engine.
 \end{itemize}
 
+\noindent Additionally, a small tool for diminishing images was created.
+It can simulate real scenery by adding gaussian noise as recommended by \citep{richardt2010real}.
+In addition, FFmpeg \citep{FFMPEG2010} was wrapped to simulate artifacts originating from video compression.
+The output, which each one of those microservices in the chain can generate or operate on, is structured in a simple folder tree.
+\newline\newline\noindent The Figure \ref{fig:impl-pipeline} shows the composition and the evaluation chain of these microservices.
+
 \tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=blue!6, text centered, rounded corners, minimum height=3.2em]
-\begin{figure}[h!]
+\begin{figure}[hp!]
   \centering
   \begin{tikzpicture}[node distance=7em, auto]
     %input
@@ -90,84 +93,9 @@ Thus, the monolith was rewritten partitioned in smaller microservices shaping th
     \path [line] (evaluation) -- (csv);
     \path [line] (evaluation) -- (heatmaps);
   \end{tikzpicture}
-  \caption{Processing pipeline of the implementation.}
+  \caption{Composition and processing pipeline of the implementation.}
   \label{fig:impl-pipeline}
 \end{figure}
-
-%todo describe evolution
-%todo describe general flow
-%todo describe why it was built
-%todo describe folder structure
-%todo describe OpenEXR file format
-%todo describe csv format of output
-%todo create uml diagrams for basic implementation
-%todo producing heatmaps
-
-\noindent The figure \ref{fig:overview-uml} shows the composition and figure XXX the evaluation chain of these microservices.
-The output which each one of those microservices in the chain can generate or operate on is structured in a simple folder tree:
-
-\begin{itemize}
-  \item /datasets/\{dataset\_identifier\}/\{dataset\_sequence\_identifier\}/\{appendix\}
-\end{itemize}
-
-\noindent There \{appendix\} can be either \{disparity\_maps\_computed\}, \{disparity\_maps\_smoothed\} or \{bitmasks\}.
-\newline\newline\noindent The computed disparity maps are saved in a binary format since OpenCV is currently not able to use the OpenEXR file format properly (only reading is possible).
-Hence for visualization they have to be normalized in the range of 0-255 or may be presented as a heat map.
-The evaluation is done with simple python scripts reflecting the evaluation chain.
-
-\begin{figure}[h!]
-  \centering
-  \begin{tikzpicture}
-
-    %classes
-    \umlclass[x=0,y=0]{OpenCVStereoBM}{}{}
-    \umlclass[x=0,y=3,type=interface]{DisparityAlgorithm}{}{}
-
-    \umlclass[x=5,y=0]{NaiveSmoothing}{}{}
-    \umlclass[x=5,y=3,type=interface]{SmoothingAlgorithm}{}{}
-
-    \umlclass[x=2.5,y=6]{EvalSuite}{}{- evaluateFrame()\\- evaluateFrames()}
-
-    \umlclass[x=2.5,y=9]{Metrics}{}{}
-
-    %connections
-    \umlassoc{EvalSuite}{Metrics}
-
-    \umluniassoc{DisparityAlgorithm}{EvalSuite}
-    \umluniassoc{SmoothingAlgorithm}{EvalSuite}
-
-    \umlimpl{OpenCVStereoBM}{DisparityAlgorithm}
-    \umlimpl{NaiveSmoothing}{SmoothingAlgorithm}
-
-  \end{tikzpicture}
-  \caption{Simplified UML diagram of general architecture.}
-  \label{fig:overview-uml}
-\end{figure}
-
-\begin{figure}[h!]
-  \centering
-  \begin{tikzpicture}
-
-    %classes
-    \umlclass[x=2,y=0]{EvalResultMetric}{}{}
-    \umlclass[x=0,y=3]{FrameResult}{}{}
-    \umlclass[x=4,y=3]{EvalResult}{}{}
-
-    %connections
-    \umluniassoc{EvalResultMetric}{FrameResult}
-    \umluniassoc{FrameResult}{EvalResult}
-
-    \umluniassoc{EvalResultMetric}{EvalResult}
-  \end{tikzpicture}
-  \caption{Simplified UML diagram of result composition for further processing.}
-\end{figure}
-
-%todo another uml diagram with the following:
-%\umlclass{EvalResult}{}{}
-%\umlclass{FrameResult}{}{}
-%\umlclass{EvalResultMetric}{}{}
-
-\newpage
 
 \section{Evaluation engine for videos}
 
@@ -183,6 +111,16 @@ None the less it is possible to focus on some other details, for instance:
   \item analyzing the impact of noise, and
   \item trying to smooth noisy areas in the resulting disparity map with other frames.
 \end{itemize}
+
+%todo create uml diagrams for basic implementation
+%todo describe general flow
+%todo describe OpenEXR file format
+%todo describe csv format of output
+%todo producing heatmaps
+
+Hence for visualization they have to be normalized in the range of 0-255 or may be presented as a heat map.
+The evaluation is done with simple python scripts reflecting the evaluation chain.
+
 
 \noindent Noise can occur through video compression.
 As video sensors tend to be noisier than image sensors it also more present in stereoscopic videos, if not rendered by a computer.
@@ -256,7 +194,75 @@ Thus the disparity map is normalized to range from $0$ to $63$.
 
 Simply only disparity normalization.
 
-\newpage
+\section{Integration of existing algorithms}
+
+Deciding which algorithms should be describe was not an easy task.
+On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
+On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
+For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
+As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
+Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
+Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
+The parameters used for each algorithm are described in the implementation chapter.
+This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
+
+\tikzstyle{block} = [rectangle, draw, fill=blue!20,
+    text width=5em, text centered, rounded corners, minimum height=4em]
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[node distance = 3cm, auto]
+    \node [block] (pre) {pre-processing};
+    \node [block, right of=pre] (call) {call wrapper};
+    \node [block, right of=call] (post) {post-processing};
+
+    \path [line] (pre) -- (call);
+    \path [line] (call) -- (post);
+  \end{tikzpicture}
+  \caption{Basic integration of existing algorithms}
+  \label{fig:integration}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}
+
+    %classes
+    \umlclass[x=0,y=0]{OpenCVStereoBM}{}{}
+    \umlclass[x=0,y=3,type=interface]{DisparityAlgorithm}{}{}
+
+    \umlclass[x=5,y=0]{NaiveSmoothing}{}{}
+    \umlclass[x=5,y=3,type=interface]{SmoothingAlgorithm}{}{}
+
+    \umlclass[x=2.5,y=6]{EvalSuite}{}{- evaluateFrame()\\- evaluateFrames()}
+
+    \umlclass[x=2.5,y=9]{Metrics}{}{}
+
+    %connections
+    \umlassoc{EvalSuite}{Metrics}
+
+    \umluniassoc{DisparityAlgorithm}{EvalSuite}
+    \umluniassoc{SmoothingAlgorithm}{EvalSuite}
+
+    \umlimpl{OpenCVStereoBM}{DisparityAlgorithm}
+    \umlimpl{NaiveSmoothing}{SmoothingAlgorithm}
+
+  \end{tikzpicture}
+  \caption{Simplified UML diagram of the disparity interface.}
+  \label{fig:uml-disparity-interface}
+\end{figure}
+
+This does not exist currently, so we use the Middlebury Test Suite with its algorithms for images and apply them on videos.
+
+\begin{itemize}
+	\item Consists of multiple steps
+	\item Wrapper to call different algorithms
+	\item normalizing of output
+	\item actual eval process
+\end{itemize}
+
+Input: ImageLEFT, ExpectedLEFT, ImageRIGHT, ExpectedRIGHT
+Output: a good metric for showing good/bad disparity, a few ideas.
 
 \section{Fine-grained evaluation via masks}
 
@@ -289,6 +295,8 @@ For this purpose, a depth-discontinuity mask was implemented.
 Then, the image gets eroded for estimating the minimum disparity of pixels neighbor.
 Finally, the depth-discontinuity areas are the ones with maximum - truth > gap.
 
+
+For 
 
 
 "Stereo vision algorithms typically compute erroneous results in regions where there is a sudden change in the depth between objects in the scene. They are defined in [1] as regions where neighboring disparities differ by more than a certain gap, dilated by a window of a given width."
@@ -349,91 +357,69 @@ OpenCV offers two different saliency categories to be computed:
 
 \noindent Explain how saliency detection works, implemented via OpenCV. Otsu's algorithms, threshold and K-Means algorithm \citep{hou2007saliency}.
 
-\section{Integration of existing algorithms}
-
-Deciding which algorithms should be describe was not an easy task.
-On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
-On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
-For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
-As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
-Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
-Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
-The parameters used for each algorithm are described in the implementation chapter.
-This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
-
-\tikzstyle{block} = [rectangle, draw, fill=blue!20,
-    text width=5em, text centered, rounded corners, minimum height=4em]
-
-\begin{figure}[h]
-  \centering
-  \begin{tikzpicture}[node distance = 3cm, auto]
-    \node [block] (pre) {pre-processing};
-    \node [block, right of=pre] (call) {call wrapper};
-    \node [block, right of=call] (post) {post-processing};
-
-    \path [line] (pre) -- (call);
-    \path [line] (call) -- (post);
-  \end{tikzpicture}
-  \caption{Basic integration of existing algorithms}
-  \label{fig:integration}
-\end{figure}
-
-This does not exist currently, so we use the Middlebury Test Suite with its algorithms for images and apply them on videos.
-
-\begin{itemize}
-	\item Consists of multiple steps
-	\item Wrapper to call different algorithms
-	\item normalizing of output
-	\item actual eval process
-\end{itemize}
-
-Input: ImageLEFT, ExpectedLEFT, ImageRIGHT, ExpectedRIGHT
-Output: a good metric for showing good/bad disparity, a few ideas.
+%explicit
+\newpage
 
 \section{Image diminisher to simulate real use cases}
 
 \subsection*{Gaussian noise}
 
-randn\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}}
-
-%todo finish chapter of gaussian noise
-
-\citep{opencv_library}
-
-As seen in the related work chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
+As seen in the related work Chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
 Hence noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
-We use gaussian noise meaning that the noise is gaussian-distributed.
+Gaussian noise is use, meaning that the noise is gaussian distributed (or normal distributed).
 
-$$f\left(x\right) = a e^{- { \frac{(x-b)^2 }{ 2 c^2} } }$$
+\begin{equation}
+  f\left(x\right) = a e^{- { \frac{(x-b)^2 }{ 2 c^2} } }
+\end{equation}
 
-$$p_G(z) = \frac{1}{\sigma\sqrt{2\pi}} e^{ -\frac{(z-\mu)^2}{2\sigma^2} }$$
+\begin{equation}
+  p_G(z) = \frac{1}{\sigma\sqrt{2\pi}} e^{ -\frac{(z-\mu)^2}{2\sigma^2} }
+\end{equation}
 
 \noindent In this example, $z$ represents the grey level which is added to the image matrix later on.
 $\mu$ is the mean value (= 0).
 $\sigma$ is the standard deviation.
-\newline\newline\noindent The $\sigma$ can be set in our evaluation suite in order to see how this distracts the image.
+Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.
+\newline\newline\noindent The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
+As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $20$ to simulate real scenery.
+The distribution can be seen in Figure \ref{fig:gaussian}.
 
 \pgfmathdeclarefunction{gauss}{2}{%
   \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
 }
 
 \begin{figure}[h!]
-\center
-\begin{tikzpicture}
-\begin{axis}[every axis plot post/.append style={
-  mark=none,domain=-2:3,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
-  axis x line*=bottom, % no box around the plot, only x and y axis
-  axis y line*=left, % the * suppresses the arrow tips
-  enlargelimits=upper] % extend the axes a bit to the right and top
-  \addplot {gauss(0,0.5)};
-  \addplot {gauss(1,0.75)};
-\end{axis}
-\end{tikzpicture}
+  \center
+  \begin{tikzpicture}[scale=1.2]
+    \begin{axis}[every axis plot post/.append style={
+      mark=none,domain=17:23,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
+      axis x line*=bottom, % no box around the plot, only x and y axis
+      axis y line*=left, % the * suppresses the arrow tips
+      enlargelimits=upper] % extend the axes a bit to the right and top
+      \addplot {gauss(20,0.2)};
+      \addplot {gauss(20,0.5)};
+      \addplot {gauss(20,1.0)};
+    \end{axis}
+  \end{tikzpicture}
+  \label{fig:gaussian}
+  \caption{Gaussian noise distribution with $\mathcal{N}(20,\sigma^2)$ and different values for $\sigma^2$.}
 \end{figure}
+
+\noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
+It generates a \texttt{cv::Mat} with the random distribution of values.
+This matrix is then added on the source matrix, resulting in a noisy image.
+Salt and pepper noise was not chosen, as it does not reflect real scenery.
+Salt and pepper noise is not a common noise, as it contains random occurrences of black and white pixels.
+It mostly appears by defect image sensors or erroneous analog-to-digital conversion.
 
 \subsection*{Video compression}
 
-FFMPEG \citep{FFMPEG2010}.
+Most of the widely used video compression techniques belong to the lossy data compression algorithms.
+As in contrast to lossless compression, lossy tend to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
+FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
+FFmpeg is a tool to create video sequences from images with popular video codecs and also to divide a video sequences into images.
+
+%how it is implemented what codec is used mainly?
 
 \section{Web result viewer for evaluation suite}
 
