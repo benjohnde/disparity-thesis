@@ -99,51 +99,46 @@ The output, which each one of those microservices in the chain can generate or o
 
 \section{Evaluation engine for videos}
 
-At the current point in time, no real disparity algorithm for especially videos exists yet.
-As a video is defined by multiple consecutive frames, every disparity algorithm for images can be applied on videos.
-The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
-None the less it is possible to focus on some other details, for instance:
-
-\begin{itemize}
-  \item possible outliers in the sense of frames,
-  \item mean performance (error rate) of those algorithms on a complete scene,
-  \item runtime variety in a sequence,
-  \item analyzing the impact of noise, and
-  \item trying to smooth noisy areas in the resulting disparity map with other frames.
-\end{itemize}
-
-%todo create uml diagrams for basic implementation
-%todo describe general flow
-%todo describe OpenEXR file format
-%todo describe csv format of output
-%todo producing heatmaps
-
-Hence for visualization they have to be normalized in the range of 0-255 or may be presented as a heat map.
-The evaluation is done with simple python scripts reflecting the evaluation chain.
-
-
-\noindent Noise can occur through video compression.
-As video sensors tend to be noisier than image sensors it also more present in stereoscopic videos, if not rendered by a computer.
-As noise can be simulated and added onto the rendered video, it is investigated how noise disturb stereo matcher.
-As these ideas are more explained in the implementation chapter \ref{chap:impl} the following subsection a novel approach for videos are examined.
-
 In contrast to other implementations, input and output are clearly defined and thus different techniques can be adapted easily.
 There exist combined frameworks which fulfill two tasks, disparity calculation (as the algorithm is implemented) and the final evaluation step.
 This makes it harder to use the evaluation module separately from the rest.
 None the less the open source community around computer vision also lacks of code for stereo matcher.
 Due the diversities of algorithms and eval suites the decision was made to go for an OpenCV implementation of an eval suite for disparity algorithms.
+\newline\newline\noindent At the current point in time, no disparity algorithms that directly target videos yet exist.
+As a video is defined by multiple consecutive frames, every disparity algorithm for images can also be applied on videos.
+The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
+None the less it is possible to focus on some other details.
+\newline\newline\noindent For instance, possible outliers in the sense of frames can occur, which may lead to more erroneous results.
+The mean performance (error rate) of algorithms on a complete scene can be analyzed.
+The runtime may vary in a sequence from frame-to-frame.
+It is also interesting to see the impact of image diminishing effects like compression or noise, simulated as occurring from converting the signal from a real sensor.
+This is more described in the upcoming section regarding image diminishing effects.
+\newline\newline\noindent As middleware between the components OpenEXR\footnote{\url{http://www.openexr.com}} is used.
+OpenEXR is a file format for high dynamic-range (HDR) images.
+It supports 32-bit floating-point values and is thus good for representing sub-pixel accurate disparity values.
+The file format is also integrated in OpenCV yet.
+For the later evaluation, the comparison of ground-truth data with computed disparity maps, the file format is sufficient.
+However, for visualization the values have to be normalized in a range suitable for using sophisticated color ranges like RGB.
+Hence, heatmaps are created with normalized disparity maps in the range of $0-255$.
+\newline\newline\noindent Basically, the evaluation engine needs a computed disparity map and the ground-truth counterpart.
+Only comparing both provides low informative value.
+Algorithms tend to produce disparity maps with a few unknown fields (e.g. occluded pixels).
+Crucial are also depth-discontinuity along object borders, textureless regions and occluded pixels.
+Thus, masks are used to only focus on these particular areas.
+The creation of these masks are illustrated accurately in the upcoming section.
+\newline\newline\noindent Quality metrics are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
+The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV\footnote{CSV = comma-separated values} file.
+\newline\newline\noindent Python scripts round the evaluation engine up.
+They work basically as a wrapper to iteratively executes each component over each frame of a given input sequence and aggregates the results.
+
+%todo create uml diagrams for basic implementation
+%todo describe general flow
+%todo describe csv format of output
+%todo producing heatmaps
+
 
 %todo
 Works basically as a wrapper. Can output statistical stuff. Basically works on disparity maps / images.
-
-Huge mistake could be to apply the metrics on the whole disparity map from the algorithm. The output contains areas which are black (value = 0). This can be:
-
-\begin{itemize}
-  \item noise
-  \item mistaken be the algorithm
-  \item expected disparity
-  \item non-occluded areas
-\end{itemize}
 
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,
     text width=5em, text centered, rounded corners, minimum height=4em]
@@ -199,12 +194,16 @@ Simply only disparity normalization.
 Deciding which algorithms should be describe was not an easy task.
 On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
 On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
-For instance various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
+For instance: various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
 As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
-Thus, the algorithms from Middlebury were integrated in the evaluation suite and streamlined.
-Additionally, the so called efficient large-scale stereo matcher (ELAS) was also integrated.
-The parameters used for each algorithm are described in the implementation chapter.
-This section is for giving an overview on these algorithms as well as their parameters for the later implementation chapter \ref{chap:impl}.
+Thus, a more streamlined architecture was implemented.
+The ones which were presented in the related work Chapter \ref{chap:related}, are integrated.
+
+\subsection*{OpenCV}
+
+\subsection*{Middlebury}
+
+\subsection*{ELAS: Efficient large-scaler stereo matching}
 
 \tikzstyle{block} = [rectangle, draw, fill=blue!20,
     text width=5em, text centered, rounded corners, minimum height=4em]
@@ -361,6 +360,12 @@ OpenCV offers two different saliency categories to be computed:
 \newpage
 
 \section{Image diminisher to simulate real use cases}
+
+It is also interesting to see the impact of image diminishing effects like compression or noise like from a real sensor.
+Both can be simulated.
+Noise can be added onto the rendered video.
+Then the impact can be analyzed.
+Video compression is added via FFmpeg.
 
 \subsection*{Gaussian noise}
 
