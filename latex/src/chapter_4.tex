@@ -53,8 +53,8 @@ In addition, FFmpeg \citep{FFMPEG2010} was wrapped to simulate artifacts origina
 The output, which each one of those microservices in the chain can generate or operate on, is structured in a simple folder tree.
 \newline\newline\noindent The Figure \ref{fig:impl-pipeline} shows the composition and the evaluation chain of these microservices.
 
-\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!18, text centered, rounded corners, minimum height=4em]
-\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=blue!6, text centered, rounded corners, minimum height=3.2em]
+\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
 \begin{figure}[hp!]
   \centering
   \begin{tikzpicture}[node distance=7em, auto]
@@ -75,7 +75,7 @@ The output, which each one of those microservices in the chain can generate or o
     \node [rblock, below of=left, yshift=-14em] (evaluation) {(3) Disparity evaluator};
 
     %final result
-    \node [cloud, below of=evaluation, xshift=-5em] (csv) {csv file};
+    \node [cloud, below of=evaluation, xshift=-5em] (csv) {CSV file};
     \node [cloud, below of=evaluation, xshift=5em] (heatmaps) {heatmaps};
 
     %lines
@@ -115,7 +115,7 @@ It is also interesting to see the impact of image diminishing effects like compr
 This is more described in the upcoming section regarding image diminishing effects.
 \newline\newline\noindent As middleware between the components OpenEXR\footnote{\url{http://www.openexr.com}} is used.
 OpenEXR is a file format for high dynamic-range (HDR) images.
-It supports 32-bit floating-point values and is thus good for representing sub-pixel accurate disparity values.
+It supports 32-bit floating-point values and is thus good for representing sub-pixel accurate values in a disparity map.
 The file format is also integrated in OpenCV yet.
 For the later evaluation, the comparison of ground-truth data with computed disparity maps, the file format is sufficient.
 However, for visualization the values have to be normalized in a range suitable for using sophisticated color ranges like RGB.
@@ -129,55 +129,34 @@ The creation of these masks are illustrated accurately in the upcoming section.
 \newline\newline\noindent Quality metrics are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
 The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV\footnote{CSV = comma-separated values} file.
 \newline\newline\noindent Python scripts round the evaluation engine up.
-They work basically as a wrapper to iteratively executes each component over each frame of a given input sequence and aggregates the results.
+They work basically as a wrapper to iteratively execute each component over each frame of a given input sequence and aggregate the results.
 
-%todo create uml diagrams for basic implementation
-%todo describe general flow
-%todo describe csv format of output
-%todo producing heatmaps
-
-
-%todo
-Works basically as a wrapper. Can output statistical stuff. Basically works on disparity maps / images.
-
-\tikzstyle{block} = [rectangle, draw, fill=blue!20,
-    text width=5em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=4cm,
-    minimum height=2em]
-
-\begin{center}
-\begin{tikzpicture}[node distance = 2cm, auto]
-    \node [block] (init) {initialize eval engine with input};
-    \node [cloud, left of=init] (gt) {ground-truth data};
-    \node [cloud, right of=init] (ao) {algorithm output};
-    \node [block, below of=init] (calc) {calculate differences};
-    \node [block, below of=calc] (evaluate) {apply statistical methods};
-    \node [block, below of=evaluate] (output) {output};
-
-    \path [line] (init) -- (calc);
-    \path [line] (calc) -- (evaluate);
-    \path [line] (evaluate) -- (output);
-    \path [line, dashed] (gt) -- (init);
-    \path [line, dashed] (ao) -- (init);
-\end{tikzpicture}
-\end{center}
-
-The eval engine has two modes to be queried:
-
-\begin{itemize}
-  \item via command-line which also results in a console output,
-  \item with a configuration file ($config.json$) which leads to an output in a given folder for the web result viewer.
-\end{itemize}
+\tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+\begin{figure}[hp!]
+  \centering
+  \begin{tikzpicture}[node distance=6em, auto]
+    %input
+    \node [cloud] (computed) {computed disparity map};
+    \node [cloud, below of=computed] (groundtruth) {ground-truth disparity map};
+    \node [cloud, below of=groundtruth] (result) {CSV file};
+    %computation
+    \node [rblock, right of=computed, xshift=7em, yshift=-3em] (init) {init with input};
+    \node [rblock, below of=init] (compare) {compare masked pixels};
+    %lines
+    \path [line] (computed) -- (init);
+    \path [line] (groundtruth) -- (init);
+    \path [line] (init) -- (compare);
+    \path [line] (compare) -- (result);
+  \end{tikzpicture}
+  \caption{Illustration of evaluation engine.}
+  \label{fig:impl-evaluation-engine}
+\end{figure}
 
 \subsection*{Preprocessing}
 
 Different tasks are executed before the actual disparity algorithm are invoked and the evaluation takes place:
-
-\begin{itemize}
-  \item Normalization
-  \item Gaussian noise
-\end{itemize}
+Blub.
 
 \subsection*{Postprocessing}
 
@@ -201,67 +180,40 @@ The ones which were presented in the related work Chapter \ref{chap:related}, ar
 
 \subsection*{OpenCV}
 
-\subsection*{Middlebury}
-
-\subsection*{ELAS: Efficient large-scaler stereo matching}
-
-\tikzstyle{block} = [rectangle, draw, fill=blue!20,
-    text width=5em, text centered, rounded corners, minimum height=4em]
-
-\begin{figure}[h]
-  \centering
-  \begin{tikzpicture}[node distance = 3cm, auto]
-    \node [block] (pre) {pre-processing};
-    \node [block, right of=pre] (call) {call wrapper};
-    \node [block, right of=call] (post) {post-processing};
-
-    \path [line] (pre) -- (call);
-    \path [line] (call) -- (post);
-  \end{tikzpicture}
-  \caption{Basic integration of existing algorithms}
-  \label{fig:integration}
-\end{figure}
-
 \begin{figure}[h!]
   \centering
   \begin{tikzpicture}
-
     %classes
+    \umlclass[x=2.5,y=7,type=interface]{DisparityAlgorithm}{- left: cv::Mat\\- right: cv::Mat}{- compute()}
+    \umlclass[x=2.5,y=3,type=interface]{OpenCVStereoMatcher}{}{}
     \umlclass[x=0,y=0]{OpenCVStereoBM}{}{}
-    \umlclass[x=0,y=3,type=interface]{DisparityAlgorithm}{}{}
-
-    \umlclass[x=5,y=0]{NaiveSmoothing}{}{}
-    \umlclass[x=5,y=3,type=interface]{SmoothingAlgorithm}{}{}
-
-    \umlclass[x=2.5,y=6]{EvalSuite}{}{- evaluateFrame()\\- evaluateFrames()}
-
-    \umlclass[x=2.5,y=9]{Metrics}{}{}
-
+    \umlclass[x=5,y=0]{OpenCVStereoSGBM}{}{}
     %connections
-    \umlassoc{EvalSuite}{Metrics}
-
-    \umluniassoc{DisparityAlgorithm}{EvalSuite}
-    \umluniassoc{SmoothingAlgorithm}{EvalSuite}
-
-    \umlimpl{OpenCVStereoBM}{DisparityAlgorithm}
-    \umlimpl{NaiveSmoothing}{SmoothingAlgorithm}
-
+    \umluniassoc{OpenCVStereoMatcher}{DisparityAlgorithm}
+    \umlimpl{OpenCVStereoBM}{OpenCVStereoMatcher}
+    \umlimpl{OpenCVStereoSGBM}{OpenCVStereoMatcher}
   \end{tikzpicture}
   \caption{Simplified UML diagram of the disparity interface.}
   \label{fig:uml-disparity-interface}
 \end{figure}
 
-This does not exist currently, so we use the Middlebury Test Suite with its algorithms for images and apply them on videos.
+\subsection*{Middlebury MRF library}
 
+The Middlebury MRF library \citep{scharstein2006middlebury} consist of three parts, which all have to be composed together:
 \begin{itemize}
-	\item Consists of multiple steps
-	\item Wrapper to call different algorithms
-	\item normalizing of output
-	\item actual eval process
+  \item The imageLib, a small library for 2D multi-band images.
+  \item MRF, an energy minimization software \citep{szeliski2008comparative}.
+  \item mrfstereo, which is a stereo matcher front-end for the MRF library.
 \end{itemize}
 
-Input: ImageLEFT, ExpectedLEFT, ImageRIGHT, ExpectedRIGHT
-Output: a good metric for showing good/bad disparity, a few ideas.
+\noindent Some patches need to be applied to the MRF energy minimization software in order to get the graph cuts algorithms to work.
+The composition is open-sourced\footnote{\url{https://github.com/benjohnde/disparity-algorithms}} with a Makefile.
+
+\subsection*{ELAS: Efficient large-scaler stereo matching}
+
+ELAS is integrated, like the Middlebury MRF library, with a simple wrapper which executes the ELAS binary.
+ELAS required the input files as PGM\footnote{PGM is a grayscale image format, part of the Netpbm library.} and outputs PFM\footnote{Similar to OpenEXR, PFM is a floating-point image file format, also part of the Netpbm library.} images.
+%todo more...
 
 \section{Fine-grained evaluation via masks}
 
@@ -392,17 +344,16 @@ The distribution can be seen in Figure \ref{fig:gaussian}.
 \pgfmathdeclarefunction{gauss}{2}{%
   \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
 }
-
 \begin{figure}[h!]
   \center
-  \begin{tikzpicture}[scale=1.2]
+  \begin{tikzpicture}
     \begin{axis}[every axis plot post/.append style={
       mark=none,domain=17:23,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
       axis x line*=bottom, % no box around the plot, only x and y axis
       axis y line*=left, % the * suppresses the arrow tips
       enlargelimits=upper] % extend the axes a bit to the right and top
-      \addplot {gauss(20,0.2)};
-      \addplot {gauss(20,0.5)};
+      \addplot {gauss(20,0.6)};
+      \addplot {gauss(20,0.8)};
       \addplot {gauss(20,1.0)};
     \end{axis}
   \end{tikzpicture}

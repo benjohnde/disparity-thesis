@@ -25,7 +25,8 @@ New applications which arose from the combination of those topics are for instan
 
 \noindent Besides the technology of time of flight laser sensors - such as the Kinect\footnote{Besides the consumer market, for autonomous driving or robotic research Velodyne is a well-known sensor.} - there exists also the possibility to obtain depth information from stereo images by analyzing coherent images with so called disparity algorithms.
 Thus, it is sufficient to have two calibrated aligned cameras (a stereo camera) to acquire disparity information and calculate the depth at each point.
-But this leads to another fundamental problem of stereo matching: stereo correspondence, that basically means the labelling of pixels, i.e. which pixel of the left image belongs to the corresponding pixel on the right image as projection of the same three-dimensional point from the captured world projected to the image plane in every image.
+But this leads to another fundamental problem of stereo matching: stereo correspondence.
+Basically, stereo correspondence means the labelling of pixels, i.e. which pixel of the left image belongs to the corresponding pixel on the right image as a projection of the same three-dimensional point from the captured world, projected to the image plane in every image.
 This problem of stereo correspondence has to be solved in order to actually match those and calculate the disparity.
 According to \citeauthor{scharstein2002taxonomy}, stereo correspondence is one of the most heavily investigated topics in computer vision \citep{scharstein2002taxonomy}.
 As there is still a lot of research going on, no algorithm is working without any mistakes and also the runtime is a bit quirky, Microsoft Kinect established itself as a real alternative.
