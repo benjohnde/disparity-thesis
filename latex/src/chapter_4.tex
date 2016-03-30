@@ -126,10 +126,11 @@ Algorithms tend to produce disparity maps with a few unknown fields (e.g. occlud
 Crucial are also depth-discontinuity along object borders, textureless regions and occluded pixels.
 Thus, masks are used to only focus on these particular areas.
 The creation of these masks are illustrated accurately in the upcoming section.
-\newline\newline\noindent Quality metrics are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
-The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV\footnote{CSV = comma-separated values} file.
+The masks are used in combination with quality metrics, which are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
+The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV file\footnote{CSV stands for comma-separated values. A CSV file usually represents a table, with rows being the lines and in columns the values are separated with commas.}.
 \newline\newline\noindent Python scripts round the evaluation engine up.
 They work basically as a wrapper to iteratively execute each component over each frame of a given input sequence and aggregate the results.
+The evaluation engine, as well as the other components, are run with command line arguments to pass specific parameters for the execution, for instance which input images should be used and where the computed disparity map should be saved.
 
 \tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
@@ -153,49 +154,43 @@ They work basically as a wrapper to iteratively execute each component over each
   \label{fig:impl-evaluation-engine}
 \end{figure}
 
-\subsection*{Preprocessing}
-
-Different tasks are executed before the actual disparity algorithm are invoked and the evaluation takes place:
-Blub.
-
-\subsection*{Postprocessing}
-
-Postprocessing only consists of one task: normalization of the disparity map.
-Some algorithms struggle with calculating a larger number than the number of disparities of $32$.
-Some datasets only calculated the disparity to be in a range from $0$ to $63$.
-Grayscale normally ranges from $0$ to $255$.
-Thus the disparity map is normalized to range from $0$ to $63$.
-
-Simply only disparity normalization.
-
 \section{Integration of existing algorithms}
 
-Deciding which algorithms should be describe was not an easy task.
-On the one hand, the algorithms which shall be implemented during this thesis are important and thus should be described definitely.
-On the other hand, there is a huge diversity of used technologies amongst disparity algorithms.
-For instance: various programming languages, the decision between cpu- versus gpu-rendering, different coding styles and used libraries.
-As a matter of fact, this makes it harder to implement and then evaluate every single disparity algorithm.
-Thus, a more streamlined architecture was implemented.
-The ones which were presented in the related work Chapter \ref{chap:related}, are integrated.
-
-\subsection*{OpenCV}
+The decision, which algorithm should be implemented was not an easy task as shown in the related work Chapter \ref{chap:related}.
+There is a huge diversity of used technologies amongst disparity algorithms: various programming languages, cpu versus a cuda implementation, different coding styles and used libraries.
+As a matter of fact, this makes it harder to implement and evaluate every available disparity algorithm.
+Here a more streamlined extendable architecture is presented.
+The algorithms, which were introduced in the related work Chapter \ref{chap:related}, are adopted and integrated.
+The architecture of the disparity interface is depicted in Figure \ref{fig:uml-disparity-interface}.
 
 \begin{figure}[h!]
   \centering
   \begin{tikzpicture}
     %classes
-    \umlclass[x=2.5,y=7,type=interface]{DisparityAlgorithm}{- left: cv::Mat\\- right: cv::Mat}{- compute()}
+    \umlclass[x=2.5,y=8,type=abstract]{DisparityAlgorithm}{- left: cv::Mat\\- right: cv::Mat}{- compute()}
+    \umlclass[x=0,y=5.3]{ELASAlgorithm}{}{}
+    \umlclass[x=4.5,y=5.3]{MRFStereo}{}{}
     \umlclass[x=2.5,y=3,type=interface]{OpenCVStereoMatcher}{}{}
     \umlclass[x=0,y=0]{OpenCVStereoBM}{}{}
     \umlclass[x=5,y=0]{OpenCVStereoSGBM}{}{}
     %connections
     \umluniassoc{OpenCVStereoMatcher}{DisparityAlgorithm}
+    \umluniassoc{ELASAlgorithm}{DisparityAlgorithm}
+    \umluniassoc{MRFStereo}{DisparityAlgorithm}
     \umlimpl{OpenCVStereoBM}{OpenCVStereoMatcher}
     \umlimpl{OpenCVStereoSGBM}{OpenCVStereoMatcher}
   \end{tikzpicture}
-  \caption{Simplified UML diagram of the disparity interface.}
+  \caption{Architectural overview on the disparity interface in form of an UML diagram.}
   \label{fig:uml-disparity-interface}
 \end{figure}
+
+\noindent The abstract class \texttt{DisparityAlgorithm} provides both images, left and right one, in form of a \texttt{cv::Mat} object.
+On top of this abstract class further algorithms can be adopted easily.
+The output of each algorithm is then streamlined and put in the destination file.
+
+\subsection*{OpenCV}
+
+OpenCV offers two algorithms, simple block matching and the semi-global block matcher based on the implementation of \citeauthor{hirschmuller2008stereo}.
 
 \subsection*{Middlebury MRF library}
 
@@ -208,12 +203,16 @@ The Middlebury MRF library \citep{scharstein2006middlebury} consist of three par
 
 \noindent Some patches need to be applied to the MRF energy minimization software in order to get the graph cuts algorithms to work.
 The composition is open-sourced\footnote{\url{https://github.com/benjohnde/disparity-algorithms}} with a Makefile.
+Finally, a small wrapper for the execution was created.
 
 \subsection*{ELAS: Efficient large-scaler stereo matching}
 
 ELAS is integrated, like the Middlebury MRF library, with a simple wrapper which executes the ELAS binary.
 ELAS required the input files as PGM\footnote{PGM is a grayscale image format, part of the Netpbm library.} and outputs PFM\footnote{Similar to OpenEXR, PFM is a floating-point image file format, also part of the Netpbm library.} images.
-%todo more...
+In a preprocessing step the input stereo images are temporarily saved in the PGM format as grayscale.
+After the execution of ELAS, as a postprocessing step, the PFM files are converted to OpenEXR files, as the subsequent processes expect OpenEXR files as input.
+For processing the PFM files, a simple file reader was created, according to the official specifications\footnote{\url{http://netpbm.sourceforge.net/doc/pfm.html}}.
+Specific characteristics of this file format are that the rows are written bottom-to-top and each column has to be multiplied with a so called scale factor.
 
 \section{Fine-grained evaluation via masks}
 
@@ -238,78 +237,90 @@ In this matrix, $255$ represents a $1$.
 
 \subsection*{Depth-discontinuity}
 
-Determining correspondence can fail in textureless or depth-discontinuous regions as mentioned beforehand.
+Determining correspondence can fail in textureless or depth-discontinuous regions as mentioned beforehand in Chapter \ref{chap:foundations}.
 Thus, it is interesting to see how disparity algorithms handle such regions.
-For this purpose, a depth-discontinuity mask was implemented.
-\newline\newline\noindent Depth-discontinuity is observed in a ground-truth disparity map. $gap$ and $width$ are both input parameter.
-\newline\newline\noindent The image gets dilated to get the maximum disparity of a pixels neighbor.
-Then, the image gets eroded for estimating the minimum disparity of pixels neighbor.
-Finally, the depth-discontinuity areas are the ones with maximum - truth > gap.
+So, a depth-discontinuity mask was implemented.
+Depth-discontinuity is observed in the ground-truth disparity map.
+It is defined as regions, where adjacent disparities differ by more than a certain gap \citep{scharstein2002taxonomy, cyganek2011introduction}.
+For this purpose two basic morphological\footnote{Morphological operations are techniques to analyze and process geometrical structures.} image processing operations from the OpenCV library are used: \texttt{dilate} and \texttt{erode}.
+\texttt{dilate} outputs for each position in a \texttt{cv::Mat} the maximum value of all the pixels in the neighborhood.
+\texttt{erode} does nearly the same, but returns the minimum value.
+Both are fed with a kernel, specifying which adjacent pixels should be taken into account.
+\newline\newline\noindent For getting the disparity gap, the image gets dilated to get the maximum disparity of a pixel's neighbor.
+Then eroded to estimate the minimum disparity of a pixel's neighbor.
+Both is done with a $3x3$ kernel, and all adjacent pixels are masked to observe.
+Finally, the depth-discontinuity areas are the ones with $maximum - truth > gap$.
+The depth-discontinuity is then dilated by a window with given width to intense the area.
+Visually, the best results are achieved with a gap of $2.0f$ and a width of $3$ for the final dilation.
+Figure \ref{fig:dd-mask} depicts this.
 
-
-For 
-
-
-"Stereo vision algorithms typically compute erroneous results in regions where there is a sudden change in the depth between objects in the scene. They are defined in [1] as regions where neighboring disparities differ by more than a certain gap, dilated by a window of a given width."
-\citep{scharstein2002taxonomy, cyganek2011introduction}.
-
-Explain:
-
-\begin{itemize}
-  \item Dilate
-  \item Erode
-  \item maybe show short example image (combined dilate/erode)
-  \item explain how the bitmask is calculated
-\end{itemize}
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[ground-truth disparity]{\includegraphics[width=0.3\textwidth]{src/images/book_ground-truth.png}} &
+\subfloat[mask before final dilation]{\includegraphics[width=0.3\textwidth]{src/images/book_dd_mask.png}} &
+\subfloat[final mask for evaluation]{\includegraphics[width=0.3\textwidth]{src/images/book_dd_mask_final.png}}
+\end{tabular}
+\caption{A depth-discontinuity mask, exampled with the first frame of the book scene from the Middlebury dataset.}
+\label{fig:dd-mask}
+\end{figure}
 
 \subsection*{Textured regions recognition}
 
-"Stereo vision algorithms typically compute erroneous results in regions where there is a little or no texture in the scene. They are defined in [1] as regions where the squared horizontal intensity gradient averaged over a square window of a given size is below a given threshold."
-\citep{scharstein2002taxonomy, cyganek2011introduction}.
-
 Stereo matching algorithms act on the assumption, that disparity is smooth, especially if contrast and color intensity do not change drastically.
-It can be interesting to see how those algorithms treat textured and textureless regions.
+Therefore, it can be interesting to see how those algorithms treat textured and textureless regions.
+Basically, regions with little or no texture in an image is defined as areas, where the squared horizontal intensity gradient, averaged over a square window of a given size, is below a given threshold \citep{scharstein2002taxonomy, cyganek2011introduction}.
+This is done with the OpenCV implementation of \texttt{Sobel} and \texttt{Boxfilter}.
+Figure \ref{fig:textured-mask} depicts this approach.
 
-Explain (shortly):
+%todo may be a bit more on the filter and what is implemented.
 
-\begin{itemize}
-  \item Sobel
-  \item pow
-  \item boxFilter
-  \item how we get the bitmask
-\end{itemize}
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[ground-truth disparity]{\includegraphics[width=0.4\textwidth]{src/images/street_left.png}} &
+\subfloat[mask before final dilation]{\includegraphics[width=0.4\textwidth]{src/images/street_textured_mask.png}} &
+\end{tabular}
+\caption{Textured regions recognition with the first frame of the street scene from the Middlebury dataset.}
+\label{fig:textured-mask}
+\end{figure}
 
 \subsection*{Discover occluded pixels}
 
-An occluded pixel is defined as a pixel which is hidden in one of the two images, for instance an object hides it from a different angle.
-In the case of stereo matching the disparity can not be calculated for such a pixel.
-Thus occluded pixels have to be handled properly, as they could distort our result.
-For this purpose a simple mask is introduced to indicate which pixels on the scene are visible for both cameras and which are not.
+An occluded pixel is defined as a pixel, which is hidden in one of the two images, for instance an object hides it from a different angle.
+In the case of stereo matching the disparity can not be calculated for such pixels
+Thus, occluded pixels have to be handled properly, as they could distort our result.
+For this purpose, a simple mask for non-occluded areas is introduced, to indicate which pixels on the scene are visible for both cameras and which are not.
+\newline\newline\noindent To obtain the mask both disparity maps, left and right one, are iterated.
+Pixels that are visible from both cameras should have the same disparity value in both disparity maps.
+For occluded pixels, the value is different \citep{martull2012realistic}.
+Hence, a simple cross-check is sufficient.
+Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 
-Explain and cite two papers (taxonomy of disparity algorithms).
-There it is explained how everything is working.
-Explain how the get the result (use algorithm).
-
-Thus we need to take care about non-occluded areas. For this purpose we generated bitmasks (the size $w$ * $h$) for each video dataset.
-
-"In addition to disparity maps, for stereo matching method evaluation it is interesting to have a non-occluded area mask. This mask represents in white color the pixels on the scene that are visible from both cameras and in black color the pixels that are visible from only one camera.
-To obtain the non-occluded area mask, we simply cross-checked the left and right disparity maps. Pixels that are visible in both cameras will have the same value in both disparity maps, but for occluded pixels the left and right disparity value will be different.
-The performance of the stereo matching algorithm on areas where pixels are occluded is one of the most important quality indicators of the algorithm, as it is very difficult to find the matching point of a pixel in one of the images if it is not visible on the other image." \citep{martull2012realistic}.
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[left ground-truth]{\includegraphics[width=0.3\textwidth]{src/images/book_ground-truth.png}} &
+\subfloat[right ground-truth]{\includegraphics[width=0.3\textwidth]{src/images/book_ground-truth_right.png}} &
+\subfloat[resulting mask]{\includegraphics[width=0.3\textwidth]{src/images/book_noc_mask.png}}
+\end{tabular}
+\caption{The ground-truth disparity maps of the first frame of the book scene from the Middlebury dataset is used to illustrate the non-occluded areas mask.}
+\label{fig:dd-mask}
+\end{figure}
 
 \subsection*{Saliency detection}
 
-Another criteria for the later evaluation is how the algorithms operate on regions which are salient in a specific scene.
-There exist some algorithms for saliency detection in either images or videos \citep{dittrich2013saliency, opencv_library}.
-OpenCV offers two different saliency categories to be computed:
+As a novel approach, saliency detection is used is another criteria for the later evaluation.
+It is interesting to see how disparity algorithms operate on salient regions in an image.
+There exist some algorithms for saliency detection in images and videos \citep{dittrich2013saliency, hou2007saliency, opencv_library}.
+OpenCV offers two different saliency detection algorithms:
 \begin{itemize}
-  \item $StaticSaliency$ in images, and
-  \item $MotionSaliency$ on videos.
+  \item \texttt{StaticSaliency} in images, and
+  \item \texttt{MotionSaliency} on videos.
 \end{itemize}
 
-\noindent Explain how saliency detection works, implemented via OpenCV. Otsu's algorithms, threshold and K-Means algorithm \citep{hou2007saliency}.
-
-%explicit
-\newpage
+\noindent Here the static saliency approach was used \citep{hou2007saliency}.
+%todo a bit more how it was implemented and what the basic idea behind this saliency detection is
 
 \section{Image diminisher to simulate real use cases}
 
@@ -322,24 +333,14 @@ Video compression is added via FFmpeg.
 \subsection*{Gaussian noise}
 
 As seen in the related work Chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
-Hence noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
-Gaussian noise is use, meaning that the noise is gaussian distributed (or normal distributed).
-
-\begin{equation}
-  f\left(x\right) = a e^{- { \frac{(x-b)^2 }{ 2 c^2} } }
-\end{equation}
-
-\begin{equation}
-  p_G(z) = \frac{1}{\sigma\sqrt{2\pi}} e^{ -\frac{(z-\mu)^2}{2\sigma^2} }
-\end{equation}
-
-\noindent In this example, $z$ represents the grey level which is added to the image matrix later on.
-$\mu$ is the mean value (= 0).
+Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
+Gaussian noise is used, meaning that the noise is gaussian distributed (or normal distributed).
+\newline\newline\noindent $\mu$ is the mean value (= 0).
 $\sigma$ is the standard deviation.
 Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.
 \newline\newline\noindent The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
 As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $20$ to simulate real scenery.
-The distribution can be seen in Figure \ref{fig:gaussian}.
+The distribution is illustrated in Figure \ref{fig:gaussian}.
 
 \pgfmathdeclarefunction{gauss}{2}{%
   \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
@@ -374,7 +375,7 @@ Most of the widely used video compression techniques belong to the lossy data co
 As in contrast to lossless compression, lossy tend to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
 FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
 FFmpeg is a tool to create video sequences from images with popular video codecs and also to divide a video sequences into images.
-
+\newline\newline\noindent Bla.
 %how it is implemented what codec is used mainly?
 
 \section{Web result viewer for evaluation suite}
