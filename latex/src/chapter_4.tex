@@ -156,6 +156,9 @@ The evaluation engine, as well as the other components, are run with command lin
 
 \section{Integration of existing algorithms}
 
+%todo more text in each subsection
+%todo a bit talking about parameters
+
 The decision, which algorithm should be implemented was not an easy task as shown in the related work Chapter \ref{chap:related}.
 There is a huge diversity of used technologies amongst disparity algorithms: various programming languages, cpu versus a cuda implementation, different coding styles and used libraries.
 As a matter of fact, this makes it harder to implement and evaluate every available disparity algorithm.
@@ -278,8 +281,8 @@ Figure \ref{fig:textured-mask} depicts this approach.
 \begin{figure}[h!]
 \centering
 \begin{tabular}{ccc}
-\subfloat[ground-truth disparity]{\includegraphics[width=0.4\textwidth]{src/images/street_left.png}} &
-\subfloat[mask before final dilation]{\includegraphics[width=0.4\textwidth]{src/images/street_textured_mask.png}} &
+\subfloat[image of left camera]{\includegraphics[width=0.4\textwidth]{src/images/street_left.png}} &
+\subfloat[final textured mask]{\includegraphics[width=0.4\textwidth]{src/images/street_textured_mask.png}} &
 \end{tabular}
 \caption{Textured regions recognition with the first frame of the street scene from the Middlebury dataset.}
 \label{fig:textured-mask}
@@ -320,6 +323,7 @@ OpenCV offers two different saliency detection algorithms:
 \end{itemize}
 
 \noindent Here the static saliency approach was used \citep{hou2007saliency}.
+
 %todo a bit more how it was implemented and what the basic idea behind this saliency detection is
 
 \section{Image diminisher to simulate real use cases}
@@ -329,6 +333,8 @@ Both can be simulated.
 Noise can be added onto the rendered video.
 Then the impact can be analyzed.
 Video compression is added via FFmpeg.
+
+%todo impl flow of diminisher
 
 \subsection*{Gaussian noise}
 
@@ -376,7 +382,8 @@ As in contrast to lossless compression, lossy tend to produce small artifacts in
 FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
 FFmpeg is a tool to create video sequences from images with popular video codecs and also to divide a video sequences into images.
 \newline\newline\noindent Bla.
-%how it is implemented what codec is used mainly?
+%todo how it is implemented what codec is used mainly?
+%todo impl flow of ffmpeg
 
 \section{Web result viewer for evaluation suite}
 
@@ -412,6 +419,8 @@ The following features were implemented:
 \end{itemize}
 
 \section{Discussion}
+
+%todo summarize a bit
 
 The following modules were actually implemented:
 
