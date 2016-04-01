@@ -20,8 +20,6 @@ Accumulated, the computed disparity maps, the created masks as well as the heatm
 
 %todo intro
 
-\subsection*{Ground-truth data}
-
 In general there exist two ways to gain ground-truth information of pixels:
 \begin{itemize}
   \item in the real-world sense the area,
@@ -36,8 +34,6 @@ The latter one provides real ground-truth information.
 
 %todo explain errorbars
 Provide real-world ground truth disparity maps \citep{kondermann2015stereo}.
-
-\subsection*{Availability}
 
 %todo explain
 The aim of such datasets is to provide data which we can rely on to evaluate the performance of computer vision algorithms, such as disparity algorithms in this thesis.
@@ -67,9 +63,9 @@ The first dataset ever released for working with stereoscopic images.
 
 %todo intro
 
-\subsection{Middlebury stereo dataset}
+\subsection{Cambridge stereo dataset}
 
-\citep{scharstein2014high}.
+%todo intro
 
 \begin{figure}[h!]
   \centering
@@ -78,11 +74,6 @@ The first dataset ever released for working with stereoscopic images.
   \label{fig:dbcgrid-dataset}
 \end{figure}
 
-%todo intro
-
-\subsection{Cambridge stereo dataset}
-
-%todo intro
 The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
 The dataset scales the disparity for each scene from $0$ to $64$.
 
@@ -110,6 +101,7 @@ The most important points which can lead to a discrepancy between the computed d
   \item fain-grained textures were reduced only in the ground-truth data.
 \end{itemize}
 
+%todo describe potential drawbacks
 %todo go into more concrete
 
 \section{Quality metrics}
@@ -169,14 +161,6 @@ Here $d_a(x,y)$ is the actual disparity value for given $x$ and $y$.
 $d_e(x,y)$ is our expected disparity value from our ground-truth data.
 Hence the RMSE is the difference between values on average.
 
-\subsection*{Energy efficiency}
-
-\begin{equation}
-  EE_{alg} = \frac{clean\ pixels}{runtime\ in\ seconds}
-\end{equation}
-
-\noindent where $clean\ pixels$ are defined as bad pixels in percent of non-occluded pixels and $runtime\ in\ seconds$ the runtime for this particular frame. $EE_{alg}$ is then calculated in the mean of all frames of a given sequence over all examined sequences and all datasets.
-
 \section{Measurement}
 
 \begin{itemize}
@@ -197,6 +181,8 @@ So it is possible to have good parameters for one scene and not for another.
 However, in order to evaluate those algorithms the Tsubuka stereo dataset was chosen as reference dataset to see how the eval engine actually works with the same parameters on the same images.
 
 \section{Results}
+
+%todo small intro
 
 The results are visualized with the HSV color model.
 

@@ -128,7 +128,7 @@ Thus, masks are used to only focus on these particular areas in an evaluation.
 The creation of these masks are illustrated accurately in the upcoming section.
 The masks are used in combination with quality metrics, which are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
 The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV file\footnote{CSV stands for comma-separated values. A CSV file usually represents a table, with rows being the lines and in columns the values are separated with commas.}.
-Figure \ref{impl-evaluation-engine} depicts the evaluation engines input and output.
+Figure \ref{fig:impl-evaluation-engine} depicts the evaluation engines input and output.
 As seen in Figure \ref{fig:impl-pipeline}, the implementation consists of three components.
 After an algorithm is executed, the masks are created.
 Finally, the computed disparity maps are compared with their ground-truth companion with each mask applied.
@@ -216,7 +216,8 @@ Larger values lead to over-smoothed edges in the disparity map, so that the disp
 $\sigma_{color}$ specifies how sensitive the filtering is done towards the source image edges.
 Both are typical values for smoothing the disparity according to the OpenCV documentation.
 As a post-processing step, the resulting \texttt{cv::Mat} has to be divided through $16$, as every input value gets multiplied with $16$ according to the source-code\footnote{\url{https://github.com/Itseez/opencv/blob/3942b1f36261b196a264e\\b35c996222848fe3c93/modules/calib3d/src/stereobm.cpp\#L564}}.
-The reasoning behind that is not known.
+This step is integrated for sub-pixel-accurate disparity maps.
+In the end, each point contains of 4 fractional bits.
 
 \subsection*{Middlebury MRF library}
 
@@ -233,15 +234,18 @@ Finally, a small wrapper for the execution was created.
 The wrapper prepares the input images beforehand, saves them in a temporarily directory and post-processes the output.
 The output is a disparity map, represented as 8-bit fixed points, where each disparity value has 4 fractional bits.
 Thus, the result output is converted to a 32-bit floating values matrix, divided through $4$ and saved as OpenEXR file.
-\newline\newline\noindent The MRF library offers the possibility to use the Birchfield/Tomasi\footnote{Explain me in one or two sentences.} method for matching cost calculation instead of the more commonly used sum of absolute differences (SAD).
-In case of SAD, it is possible to truncate the differences to a certain maximum value.
-%todo describe Birchfield/Tomasi costs
+\newline\newline\noindent The MRF library offers the possibility to use the Birchfield-Tomasi method for matching cost calculation instead of the more commonly used sum of absolute differences (SAD).
+\citeauthor{birchfield1999depth} defined matching cost as a global function which penalties occlusions and rewards matches \citep{birchfield1999depth}.
+According to \citep{scharstein2002taxonomy, hirschmuller2007evaluation} the Birchfield-Tomasi method leads to better results than traditional similarities measurements like SAD.
+In case of a traditional local similarities measurement, for instance SAD, it is possible to truncate the differences to a certain maximum value.
 Via parameter the algorithm for minimizing the energy function, as presented in the related work Chapter \ref{chap:related}, can be chosen.
 The other parameters are only for the smoothness term of the energy function.
 It is possible to adjust the smoothness exponent, the maximum value of the smoothness term, the weight $\lambda$ of the smoothness term.
 
 \subsection*{ELAS: Efficient large-scaler stereo matching}
 
+ELAS summarizes a front-end interface in combination with the library for efficient large-scale stereo matching (LIBELAS) from \citeauthor{Geiger2010ACCV} \citep{Geiger2010ACCV, Geiger2011IV}.
+It offers C++ library with a wrapper for MATLAB applications to compute disparity maps from rectified graylevel stereo pairs.
 ELAS is integrated, like the Middlebury MRF library, with a simple wrapper which executes the ELAS binary.
 ELAS required the input files as PGM\footnote{PGM is a grayscale image format, part of the Netpbm library.} and outputs PFM\footnote{Similar to OpenEXR, PFM is a floating-point image file format, also part of the Netpbm library.} images.
 In a preprocessing step the input stereo images are temporarily saved in the PGM format as grayscale.
@@ -249,6 +253,9 @@ After the execution of ELAS, as a post-processing step, the PFM files are conver
 For processing the PFM files, a simple file reader was created, according to the official specifications\footnote{\url{http://netpbm.sourceforge.net/doc/pfm.html}}.
 Specific characteristics of this file format are, that the rows are written bottom-to-top and each column has to be multiplied with a scale factor.
 The ELAS binary can be started with no parameters but the maximum disparity value.
+
+%explicit
+\newpage
 
 \section{Fine-grained evaluation via masks}
 
@@ -306,16 +313,22 @@ Figure \ref{fig:dd-mask} depicts this.
 Stereo matching algorithms act on the assumption, that disparity is smooth, especially if contrast and color intensity do not change drastically.
 Therefore, it can be interesting to see how those algorithms treat textured and textureless regions.
 Basically, regions with little or no texture in an image is defined as areas, where the squared horizontal intensity gradient, averaged over a square window of a given size, is below a given threshold \citep{scharstein2002taxonomy, cyganek2011introduction}.
-This is done with the OpenCV implementation of \texttt{Sobel} and \texttt{Boxfilter}.
+\newline\newline\noindent This is implemented with the OpenCV \texttt{Sobel} operator and the \texttt{boxfilter}.
+The sobel operator is a simple edge-detection filter which emphasizes edges in an image by representing the gradient magnitudes from the derivatives calculation.
+The boxfilter is a blurring filter, which smoothes an image using a normalized kernel with a given size.
+This is one of the simplest smoothing filters, as it just calculates the mean of its kernel neighbors, with all weighted equally.
+So with the sobel filter, the edges are highlighted so that a computer can recognize them whereas the boxfilter smoothes the borders of recognized edges a bit.
+Finally, the matrix of this outcome is checked against a threshold.
+If a value of the matrix is greater than the threshold, the pixel is marked as a textured pixel.
+\newline\newline\noindent The values for both, kernel size and threshold are depending of the scenery.
+With the datasets which are evaluated in the upcoming Chapter \ref{chap:eval}, visually, the best results are achieved with a kernel size of $(2\ x\ 2)$ for the boxfilter, and a threshold of $16$.
 Figure \ref{fig:textured-mask} depicts this approach.
-
-%todo may be a bit more on the filter and what is implemented.
 
 \begin{figure}[h!]
 \centering
-\begin{tabular}{ccc}
-\subfloat[image of left camera]{\includegraphics[width=0.4\textwidth]{src/images/street_left.png}} &
-\subfloat[final textured mask]{\includegraphics[width=0.4\textwidth]{src/images/street_textured_mask.png}} &
+\begin{tabular}{cc}
+\subfloat[image of left camera]{\includegraphics[width=0.45\textwidth]{src/images/street_left.png}} &
+\subfloat[final textured mask]{\includegraphics[width=0.45\textwidth]{src/images/street_textured_mask.png}}
 \end{tabular}
 \caption{Textured regions recognition with the first frame of the street scene from the Middlebury dataset.}
 \label{fig:textured-mask}
@@ -327,10 +340,6 @@ An occluded pixel is defined as a pixel, which is hidden in one of the two image
 In the case of stereo matching the disparity can not be calculated for such pixels
 Thus, occluded pixels have to be handled properly, as they could distort our result.
 For this purpose, a simple mask for non-occluded areas is introduced, to indicate which pixels on the scene are visible for both cameras and which are not.
-\newline\newline\noindent To obtain the mask both disparity maps, left and right one, are iterated.
-Pixels that are visible from both cameras should have the same disparity value in both disparity maps.
-For occluded pixels, the value is different \citep{martull2012realistic}.
-Hence, a simple cross-check is sufficient.
 Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 
 \begin{figure}[h!]
@@ -340,9 +349,18 @@ Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 \subfloat[right ground-truth]{\includegraphics[width=0.3\textwidth]{src/images/book_ground-truth_right.png}} &
 \subfloat[resulting mask]{\includegraphics[width=0.3\textwidth]{src/images/book_noc_mask.png}}
 \end{tabular}
-\caption{The ground-truth disparity maps of the first frame of the book scene from the Middlebury dataset is used to illustrate the non-occluded areas mask.}
+\caption{The ground-truth disparity maps of the first frame from the book scene is used to illustrate the non-occluded areas mask.}
 \label{fig:noc-mask}
 \end{figure}
+
+\noindent To obtain the mask both disparity maps, left and right one, are iterated.
+Pixels that are visible from both cameras should have the same disparity value in both disparity maps.
+For occluded pixels, the value is different \citep{scharstein2002taxonomy, martull2012realistic, cyganek2011introduction}.
+Hence, a simple cross-check is sufficient.
+It is implemented as the absolute value from the subtraction of the left and the right value at a given position $(x,y)$.
+The result is then checked against a threshold.
+If the value is greater than this threshold, the pixel is marked as occluded.
+A suitable value for the threshold is $2$, according to \citep{scharstein2002taxonomy}.
 
 \subsection*{Saliency detection}
 
@@ -351,25 +369,43 @@ It is interesting to see how disparity algorithms operate on salient regions in 
 There exist some algorithms for saliency detection in images and videos \citep{dittrich2013saliency, hou2007saliency, opencv_library}.
 OpenCV offers two different saliency detection algorithms:
 \begin{itemize}
-  \item \texttt{StaticSaliency} in images, and
-  \item \texttt{MotionSaliency} on videos.
+  \item one for images, \texttt{StaticSaliency}, and
+  \item one for videos \texttt{MotionSaliency}.
 \end{itemize}
 
-\noindent Here the static saliency approach was used \citep{hou2007saliency}.
+\noindent Here, the static saliency approach was used \citep{hou2007saliency} and implemented.
+The algorithm outputs a saliency map with different saliency values, so a pixel can be more or less salient in the overall context.
+This approach is also called the spectral residual approach as it analyzes the spectrum of an input image and creates a spectral residual model.
+However, in the end a binary saliency map is outputted from the spectral residual model, where the pixels are masked as salient if their intensity in this spectral residual model is above a certain threshold.
+This threshold can not be set as parameter, but is denoted as three times the average intensity of the saliency map.
+Basically, the main idea is to extract the pixels which jump out of smooth curves, as they deserve most certainly the humans attention (cf. \citep{hou2007saliency}).
+No parameters can be adjusted.
+Figure \ref{fig:salient-mask} shows an example binary saliency map of an image from the SVDDD dataset, which will be presented in the upcoming Chapter \ref{chap:eval}.
 
-%todo a bit more how it was implemented and what the basic idea behind this saliency detection is
+\begin{figure}[h!]
+\centering
+\begin{tabular}{cc}
+\subfloat[left image]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001.png}} &
+\subfloat[salient mask]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001-salientmask.png}}
+\end{tabular}
+\caption{Frame of the field sequence from the SVDDD dataset and the corresponding salient regions mask from the static saliency approach.}
+\label{fig:salient-mask}
+\end{figure}
+
+\newpage
 
 \section{Image diminisher to simulate real use cases}
 
-It is also interesting to see the impact of image diminishing effects like compression or noise like from a real sensor.
-Both can be simulated.
-Noise can be added onto the rendered video.
-Then the impact can be analyzed.
-Video compression is added via FFmpeg.
+The presented masks can help to focus on different aspects during the evaluation.
+Another interesting part of the evaluation is, to see the impact of small errors on the outcome of disparity algorithms.
+For investigating the robustness of disparity algorithms against image diminishing effects like artifacts from video compression or noise like from a real sensor.
+As both can be simulated by altering synthetic video sequences, an image diminisher to simulate real uses cases is implemented.
+Basically, this image diminisher consists of two parts: an OpenCV C++ program, which can add noise on top of images, and python script which wraps commands of FFmpeg to alter video sequences.
 
 \tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=5em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
 \begin{figure}[h!]
+  \vspace{1cm}
   \centering
   \begin{tikzpicture}[node distance=10em, auto]
     %nodes
@@ -387,41 +423,39 @@ Video compression is added via FFmpeg.
 \subsection*{Gaussian noise}
 
 As seen in the related work Chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
-Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
+Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms in general.
 Gaussian noise is used, meaning that the noise is gaussian distributed (or normal distributed).
-$\mu$ is the mean value (= 0).
-$\sigma$ is the standard deviation.
-Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.
-\newline\newline\noindent The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
-As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $20$ to simulate real scenery.
+Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance (standard deviation).
+\newline\newline\noindent As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $20$ to simulate real scenery.
+The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
 The distribution is illustrated in Figure \ref{fig:gaussian}.
-
-\pgfmathdeclarefunction{gauss}{2}{%
-  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
-}
-\begin{figure}[h!]
-  \center
-  \begin{tikzpicture}
-    \begin{axis}[every axis plot post/.append style={
-      mark=none,domain=17:23,samples=50,smooth}, % All plots: from -2:2, 50 samples, smooth, no marks
-      axis x line*=bottom, % no box around the plot, only x and y axis
-      axis y line*=left, % the * suppresses the arrow tips
-      enlargelimits=upper] % extend the axes a bit to the right and top
-      \addplot {gauss(20,0.6)};
-      \addplot {gauss(20,0.8)};
-      \addplot {gauss(20,1.0)};
-    \end{axis}
-  \end{tikzpicture}
-  \caption{Gaussian noise distribution with $\mathcal{N}(20,\sigma^2)$ and different values for $\sigma^2$.}
-  \label{fig:gaussian}
-\end{figure}
-
-\noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
+\newline\newline\noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
 It generates a \texttt{cv::Mat} with the random distribution of values.
 This matrix is then added on the source matrix, resulting in a noisy image.
 Salt and pepper noise was not chosen, as it does not reflect real scenery.
 Salt and pepper noise is not a common noise, as it contains random occurrences of black and white pixels.
 It mostly appears by defect image sensors or erroneous analog-to-digital conversion.
+
+\pgfmathdeclarefunction{gauss}{2}{%
+  \pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+\begin{figure}[h!]
+  \vspace{1cm}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[every axis plot post/.append style={
+      mark=none,domain=17:23,samples=50,smooth},
+      axis x line*=bottom,
+      axis y line*=left,
+      enlargelimits=upper]
+      \addplot {gauss(20,0.6)};
+      \addplot {gauss(20,0.8)};
+      \addplot {gauss(20,1.0)};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Gaussian noise distribution with $\mathcal{N}(20,\sigma^2)$ for different values of $\sigma^2$.}
+  \label{fig:gaussian}
+\end{figure}
 
 \subsection*{Video compression}
 
@@ -429,14 +463,24 @@ Most of the widely used video compression techniques belong to the lossy data co
 As in contrast to lossless compression, lossy tend to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
 FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
 FFmpeg is a tool to create video sequences from images with popular video codecs and also to divide a video sequences into images.
-Figure \ref{fig:ffmpeg-flow} depicts the integration of FFmpeg in the image diminish process.
+Figure \ref{fig:ffmpeg-flow} depicts the integration of FFmpeg in the image diminish process and how the python script invokes FFmpeg.
 \newline\newline\noindent H.265\footnote{H.265 is also known as High Efficiency Video Coding (HEVC) and is a standard for encoding/decoding high-resolution video content.} was utilized as codec for video compression.
-
-%todo how it is implemented what codec is used mainly?
+With H.265 there exist only one parameter for most of the H.265 libraries.
+Here, FFmpeg is used with the libx265\footnote{\url{https://bitbucket.org/multicoreware/x265/overview}}, an open source HEVC encoder.
+The only parameter, which can be set is the constant rate factor (CRF).
+\newline\newline\noindent The CRF is a new technique to compress videos.
+Normally, there exist a quantizer scale factor (QP) in video compression.
+This is a factor, which defines how strong the video should be compressed.
+In traditional video compression techniques, this factor does not vary throughout a video and thus all frames receive the same compression.
+H.265 as well as H.264 vary the QP according to the CRF depending on the scenery.
+Fast moving scenes will receive a stronger QP than slow moving scenes, as the human eye will not focus on too many details in scenes with fast motion.
+The suitable values vary from $0-51$, with $0$ implicating lossless compression and $51$ meaning the best possible compression with the worst visual outcome.
+The default value is $28$ for H.265\footnote{\url{https://trac.ffmpeg.org/wiki/Encode/H.265}}.
 
 \tikzstyle{rblock} = [text width=4em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
 \begin{figure}[h!]
+  \vspace{1cm}
   \centering
   \begin{tikzpicture}[node distance=9em, auto, scale=0.9, every node/.style={transform shape}]
     %nodes
@@ -463,24 +507,82 @@ Figure \ref{fig:ffmpeg-flow} depicts the integration of FFmpeg in the image dimi
 
 \section{Simple stereo matcher}
 
-Bla.
+A simple naive stereo matcher (SNSM)\footnote{\url{https://github.com/benjohnde/disparity-evaluation/tree/master/4_NaiveImplementation}} has been implemented for several reasons.
+First, the SNSM was built to see the limitations of such fast approaches without focusing for instance on arbitrary regions in an image, which can lead to erroneous results.
+Second, to enhance the SNSM by adding the ability of taking the time axis into account, like spatiotemporal SNSM.
+Third, to have skeleton for further research.
+As it would be a tremendous task to implement a feature-complete stereo matcher, for instance implementing all available matching cost functions, only the sum of absolute differences (SAD) was implemented as matching cost function.
+\newline\newline\noindent The Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via \ref{alg:matchingcost}, \textsc{MatchingCost}, for each possible disparity and stores them in a three-dimensional matrix.
+A pair of rectified stereo images, $I_L$ and $I_R$, $d_{max}$ for maximum disparity to be find and $wSize$ as window size.
+\textsc{Rect}\{x,y,width,height\} denotes a rectangle cropped out of the original image.
+Hence, the matching cost can be queried with $C(x,y,d)$.
+Algorithm \ref{alg:disparity-map}, \textsc{DisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the matrix.
 
-%todo maybe add simple stereo matcher
-%todo as well as the spatiotemportal stereo matcher
-
-\begin{algorithm}
+\begin{algorithm}[h!]
 \DontPrintSemicolon
-\KwIn{A finite set $A=\{a_1, a_2, \ldots, a_n\}$ of integers}
-\KwOut{The largest element in the set}
-$max \gets a_1$\;
-\For{$i \gets 2$ \textbf{to} $n$} {
-  \If{$a_i > max$} {
-    $max \gets a_i$\;
+\KwIn{$I_L$, $I_R$, $d_{max}$, $wSize$}
+\KwOut{$C(x,y,d)$}
+$step \gets (wSize - 1) / 2$\;
+$C \gets \textsc{Matrix}(x,y,d_{max})$\;
+\For{$y \gets 0 + step$ \textbf{to} $rows(I_L) - step$} {
+  \For{$x \gets 0 + step$ \textbf{to} $cols(I_L) - step - d_{max}$} {
+    \For{$d \gets 0$ \textbf{to} $d_{max}$} {
+      $rect_{L} \gets \textsc{Rect}\{x - step, y - step, wSize, wSize\}$\;
+      $rect_{R} \gets \textsc{Rect}\{x + d - step, y - step, wSize, wSize\}$\;
+      $window_{L} \gets I_L(rect_{L})$\;
+      $window_{R} \gets I_L(rect_{R})$\;
+      $dsi(x,y,d) \gets \textsc{MatchingCost}(window_{L}, window_{R})$\;
+    }
   }
 }
-\Return{$max$}\;
-\caption{{\sc Max} finds the maximum number}
-\label{alg:max}
+\Return{$C$}\;
+\caption{\textsc{CreateDisparitySpaceImage}}
+\label{alg:dsi-3d}
+\end{algorithm}
+
+\noindent The matching cost is simply, as mentioned beforehand, the sum of absolute differences in a given window, as can be seen in Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost}.
+
+\begin{algorithm}[h!]
+\DontPrintSemicolon
+\KwIn{$window_{L}$, $window_{R}$}
+\KwOut{$cost$}
+$\Delta \gets |window_{L} - window_{R}|$\;
+$cost \gets \textsc{MatrixSum}(\Delta)$\;
+\Return{$cost$}\;
+\caption{\textsc{MatchingCost}}
+\label{alg:matchingcost}
+\end{algorithm}
+
+\noindent The spatiotemporal approach is then to add a new dimension, the time axis $t$ to the disparity space image.
+Then, the DSI knows for each position, given a disparity and a frame the matching cost.
+As a simple idea, the disparity, chosen for a frame, is then the minimum over three frames.
+Looking at a frame at time $f_t$, the frames $f_{t-1}$ and $f_{t+1}$ are also taken into account.
+The underlying assumption is, that there is no much motion between the frames, because this would lead to inaccurate matching cost due to possible object hops.
+Another possibility is to weight the frames, for instance the frame before and after the current frame are taken by $\frac{1}{5}$ into account, whereas the current frame is taken by $\frac{2}{5}$ into account.
+
+\begin{algorithm}[h!]
+\DontPrintSemicolon
+\KwIn{$C(x,y,d)$}
+\KwOut{$DisparityMap$}
+$DisparityMap \gets \textsc{Matrix}(x,y)$\;
+$step \gets (wSize - 1) / 2$\;
+\For{$y \gets 0$ \textbf{to} $\textsc{Rows}(C)$} {
+  \For{$x \gets 0$ \textbf{to} $\textsc{Cols}(C)$} {
+    $cost \gets \infty$\;
+    $bestMatch \gets 0$\;
+    \For{$d \gets 0$ \textbf{to} $\textsc{Disparities}(C)$} {
+      $DisparityMap(x,y) \gets \textsc{Min}(C(x,y))$\;
+      \If{$cost > C(x,y,d)$} {
+        $cost \gets C(x,y,d)$\;
+        $bestMatch \gets d$\;
+      }
+    }
+    $DisparityMap(x,y) \gets bestMatch$\;
+  }
+}
+\Return{$DisparityMap$}\;
+\caption{\textsc{GetDisparityMap}}
+\label{alg:disparity-map}
 \end{algorithm}
 
 \section{Web result viewer for evaluation suite}
