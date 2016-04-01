@@ -509,14 +509,14 @@ The default value is $28$ for H.265\footnote{\url{https://trac.ffmpeg.org/wiki/E
 
 A simple naive stereo matcher (SNSM)\footnote{\url{https://github.com/benjohnde/disparity-evaluation/tree/master/4_NaiveImplementation}} has been implemented for several reasons.
 First, the SNSM was built to see the limitations of such fast approaches without focusing for instance on arbitrary regions in an image, which can lead to erroneous results.
-Second, to enhance the SNSM by adding the ability of taking the time axis into account, like spatiotemporal SNSM.
-Third, to have skeleton for further research.
+Second, to enhance the SNSM by adding the ability of taking the time axis into account, named spatiotemporal SNSM.
+Third, to have skeleton for further research and development.
 As it would be a tremendous task to implement a feature-complete stereo matcher, for instance implementing all available matching cost functions, only the sum of absolute differences (SAD) was implemented as matching cost function.
-\newline\newline\noindent The Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via \ref{alg:matchingcost}, \textsc{MatchingCost}, for each possible disparity and stores them in a three-dimensional matrix.
-A pair of rectified stereo images, $I_L$ and $I_R$, $d_{max}$ for maximum disparity to be find and $wSize$ as window size.
-\textsc{Rect}\{x,y,width,height\} denotes a rectangle cropped out of the original image.
-Hence, the matching cost can be queried with $C(x,y,d)$.
-Algorithm \ref{alg:disparity-map}, \textsc{DisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the matrix.
+\newline\newline\noindent The Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost} for each possible disparity and stores them in a three-dimensional matrix.
+As input parameter, the Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, expect a pair of rectified stereo images, $I_L$, $I_R$, the maximum disparity to be found $d_{max}$ and $wSize$ as window size for the blocks to be matched.
+\textsc{Rect}\{x,y,width,height\} denotes a rectangle cropped out of a given image.
+Furthermore, the matching cost can be queried with the function $C(x,y,d)$, which also represents the disparity space image.
+Algorithm \ref{alg:disparity-map}, \textsc{DisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
 
 \begin{algorithm}[h!]
 \DontPrintSemicolon
@@ -541,6 +541,8 @@ $C \gets \textsc{Matrix}(x,y,d_{max})$\;
 \end{algorithm}
 
 \noindent The matching cost is simply, as mentioned beforehand, the sum of absolute differences in a given window, as can be seen in Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost}.
+The $\Delta$ is estimated as the absolute difference between two windows.
+Then, the cost is the sum of all fields in this matrix, which is computed by \textsc{MatrixSum}.
 
 \begin{algorithm}[h!]
 \DontPrintSemicolon
@@ -553,7 +555,7 @@ $cost \gets \textsc{MatrixSum}(\Delta)$\;
 \label{alg:matchingcost}
 \end{algorithm}
 
-\noindent The spatiotemporal approach is then to add a new dimension, the time axis $t$ to the disparity space image.
+\noindent The spatiotemporal approach utilizes a new dimension, the time axis $t$, and adds it to the disparity space image.
 Then, the DSI knows for each position, given a disparity and a frame the matching cost.
 As a simple idea, the disparity, chosen for a frame, is then the minimum over three frames.
 Looking at a frame at time $f_t$, the frames $f_{t-1}$ and $f_{t+1}$ are also taken into account.
@@ -585,40 +587,33 @@ $step \gets (wSize - 1) / 2$\;
 \label{alg:disparity-map}
 \end{algorithm}
 
+\noindent Both, the unweighted and the weighted spatiotemporal approach are evaluated with the other introduced disparity algorithms.
+The simple stereo matcher without the spatiotemporal dimension is evaluated as well.
+The prediction is, that all three approaches get outperformed by the other stereo matcher.
+The simple reason for that is, the lack of handling the disparity constraints, as described in the foundations Chapter \ref{chap:foundations}.
+\newline\newline\noindent None the less, it is exciting to see, if the naive spatiotemporal approach achieves better results than without.
+As of now, the weighted spatiotemporal approach is denoted as \textsc{WST-SNSM} whereas the unweighted approach is abbreviated as \textsc{UST-SNSM}.
+
 \section{Web result viewer for evaluation suite}
 
-For fine-tuning the algorithm's parameters as well as implementing the bitmasks it was helpful to see the visual output of both.
-As the resulting bitmasks for each frame with the computed result disparity map were saved on the hard-drive for further investigations a web result viewer was created for visualizing the output.
-The following features were implemented:
-\begin{itemize}
-  \item Starting new computations with different parameters and scene selection.
-  \item Playing frame-by-frame with different speeds.
-  \item Online csv-export of result.
-\end{itemize}
+As during the evaluation a lot of masks as well as heatmaps are created and saved, it was helpful to see the visual output of both, especially as a sequence of frames.
+Thus, a web result viewer for the evaluation suite was implemented.
+It was created with Node.js\footnote{Node.js is a framework for developing server-side web applications with JavaScript, cf. \url{https://nodejs.org/en/}.} and Express\footnote{Simple model-view-controller (MVC) web-framework, based on Node.js, cf. \url{http://expressjs.com}.}.
+\newline\newline\noindent The following Figures \ref{fig:web-overview} and \ref{fig:web-detail} illustrate the implemented web result viewer.
+The viewer displays all created masks and heatmaps, as well as the input images and their ground-truth disparity map.
+In addition, an algorithm can be selected and the computed disparity map is shown.
+The result is then visualized and the possibility to jump between frames as well as playing them automatically with different speed options is given.
 
-\begin{figure}[p!]
+\begin{figure}[h!]
   \centering
-  \includegraphics[angle=90,width=0.7\textwidth]{src/images/result-viewer-overview.png}
+  \includegraphics[width=1.0\textwidth]{src/images/result-viewer-overview.png}
   \caption{Overview page of web result viewer.}
   \label{fig:web-overview}
 \end{figure}
 
 \begin{figure}[p!]
   \centering
-  \includegraphics[angle=90,width=1.0\textwidth]{src/images/result-viewer-detail.png}
+  \includegraphics[width=1.0\textwidth]{src/images/result-viewer-detail.png}
   \caption{Detail of one result in the web result viewer.}
   \label{fig:web-detail}
 \end{figure}
-
-%todo finish web result viewer section
-\begin{itemize}
-  \item Insert screenshot (one or two from web result viewer)
-  \item Describe basic features
-  \item Describe what could be done with the evaluation web suite in near future
-  \item But for thesis evaluation a csv exporter was used.
-\end{itemize}
-
-
-
-
-
