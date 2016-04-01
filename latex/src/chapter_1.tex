@@ -60,23 +60,25 @@ That said the ones with well documented source code and a research paper, also a
 	\item Existing datasets are examined. Additionally, a novel dataset from the Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} is presented.
 	\item Based on existing paper and source code, different state of the art algorithms are analyzed and evaluated.
 	\item As there exist a lot of different unaligned code for evaluating / comparing images the decision towards a new implementation of an evaluation suite with OpenCV was made.
+	\item An own simple stereo matcher for videos based on OpenCV is implemented.
+	\item Additionally, the implemented stereo matcher is enhanced utilizing a spatiotemporal context.
 	\item Moreover quality metrics for evaluating those algorithms are defined.
 	\item The algorithms are evaluated on different datasets. The runtime is also measured.
 	\item The impact of image diminishing effects are investigated, like noise from image sensor or artifacts from video compression.
 	\item As a benefit the results can be analyzed visually via a web front-end.
-	\item Finally the results are discussed and future outlook is given.
+	\item Finally, the results are discussed and future outlook is given.
 \end{itemize}
 
 \section{Outline}
 
-The main purpose of chapter \ref{chap:foundations} is to give an overview of terms and techniques used in this thesis.
-The following chapter \ref{chap:related} focuses more on disparity algorithms and related work.
+The main purpose of Chapter \ref{chap:foundations} is to give an overview of terms and techniques used in this thesis.
+The following Chapter \ref{chap:related} focuses more on disparity algorithms and related work.
 To give an overview of state of the art algorithms a small summary of current used disparity algorithms is made.
 This will create the foundations for the later implementation.
 Chapter \ref{chap:impl} describes the implementation and explains reasons for building an evaluation engine.
 The details of the implementation are explained afterwards.
 In addition the integration of existing algorithms is illustrated.
-The evaluation engine was fed with datasets which are introduced in chapter \ref{chap:eval}.
+The evaluation engine was fed with datasets which are introduced in Chapter \ref{chap:eval}.
 This chapter also explains the used quality metrics and describes the resulting outcome accurately.
-In the end the results of this thesis are reflected in the concluding chapter.
+In the end the results of this thesis are reflected in the concluding Chapter \ref{chap:conclusion}.
 Besides some future work, split in low- and high-level, is pointed out.

@@ -122,19 +122,20 @@ However, for visualization the values have to be normalized in a range suitable 
 Hence, heatmaps are created with normalized disparity maps in the range of $0-255$.
 \newline\newline\noindent Basically, the evaluation engine needs a computed disparity map and the ground-truth counterpart.
 Only comparing both provides low informative value.
-Algorithms tend to produce disparity maps with a few unknown fields (e.g. occluded pixels).
-Crucial are also depth-discontinuity along object borders, textureless regions and occluded pixels.
-Thus, masks are used to only focus on these particular areas.
+Algorithms tend to produce disparity maps with a few unknown fields (e.g. noise or occluded pixels).
+Crucial are also depth-discontinuities along object borders, textureless regions and occluded pixels.
+Thus, masks are used to only focus on these particular areas in an evaluation.
 The creation of these masks are illustrated accurately in the upcoming section.
 The masks are used in combination with quality metrics, which are introduced in Chapter \ref{chap:eval}, in which evaluation and results are discussed.
 The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV file\footnote{CSV stands for comma-separated values. A CSV file usually represents a table, with rows being the lines and in columns the values are separated with commas.}.
-\newline\newline\noindent Python scripts round the evaluation engine up.
-They work basically as a wrapper to iteratively execute each component over each frame of a given input sequence and aggregate the results.
-The evaluation engine, as well as the other components, are run with command line arguments to pass specific parameters for the execution, for instance which input images should be used and where the computed disparity map should be saved.
+Figure \ref{impl-evaluation-engine} depicts the evaluation engines input and output.
+As seen in Figure \ref{fig:impl-pipeline}, the implementation consists of three components.
+After an algorithm is executed, the masks are created.
+Finally, the computed disparity maps are compared with their ground-truth companion with each mask applied.
 
 \tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
-\begin{figure}[hp!]
+\begin{figure}[h!]
   \centering
   \begin{tikzpicture}[node distance=6em, auto]
     %input
@@ -154,10 +155,14 @@ The evaluation engine, as well as the other components, are run with command lin
   \label{fig:impl-evaluation-engine}
 \end{figure}
 
-\section{Integration of existing algorithms}
+\noindent Python scripts in combination with the evaluation engine represent the whole eval-chain.
+They work basically as a wrapper to iteratively execute each component over each frame of a given input sequence and aggregate the results.
+The evaluation engine, as well as the other components, are run with command line arguments to pass specific parameters for the execution, for instance which input images should be used and where the computed disparity map should be saved.
 
-%todo more text in each subsection
-%todo a bit talking about parameters
+%explicit
+\newpage
+
+\section{Integration of existing algorithms}
 
 The decision, which algorithm should be implemented was not an easy task as shown in the related work Chapter \ref{chap:related}.
 There is a huge diversity of used technologies amongst disparity algorithms: various programming languages, cpu versus a cuda implementation, different coding styles and used libraries.
@@ -170,7 +175,7 @@ The architecture of the disparity interface is depicted in Figure \ref{fig:uml-d
   \centering
   \begin{tikzpicture}
     %classes
-    \umlclass[x=2.5,y=8,type=abstract]{DisparityAlgorithm}{- left: cv::Mat\\- right: cv::Mat}{- compute()}
+    \umlclass[x=2.5,y=8,type=abstract]{DisparityAlgorithm}{- left: cv::Mat\\- right: cv::Mat}{- compute()\\- setResult(mat: cv::Mat)}
     \umlclass[x=0,y=5.3]{ELASAlgorithm}{}{}
     \umlclass[x=4.5,y=5.3]{MRFStereo}{}{}
     \umlclass[x=2.5,y=3,type=interface]{OpenCVStereoMatcher}{}{}
@@ -187,13 +192,31 @@ The architecture of the disparity interface is depicted in Figure \ref{fig:uml-d
   \label{fig:uml-disparity-interface}
 \end{figure}
 
-\noindent The abstract class \texttt{DisparityAlgorithm} provides both images, left and right one, in form of a \texttt{cv::Mat} object.
+\noindent The abstract class \texttt{DisparityAlgorithm} provides both images, left and right one, in form of a \texttt{cv::Mat} object and also holds the resulting disparity map.
 On top of this abstract class further algorithms can be adopted easily.
-The output of each algorithm is then streamlined and put in the destination file.
+The output of each algorithm is then saved in an OpenEXR file at a given destination path.
+The following subsections describe how the algorithms were integrated, the pre- and post-processing steps if necessary, and illustrate the parameter.
 
 \subsection*{OpenCV}
 
-OpenCV offers two algorithms, simple block matching and the semi-global block matcher based on the implementation of \citeauthor{hirschmuller2008stereo}.
+The OpenCV library \citep{opencv_library}, currently at version 3.1.0, offers two implementations for disparity estimation, block matching and semi-global block matching based on the idea of \citeauthor{hirschmuller2005accurate}.
+Both implementations are integrated and fed with the same input parameters.
+The matching cost are calculated differently in both implementations.
+Another difference is, that the simple block matching implementation only operates on grayscale.
+As block size, an odd number needs to be used as adjacent pixels are observed.
+Here, $9$ was chosen as block size.
+A pre-filter was not used.
+The speckle window, which is used to smooth disparities over noisy regions, is also not used.
+The \texttt{disp12MaxDiff} parameter was set to $1$, which represents the maximum allowed difference in the left-to-right disparity consistency check.
+If the difference is higher, the value is set as unknown.
+The min- and max disparities are set to a value, which should be fit for most of the investigated sequences, $-48$ and $128$.
+\newline\newline\noindent After an algorithm run, the disparity WLS filter is applied with $\lambda = 8000.0$ and $\sigma_{color} = 1.5$.
+$\lambda$ defines the amount of regularization during the filtering process.
+Larger values lead to over-smoothed edges in the disparity map, so that the disparity map adheres more to the source image edges.
+$\sigma_{color}$ specifies how sensitive the filtering is done towards the source image edges.
+Both are typical values for smoothing the disparity according to the OpenCV documentation.
+As a post-processing step, the resulting \texttt{cv::Mat} has to be divided through $16$, as every input value gets multiplied with $16$ according to the source-code\footnote{\url{https://github.com/Itseez/opencv/blob/3942b1f36261b196a264e\\b35c996222848fe3c93/modules/calib3d/src/stereobm.cpp\#L564}}.
+The reasoning behind that is not known.
 
 \subsection*{Middlebury MRF library}
 
@@ -207,15 +230,25 @@ The Middlebury MRF library \citep{scharstein2006middlebury} consist of three par
 \noindent Some patches need to be applied to the MRF energy minimization software in order to get the graph cuts algorithms to work.
 The composition is open-sourced\footnote{\url{https://github.com/benjohnde/disparity-algorithms}} with a Makefile.
 Finally, a small wrapper for the execution was created.
+The wrapper prepares the input images beforehand, saves them in a temporarily directory and post-processes the output.
+The output is a disparity map, represented as 8-bit fixed points, where each disparity value has 4 fractional bits.
+Thus, the result output is converted to a 32-bit floating values matrix, divided through $4$ and saved as OpenEXR file.
+\newline\newline\noindent The MRF library offers the possibility to use the Birchfield/Tomasi\footnote{Explain me in one or two sentences.} method for matching cost calculation instead of the more commonly used sum of absolute differences (SAD).
+In case of SAD, it is possible to truncate the differences to a certain maximum value.
+%todo describe Birchfield/Tomasi costs
+Via parameter the algorithm for minimizing the energy function, as presented in the related work Chapter \ref{chap:related}, can be chosen.
+The other parameters are only for the smoothness term of the energy function.
+It is possible to adjust the smoothness exponent, the maximum value of the smoothness term, the weight $\lambda$ of the smoothness term.
 
 \subsection*{ELAS: Efficient large-scaler stereo matching}
 
 ELAS is integrated, like the Middlebury MRF library, with a simple wrapper which executes the ELAS binary.
 ELAS required the input files as PGM\footnote{PGM is a grayscale image format, part of the Netpbm library.} and outputs PFM\footnote{Similar to OpenEXR, PFM is a floating-point image file format, also part of the Netpbm library.} images.
 In a preprocessing step the input stereo images are temporarily saved in the PGM format as grayscale.
-After the execution of ELAS, as a postprocessing step, the PFM files are converted to OpenEXR files, as the subsequent processes expect OpenEXR files as input.
+After the execution of ELAS, as a post-processing step, the PFM files are converted to OpenEXR files, as the subsequent processes expect OpenEXR files as input.
 For processing the PFM files, a simple file reader was created, according to the official specifications\footnote{\url{http://netpbm.sourceforge.net/doc/pfm.html}}.
-Specific characteristics of this file format are that the rows are written bottom-to-top and each column has to be multiplied with a so called scale factor.
+Specific characteristics of this file format are, that the rows are written bottom-to-top and each column has to be multiplied with a scale factor.
+The ELAS binary can be started with no parameters but the maximum disparity value.
 
 \section{Fine-grained evaluation via masks}
 
@@ -308,7 +341,7 @@ Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 \subfloat[resulting mask]{\includegraphics[width=0.3\textwidth]{src/images/book_noc_mask.png}}
 \end{tabular}
 \caption{The ground-truth disparity maps of the first frame of the book scene from the Middlebury dataset is used to illustrate the non-occluded areas mask.}
-\label{fig:dd-mask}
+\label{fig:noc-mask}
 \end{figure}
 
 \subsection*{Saliency detection}
@@ -334,14 +367,29 @@ Noise can be added onto the rendered video.
 Then the impact can be analyzed.
 Video compression is added via FFmpeg.
 
-%todo impl flow of diminisher
+\tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=5em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[node distance=10em, auto]
+    %nodes
+    \node [cloud] (input) {input};
+    \node [rblock, right of=input] (diminisher) {Image diminisher};
+    \node [cloud, right of=diminisher] (output) {output};
+    %lines
+    \path [line] (input) -- (diminisher);
+    \path [line] (diminisher) -- (output);
+  \end{tikzpicture}
+  \caption{Flow of the image diminisher.}
+  \label{fig:image-diminisher-flow}
+\end{figure}
 
 \subsection*{Gaussian noise}
 
 As seen in the related work Chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce noise which can occur.
 Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms.
 Gaussian noise is used, meaning that the noise is gaussian distributed (or normal distributed).
-\newline\newline\noindent $\mu$ is the mean value (= 0).
+$\mu$ is the mean value (= 0).
 $\sigma$ is the standard deviation.
 Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.
 \newline\newline\noindent The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
@@ -364,8 +412,8 @@ The distribution is illustrated in Figure \ref{fig:gaussian}.
       \addplot {gauss(20,1.0)};
     \end{axis}
   \end{tikzpicture}
-  \label{fig:gaussian}
   \caption{Gaussian noise distribution with $\mathcal{N}(20,\sigma^2)$ and different values for $\sigma^2$.}
+  \label{fig:gaussian}
 \end{figure}
 
 \noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
@@ -381,9 +429,59 @@ Most of the widely used video compression techniques belong to the lossy data co
 As in contrast to lossless compression, lossy tend to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
 FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
 FFmpeg is a tool to create video sequences from images with popular video codecs and also to divide a video sequences into images.
-\newline\newline\noindent Bla.
+Figure \ref{fig:ffmpeg-flow} depicts the integration of FFmpeg in the image diminish process.
+\newline\newline\noindent H.265\footnote{H.265 is also known as High Efficiency Video Coding (HEVC) and is a standard for encoding/decoding high-resolution video content.} was utilized as codec for video compression.
+
 %todo how it is implemented what codec is used mainly?
-%todo impl flow of ffmpeg
+
+\tikzstyle{rblock} = [text width=4em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+\begin{figure}[h!]
+  \centering
+  \begin{tikzpicture}[node distance=9em, auto, scale=0.9, every node/.style={transform shape}]
+    %nodes
+    \node [cloud] (input) {set of stereo images};
+    \node [rblock, right of=input] (ffmpeg1) {FFmpeg};
+    \node [cloud, right of=ffmpeg1] (video1) {stereoscopic video};
+    \node [rblock, right of=video1] (ffmpeg2) {FFmpeg};
+    
+    \node [cloud, below of=video1, yshift=2em] (video2) {compressed stereo video};
+    \node [rblock, left of=video2] (ffmpeg3) {FFmpeg};
+    \node [cloud, left of=ffmpeg3] (output) {set of diminished stereo images};
+    %lines
+    \path [line] (input) -- (ffmpeg1);
+    \path [line] (ffmpeg1) -- (video1);
+    \path [line] (video1) -- (ffmpeg2);
+    
+    \path [line] (ffmpeg2) -- node[anchor=north, xshift=-1.5em, yshift=1.0em] {H.265} (video2);
+    \path [line] (video2) -- (ffmpeg3);
+    \path [line] (ffmpeg3) -- (output);
+  \end{tikzpicture}
+  \caption{Flow of FFmpeg as image diminisher.}
+  \label{fig:ffmpeg-flow}
+\end{figure}
+
+\section{Simple stereo matcher}
+
+Bla.
+
+%todo maybe add simple stereo matcher
+%todo as well as the spatiotemportal stereo matcher
+
+\begin{algorithm}
+\DontPrintSemicolon
+\KwIn{A finite set $A=\{a_1, a_2, \ldots, a_n\}$ of integers}
+\KwOut{The largest element in the set}
+$max \gets a_1$\;
+\For{$i \gets 2$ \textbf{to} $n$} {
+  \If{$a_i > max$} {
+    $max \gets a_i$\;
+  }
+}
+\Return{$max$}\;
+\caption{{\sc Max} finds the maximum number}
+\label{alg:max}
+\end{algorithm}
 
 \section{Web result viewer for evaluation suite}
 
@@ -418,15 +516,7 @@ The following features were implemented:
   \item But for thesis evaluation a csv exporter was used.
 \end{itemize}
 
-\section{Discussion}
 
-%todo summarize a bit
 
-The following modules were actually implemented:
 
-\begin{itemize}
-  \item Reader for the PFM file format.
-  \item Python scripts for upcoming evaluation.
-  \item Shell scripts for getting the docker containers and thus the work distributed among different instances\footnote{With instances virtual machines from DigitalOcean are meant.}.
-  \item Evaluation processor for
-\end{itemize}
+

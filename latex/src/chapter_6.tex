@@ -2,6 +2,10 @@
 \label{chap:conclusion}
 
 The work described in this thesis has been concerned with the comparison of disparity algorithms.
+For this purpose, evaluation methods were introduced and integrated.
+As stereoscopic datasets focusing on videos are rarely spread, the used ones for the evaluation were also introduced.
+Additionally, a simple stereo matcher focusing on videos was implemented and thus described.
+The following sections recap this in more detail and furthermore give a future outlook.
 
 \section{Thesis summary}
 
@@ -13,9 +17,24 @@ The work described in this thesis has been concerned with the comparison of disp
   \item What the main result of the evaluation.
 \end{itemize}
 
+%todo summarize a bit
+
+The following modules were actually implemented:
+
+\begin{itemize}
+  \item Reader for the PFM file format.
+  \item Python scripts for upcoming evaluation.
+  \item Shell scripts for getting the docker containers and thus the work distributed among different instances\footnote{With instances virtual machines from DigitalOcean are meant.}.
+  \item Evaluation processor for
+\end{itemize}
+
+%todo add recommendations for svddd dataset
+
 \section{Future outlook}
 
-A few thoughts on possible future work to improve the presented algorithms, split in low- and high-level from a technical perspective:
+A few thoughts on possible future work are outlined.
+The thoughts are split in low- and high-level, from a technical perspective.
+Low-level items are focused towards underlying methods of disparity algorithms, whereas high-level items focus on the bigger picture and tools which may help in developing stereo matcher.
 
 \subsection*{Low-level}
 
