@@ -15,9 +15,10 @@ Accumulated, the computed disparity maps, the created masks as well as the heatm
 \section{Datasets}
 
 A dataset basically describes a set of stereo images, which additionally contains ground-truth disparity maps.
-The aim of such datasets is to provide data which researchers can rely on, to evaluate the performance of computer vision algorithms, such as disparity algorithms in this thesis.
- Without having such datasets it would be crucial to rate the overall quality of for instance stereo matching algorithms.
-As for today, no high-resolution stereoscopic video dataset exists yet, neither a synthetic nor a captured one.
+The aim of such datasets is to provide accurate data, on which researchers can rely.
+This datasets can be used to evaluate the performance of computer vision algorithms, such as disparity algorithms in this thesis.
+Without having such datasets it would be crucial to rate the overall quality of for instance stereo matching algorithms.
+As for today, no high-resolution stereoscopic video dataset yet exists, neither a synthetic nor a captured one.
 In order to obtain ground-truth depth information, there exist in general two options.
 On the one hand, the real-world can be sensed via area scanner, for instance a radar.
 On the other hand, a synthetic computer-animated scene is generated and the renderer calculates the disparity.
@@ -34,7 +35,7 @@ This is also one of the first stereoscopic dataset targeting videos.
 As second dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
 The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
 %todo a bit more
-Other datasets, which were found but not investigated further more are: MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
+Other datasets, which were found but not investigated further more are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
 
 
 

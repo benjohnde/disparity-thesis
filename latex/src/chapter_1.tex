@@ -54,19 +54,12 @@ Therefore it was difficult to decide what should be in the thesis and what can b
 The thesis' main goal is to provide an overview of selected disparity algorithms for stereoscopic videos and evaluated those.
 \citeauthor{scharstein2002taxonomy} justified their tiny selection of disparity algorithms with the following: "Compiling a complete survey of existing stereo methods [...] would be a formidable task, as a large number of new methods are published every year." \citep{scharstein2002taxonomy}.
 That said the ones with well documented source code and a research paper, also adaptable within the time scope of this thesis, were integrated.
+The main assignments can be summarized in three research tasks:
 
 \begin{itemize}
-	\item The thesis should provide a good fundamental knowledge base for an advanced insight into the area of disparity algorithms for stereoscopic images and videos.
-	\item Existing datasets are examined. Additionally, a novel dataset from the Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} is presented.
-	\item Based on existing paper and source code, different state of the art algorithms are analyzed and evaluated.
-	\item As there exist a lot of different unaligned code for evaluating / comparing images the decision towards a new implementation of an evaluation suite with OpenCV was made.
-	\item An own simple stereo matcher for videos based on OpenCV is implemented.
-	\item Additionally, the implemented stereo matcher is enhanced utilizing a spatiotemporal context.
-	\item Moreover quality metrics for evaluating those algorithms are defined.
-	\item The algorithms are evaluated on different datasets. The runtime is also measured.
-	\item The impact of image diminishing effects are investigated, like noise from image sensor or artifacts from video compression.
-	\item As a benefit the results can be analyzed visually via a web front-end.
-	\item Finally, the results are discussed and future outlook is given.
+  \item Providing fundamental knowledge of existing stereo matching algorithms to have a basis for an advanced insight into the area of disparity algorithms targeting stereoscopic videos.
+  \item Implementation of a stereo matcher for videos utilizing the OpenCV library. The implemented stereo matcher should be enhanced by using a spatiotemporal context
+  \item Evaluation of the presented algorithms by implementation and presentation of an evaluation suite. Existing datasets, as well as a novel Dataset of the Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} will thereby examined using a set of defined quality metrics for assessment of the algorithms together with their runtime. Results are presented on a web-frontend.
 \end{itemize}
 
 \section{Outline}
@@ -81,4 +74,4 @@ In addition the integration of existing algorithms is illustrated.
 The evaluation engine was fed with datasets which are introduced in Chapter \ref{chap:eval}.
 This chapter also explains the used quality metrics and describes the resulting outcome accurately.
 In the end the results of this thesis are reflected in the concluding Chapter \ref{chap:conclusion}.
-Besides some future work, split in low- and high-level, is pointed out.
+Besides some future work is pointed out.
