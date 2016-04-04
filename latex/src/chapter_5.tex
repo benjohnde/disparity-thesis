@@ -1,8 +1,6 @@
 \chapter{Evaluation and results}
 \label{chap:eval}
 
-%todo smooth me
-
 In the previous chapter, the evaluation suite and its features were presented.
 This chapter is split into several subtopics.
 First, it deals with the introduction of datasets.
@@ -20,7 +18,7 @@ This datasets can be used to evaluate the performance of computer vision algorit
 Without having such datasets it would be crucial to rate the overall quality of for instance stereo matching algorithms.
 As for today, no high-resolution stereoscopic video dataset yet exists, neither a synthetic nor a captured one.
 In order to obtain ground-truth depth information, there exist in general two options.
-On the one hand, the real-world can be sensed via area scanner, for instance a radar.
+On the one hand, the real-world can be sensed via area scanner, for instance a radar (cf. KITTI vision benchmark suite\footnote{\url{http://www.cvlibs.net/datasets/kitti/}}).
 On the other hand, a synthetic computer-animated scene is generated and the renderer calculates the disparity.
 Of course, the former approach is more error-prone than the latter one.
 The former one can lack of accuracy due to false measurements whereas the latter one real ground-truth information provides.
@@ -28,29 +26,35 @@ The former one can lack of accuracy due to false measurements whereas the latter
 As area scanners are never 100 percent accurate, they introduced error-bars, which can range from $0-10$.
 An error-bar indicates how certain the area scanner was that this disparity for a given pixel really existed \citep{kondermann2015stereo}.
 \newline\newline\noindent As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, here three different datasets were chosen.
-As reference dataset, the reworked Tsukuba Stereo Dataset was chosen \citep{martull2012realistic}.
-The scene is called \textit{Head and Lamp} and was also shortly introduced in the foundations Chapter \ref{chap:foundations}.
-\newline\newline\noindent The second one is a dataset, especially created for the evaluation of the DCBGrid from the University of Cambridge\footnote{\url{http://www.cl.cam.ac.uk/research/rainbow/projects/dcbgrid/datasets/}}.
-This is also one of the first stereoscopic dataset targeting videos.
-As second dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
-The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
-%todo a bit more
-Other datasets, which were found but not investigated further more are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
-
-
-
 
 \subsection*{Tsukuba stereo dataset}
 
-This dataset can be seen as the origin of stereoscopic datasets.
-The first dataset ever released for working with stereoscopic images.
-\citep{martull2012realistic}.
+As reference dataset, the reworked Tsukuba Stereo Dataset was chosen \citep{martull2012realistic}.
+One of the three scenes is called tsukuba to honour the popular \textit{Head and Lamp} scene and was shortly introduced in the foundations Chapter \ref{chap:foundations}.
+The reference dataset is used to see if the implementation leads to similar results as in other stereo benchmarks.
+This does of course not verify that the presented implementation is error-free but can point in the right direction.
+Of course, the settings (i.e. parameters of an algorithm) depends on the input material (e.g. size of the images, noise occurrences) and on the type of the scenery, for instance many regions with arbitrary surfaces (textured vs textureless).
+Hence, it is possible to have good parameters for one scene and not for the other.
+However, in order to evaluate those algorithms the reference dataset is used to see how the eval engine actually works with the same parameters on the same images.
 
-%todo intro
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[tsukuba scene]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-imgL.png}} &
+\subfloat[teddy scene]{\includegraphics[width=0.3\textwidth]{src/images/teddy-imgL.png}} &
+\subfloat[venus scene]{\includegraphics[width=0.3\textwidth]{src/images/venus-imgL.png}} \\
+\subfloat[tsukuba disparity]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-dgt.png}} &
+\subfloat[teddy disparity]{\includegraphics[width=0.3\textwidth]{src/images/teddy-dgt.png}} &
+\subfloat[venus disparity]{\includegraphics[width=0.3\textwidth]{src/images/venus-dgt.png}} \\
+\end{tabular}
+\caption[Tsukuba stereo dataset]{Tsukuba stereo dataset \citep{martull2012realistic}}
+\label{fig:tsukuba2}
+\end{figure}
 
 \subsection*{Cambridge stereo dataset}
 
-%todo intro
+The second one is a dataset, especially created for the evaluation of the DCBGrid from the University of Cambridge\footnote{\url{http://www.cl.cam.ac.uk/research/rainbow/projects/dcbgrid/datasets/}}.
+This is also one of the first stereoscopic dataset targeting videos.
 
 \begin{figure}[h!]
   \centering
@@ -59,15 +63,15 @@ The first dataset ever released for working with stereoscopic images.
   \label{fig:dbcgrid-dataset}
 \end{figure}
 
-The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
+\noindent The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
 The dataset scales the disparity for each scene from $0$ to $64$.
 
 \subsection*{SVDDD - a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information}
 
-The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} has created a novel dataset on its own containing depth information for stereoscopic videos.
-Before the evaluation it was clear that this dataset is going to be evaluated as well.
-The difference is that this dataset was not analyzed before.
-Thus it is possible that the chosen algorithms work not properly on this dataset.
+As third dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
+The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
+\newline\newline\noindent The difference here is, that this dataset was not analyzed before.
+Thus, it is possible that the chosen algorithms work not properly on this dataset.
 If this case occurs there exist two possibilities why this happens:
 
 \begin{itemize}
@@ -75,53 +79,57 @@ If this case occurs there exist two possibilities why this happens:
   \item on the other hand, those algorithms have some troubles with the constructed scene.
 \end{itemize}
 
-\noindent Focusing on the latter one, the scenes were created with Blender and utilizes the XXX (insert me pls) open-source scenes.
-A second camera was added to the scene for obtaining depth information.
-The parameter for each scene can be extracted from the paper.
-The most important points which can lead to a discrepancy between the computed disparity maps and the ground-truth data are the following:
+\noindent Focusing on the latter one, the scenes were created with Blender and utilizes open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
+A second camera was added to the scenes for obtaining depth information.
+The parameter for each scene can be from the Blender files.
+The scenes were also adjusted regarding the following points to deliver a certain value for stereo matching algorithms:
 
 \begin{itemize}
-  \item rays of light were removed only in the ground-truth-data,
-  \item motion and object blur was reduced only in the ground-truth data,
-  \item fain-grained textures were reduced only in the ground-truth data.
+  \item rays of light were removed,
+  \item motion and object blur were reduced,
+  \item fain-grained textures (like grass or hairs) were modified, and
+  \item transparent layers were removed.
 \end{itemize}
 
-%todo describe potential drawbacks
-%todo go into more concrete
+\noindent Otherwise, these points could lead to defective depth information.
+The dataset consists of 15 scenes.
+The scenes consist of high resolution stereo images $1920x1080$ with an average bitrate of 94 MBit/s.
+With an approximate size of 2 MB for each frame, the size of each sequence varies between 0.4 GB and 2.7 GB.
+For each frame, depth and disparity information are computed with 32-bit floating point precision and saved in OpenEXR files.
+\newline\newline\noindent Other datasets, which were found but not investigated further more are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
+
+%todo add overview images
+
+%explicit
+\newpage
 
 \section{Quality metrics}
 
-To evaluate the quality of computed disparity maps we need at first to what we compare the computed disparity maps to and secondly how to compare them. In the section \ref{chap:datasets} the availability of such datasets were discussed.
-
-\noindent Typical quality measure instruments for comparing disparity maps against their ground-truth reference data are  \citep{cyganek2011introduction}:
+Typical quality measure instruments for comparing disparity maps against their ground-truth reference data are  \citep{cyganek2011introduction}:
 
 \begin{itemize}
-  \item Percentage of bad matching pixels
-  \item Root-mean-square error
-  \item Parameter-free measures
+  \item percentage of bad matching pixels,
+  \item root-mean-square error,
+  \item parameter-free measures.
 \end{itemize}
 
-In addition the following are also considered:
-
-\begin{itemize}
-  \item Mean absolute error in pixels
-  \item Error quantiles
-  \item Precision and accuracy
-\end{itemize}
+\noindent As parameter-free measures needs modified disparity algorithms \citep{cyganek2011introduction}, it was not considered.
 
 \subsection*{Percentage of bad matching pixels}
+
+Percentage of bad matching pixels (PBMP) is usually used in comparing the performance of stereo matching algorithms.
 
 \begin{equation}
   \operatorname{PBMP}=\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)| > \delta_t)
 \end{equation}
 
-\noindent Percentage of bad matching pixels for given threshold.
+\noindent The threshold, denoted with $\delta_t$, can be adjusted and as result, the percentage of outlier pixels, which differ by more than $\delta_t$, is estimated.
 
 \subsection*{Root-mean-squared error}
 
-The mean squared error (MSE) as well as the root mean squared error (RMSE) are both the most popular metrics in image and video processing.
-The MSE is as the name implies the mean of the squared differences between the intensities of pixels in two pictures at the same position.
-In conclusion the average difference per pixel is then the root of the squared error.
+The mean squared error (MSE) as well as the root mean squared error (RMSE) are both the most popular metrics in image and video processing \citep{cyganek2011introduction, benoit2008quality, scharstein2002taxonomy}.
+The MSE is, as the name implies, the mean of the squared differences between the intensities of pixels in two pictures at the same position.
+In conclusion, the average difference per pixel is then the root of the squared error.
 
 \begin{equation}
   \operatorname{RMS-Error}=\sqrt{\frac{1}{n} \sum_{x,y=0}^{}(d_a(x,y) - d_e(x,y))^2}
@@ -134,26 +142,15 @@ Hence the RMSE is the difference between values on average.
 
 \section{Measurement}
 
-\begin{itemize}
-	\item First took normal depth map images. But not that good, only values from 0-255.
-	\item Actual evaluation process consists of comparison of real calculated values of depth map by results of algorithms.
-	\item How does the eval actual look like?
-\end{itemize} \citep{benoit2008quality}, \citep{scharstein2002taxonomy}.
+Bla.
 
 \subsection*{Parameter tuning}
 
 Our results.
 
-\subsection*{Against reference dataset}
-
-It is also important to have some kind of reference dataset with which the evaluation engine can be calibrated with.
-Of course the settings (i.e. parameters of an algorithm) is dependent on the input material (size, noise) and on the scene (e.g. textured vs textureless).
-So it is possible to have good parameters for one scene and not for another.
-However, in order to evaluate those algorithms the Tsubuka stereo dataset was chosen as reference dataset to see how the eval engine actually works with the same parameters on the same images.
-
 \subsection*{Visualization}
 
-The results are visualized with the HSV color model.
+The results are visualized with heatmaps utilizing the HSV\footnote{HSV = hue-saturation value} color model.
 
 \begin{figure}[h!]
   \centering
@@ -162,91 +159,117 @@ The results are visualized with the HSV color model.
   \label{fig:hue-scale}
 \end{figure}
 
-%todo rework me
-%todo where should be the focus
 \subsection*{Applying disparity algorithms on videos}
 
-As said in the implementation chapter \ref{chap:impl} applying disparity algorithms on videos is trivial and straightforward.
-None the less different anomalies can be further investigated while analyzing videos:
+As said in the implementation Chapter \ref{chap:impl}, disparity algorithms for image can be applied to videos.
+Although the frames of a video can be seen as independent pieces, different anomalies can be further investigated while analyzing videos:
 
 \begin{itemize}
   \item outliers in the form of a single frames which differs too much from the others,
   \item impact of noise,
-  \item smooth the unknown disparity in frames (next subsection).
+  \item the benefit from creating a naive spatiotemporal context.
 \end{itemize}
 
-\noindent As you can see in the following result matrices the quality metrics regarding the salient regions are a bit esoteric. Of course there exist techniques to estimate salient regions in static images and also in videos. In videos moving objects can be detected as salient, referring to motion saliency\citep{opencv_library, wang2014fast}. None the less those bitmasks are a bit more esoteric in the sense of there is room for interpretation.
+\noindent The following sections present the results.
 
 %explicit
 \newpage
 \section{Results}
 
 %todo define abbreviations for tables
-Insert table here.
+\noindent The following Table \ref{tab:metrics} contains all combinations of the presented masks with the established metrics.
+As of now, the tags are used in upcoming descriptions and result tables.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{l|l}
-\textbf{Tag} & \textbf{Description} \\ \hline
-$\sigma_{10}$ & Guassian noise calculator. \\ \hline
- &  \\ \hline
- &  \\
+\textbf{Tag} & \textbf{Description} \\ \hline \hline
+$\sigma_{0.6}$ & Gaussian noise with $\sigma$ of 0.6. \\ \hline
+$\gamma_{28}$ & Applied H.265 compression with a CRF of 28. \\ \hline \hline
+$\varepsilon_{all}$ & RMSE in complete image. \\ \hline
+$\varepsilon_{noc}$ & RMSE in non-occluded regions. \\ \hline
+$\varepsilon_{disc}$ & RMSE in depth-discontinuity regions. \\ \hline
+$\varepsilon_{tex}$ & RMSE in textured regions. \\ \hline
+$\varepsilon_{sal}$ & RMSE in salient regions. \\ \hline \hline
+$\delta_{all}$ & PBMP in complete image. \\ \hline
+$\delta_{noc}$ & PBMP in non-occluded regions. \\ \hline
+$\delta_{disc}$ & PBMP in depth-discontinuity regions. \\ \hline
+$\delta_{tex}$ & PBMP in textured regions. \\ \hline
+$\delta_{sal}$ & PBMP in salient regions. \\ \hline
 \end{tabular}
-\caption{Overview on used metrics in results}
+\caption{Overview on used metrics in upcoming result matrices.}
 \label{tab:metrics}
 \end{table}
 
 %todo small intro
 
+
 %todo results
 
-\begin{landscape}
-  \begin{table}[h!]
-  \centering
-  \begin{tabular}{cll|rrrrr}
-    \hline
-    \textbf{Rank} & \textbf{Method} & \textbf{Sequence} & \textbf{RMS-All} & \textbf{RMS-Noc} & \textbf{RMS-Sal} & \textbf{RMS-Tex} & \textbf{RMS-DD} \\ \hline \hline
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & 1.0 px & \cellcolor{red!60}1.1 px & 300ms \\ \hline
-  \end{tabular}
-  \caption{Result matrix of RMS for videos}
-  \label{tab:result-videos-rms}
-  \end{table}
-\end{landscape}
+\subsection{General performance}
 
-\begin{landscape}
-  \begin{table}[h!]
-  \centering
-  \begin{tabular}{cll|rrrrr}
-    \hline
-    \textbf{Rank} & \textbf{Method} & \textbf{Sequence} & \textbf{Out-All} & \textbf{Out-Noc} & \textbf{Out-Sal} & \textbf{Out-Tex} & \textbf{Out-DD} \\ \hline \hline
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
-    2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & 1.0 px & \cellcolor{red!60}1.1 px & 300ms \\ \hline
-  \end{tabular}
-  \caption{Result matrix of outliers for videos}
-  \label{tab:result-videos-out}
-  \end{table}
-\end{landscape}
+\subsection{Impact of noise}
+
+\subsection{Impact of video compression}
+
+\subsection{Runtime}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cll|rrr}
+  \hline
+  \textbf{Rank} & \textbf{Method} & \textbf{Sequence} &  \textbf{Time} & \textbf{Time/MP} & \textbf{Quality index} \\ \hline \hline
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px \\
+  2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & \cellcolor{red!60}1.1 px \\ \hline
+\end{tabular}
+\caption{Result matrix of runtime for videos}
+\label{tab:result-videos-runtime}
+\end{table}
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cll|rrrrr}
+  \hline
+  \textbf{Rank} & \textbf{Method} & \textbf{Sequence} & \textbf{RMS-All} & \textbf{RMS-Noc} & \textbf{RMS-Sal} & \textbf{RMS-Tex} & \textbf{RMS-DD} \\ \hline \hline
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & 1.0 px & \cellcolor{red!60}1.1 px & 300ms \\ \hline
+\end{tabular}
+\caption{Result matrix of RMS for videos}
+\label{tab:result-videos-rms}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{cll|rrrrr}
+  \hline
+  \textbf{Rank} & \textbf{Method} & \textbf{Sequence} & \textbf{Out-All} & \textbf{Out-Noc} & \textbf{Out-Sal} & \textbf{Out-Tex} & \textbf{Out-DD} \\ \hline \hline
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px & 1.1 px & 300ms \\
+  2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & 1.0 px & \cellcolor{red!60}1.1 px & 300ms \\ \hline
+\end{tabular}
+\caption{Result matrix of outliers for videos}
+\label{tab:result-videos-out}
+\end{table}
 
 
 
@@ -279,32 +302,6 @@ $\sigma_{10}$ & Guassian noise calculator. \\ \hline
 
 Insert overview matrix.
 
-\subsection{Runtime}
-
-Depict:
-
-\begin{itemize}
-  \item different performance of disparity algorithms,
-  \item down-scaled performance,
-  \item first down-scale, then run algorithms, then upscale, runtime,
-  \item smoothing-over-time runtime.
-\end{itemize}
-
-\subsubsection{Result matrix}
-
-\begin{landscape}
-  \begin{table}[h!]
-  \centering
-  \begin{tabular}{cll|rrr}
-    \hline
-    \textbf{Rank} & \textbf{Method} & \textbf{Sequence} &  \textbf{Time} & \textbf{Time/MP} & \textbf{Quality index} \\ \hline \hline
-    1 & StereoSGBM & SVDDD 02\_rabbit & 4.35\% & \cellcolor{green!60}5.43\% & 1.0 px \\
-    2 & StereoBM & SVDDD 02\_rabbit & 4.35\% & 5.43\% & \cellcolor{red!60}1.1 px \\ \hline
-  \end{tabular}
-  \caption{Result matrix of runtime for videos}
-  \label{tab:result-videos-runtime}
-  \end{table}
-\end{landscape}
 
 \section{Discussion}
 
