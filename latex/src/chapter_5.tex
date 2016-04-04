@@ -40,7 +40,7 @@ Other datasets, which were found but not investigated further more are the MPI S
 
 
 
-\subsection{Tsukuba stereo dataset}
+\subsection*{Tsukuba stereo dataset}
 
 This dataset can be seen as the origin of stereoscopic datasets.
 The first dataset ever released for working with stereoscopic images.
@@ -48,7 +48,7 @@ The first dataset ever released for working with stereoscopic images.
 
 %todo intro
 
-\subsection{Cambridge stereo dataset}
+\subsection*{Cambridge stereo dataset}
 
 %todo intro
 
@@ -62,7 +62,7 @@ The first dataset ever released for working with stereoscopic images.
 The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
 The dataset scales the disparity for each scene from $0$ to $64$.
 
-\subsection{SVDDD - a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information}
+\subsection*{SVDDD - a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information}
 
 The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} has created a novel dataset on its own containing depth information for stereoscopic videos.
 Before the evaluation it was clear that this dataset is going to be evaluated as well.
@@ -92,20 +92,6 @@ The most important points which can lead to a discrepancy between the computed d
 \section{Quality metrics}
 
 To evaluate the quality of computed disparity maps we need at first to what we compare the computed disparity maps to and secondly how to compare them. In the section \ref{chap:datasets} the availability of such datasets were discussed.
-
-Insert table here.
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{l|l}
-\textbf{Tag} & \textbf{Description} \\ \hline
-$\sigma_{10}$ & Guassian noise calculator. \\ \hline
- &  \\ \hline
- &  \\
-\end{tabular}
-\caption{Overview on used metrics in results}
-\label{tab:metrics}
-\end{table}
 
 \noindent Typical quality measure instruments for comparing disparity maps against their ground-truth reference data are  \citep{cyganek2011introduction}:
 
@@ -165,9 +151,7 @@ Of course the settings (i.e. parameters of an algorithm) is dependent on the inp
 So it is possible to have good parameters for one scene and not for another.
 However, in order to evaluate those algorithms the Tsubuka stereo dataset was chosen as reference dataset to see how the eval engine actually works with the same parameters on the same images.
 
-\section{Results}
-
-%todo small intro
+\subsection*{Visualization}
 
 The results are visualized with the HSV color model.
 
@@ -178,8 +162,8 @@ The results are visualized with the HSV color model.
   \label{fig:hue-scale}
 \end{figure}
 
-%todo results
-
+%todo rework me
+%todo where should be the focus
 \subsection*{Applying disparity algorithms on videos}
 
 As said in the implementation chapter \ref{chap:impl} applying disparity algorithms on videos is trivial and straightforward.
@@ -192,6 +176,29 @@ None the less different anomalies can be further investigated while analyzing vi
 \end{itemize}
 
 \noindent As you can see in the following result matrices the quality metrics regarding the salient regions are a bit esoteric. Of course there exist techniques to estimate salient regions in static images and also in videos. In videos moving objects can be detected as salient, referring to motion saliency\citep{opencv_library, wang2014fast}. None the less those bitmasks are a bit more esoteric in the sense of there is room for interpretation.
+
+%explicit
+\newpage
+\section{Results}
+
+%todo define abbreviations for tables
+Insert table here.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l|l}
+\textbf{Tag} & \textbf{Description} \\ \hline
+$\sigma_{10}$ & Guassian noise calculator. \\ \hline
+ &  \\ \hline
+ &  \\
+\end{tabular}
+\caption{Overview on used metrics in results}
+\label{tab:metrics}
+\end{table}
+
+%todo small intro
+
+%todo results
 
 \begin{landscape}
   \begin{table}[h!]
