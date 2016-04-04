@@ -512,8 +512,8 @@ Third, to have a skeleton for further research and development.
 It would be a tremendous task to implement a feature-complete stereo matcher, for instance implementing all available matching cost functions.
 Hence, only the sum of absolute differences (SAD) was implemented as matching cost function.
 Moreover, it is a simple area-matching approach with a given block (window) size.
-That means, that the previously introduced disparity constraints are not handled properly.
-\newline\newline\noindent Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost} for each possible disparity and stores them in a three-dimensional matrix.
+Additionally, the previously introduced disparity constraints are not handled properly.
+\newline\newline\noindent Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost} for each possible disparity and stores them in a four-dimensional matrix.
 As input parameter, the Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, expect a set of rectified stereo image pairs, $I_L=\{I_{L_{1}}...I_{L_{n}}\}$ and $I_R=\{I_{R_{1}}...I_{R_{n}}\}$, whereas $n$ denotes the amount of images.
 The maximum disparity to be found is denoted as $d_{max}$ whereas $wSize$ denotes the window size for the blocks to be matched.
 
@@ -546,9 +546,11 @@ $frames \gets \textsc{Images}(I_L)$\;
 \label{alg:dsi-3d}
 \end{algorithm}
 
-\noindent \textsc{Rect}\{x,y,width,height\} denotes a rectangle cropped out of a given image.
-\textsc{CreateMatrix} creates a matrix with dimensions according to the amount of input parameters and the given size of each parameter.
-The output is the matrix $C$.
+\noindent $\textsc{Rect}\{x,y,width,height\}$ denotes a rectangle cropped out of a given image.
+\textsc{CreateMatrix} creates a matrix with dimensions according to the amount of input parameters.
+The size of each dimension is defined with the parameter itself.
+The output is the matrix $C = C(x,y,t,d)$ whereby $(x,y)$ is the position in the reference image $I_{L_{t}}$, $t$ the number of the frame and $d$ the disparity.
+After the invocation, $C$ returns the matching cost for the given input.
 \newline\newline\noindent Furthermore, the matching cost can be queried with the function $C(x,y,d) \iff C(x,y,0,d)$, which also represents the disparity space image, as introduced in the foundations Chapter \ref{chap:foundations}, by ignoring the time-dimension.
 Algorithm \ref{alg:disparity-map}, \textsc{DisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
 \textsc{DisparityMap} needs as parameter the disparity space image, here denoted as $C(x,y,t,d)$ and the number of the frame $f$, for which the disparity map should be computed.
@@ -557,6 +559,7 @@ The matching cost is simply, as mentioned beforehand, the sum of absolute differ
 The $\Delta$ is estimated as the absolute difference between two windows.
 Then, the cost is the sum of all fields in this matrix, which is computed by \textsc{MatrixSum}.
 \newline\newline\noindent Algorithm \ref{alg:disparity-map} uses the Algorithm \ref{alg:best-match} which outputs the best match given an amount of disparities $d \in D=\{0{\dots}d_{max}\}$.
+It iterates over all disparities and finds the minimum.
 The best match is in this case the minimum matching cost.
 
 \begin{algorithm}[h!]
@@ -578,15 +581,16 @@ $bestMatch \gets 0$\;
 \end{algorithm}
 
 \noindent The spatiotemporal approach utilizes a new dimension, the time axis $t$, and adds it to the disparity space image.
-$C(x,y,d,t)$ is then constructed in Algorithm \ref{alg:dsi-3d} whereby $t \in T=\{0{\dots}n\}$ denotes the current processed frame.
+$C(x,y,d,t)$ is constructed in Algorithm \ref{alg:dsi-3d} whereby $t \in T=\{0{\dots}n\}$ denotes the current processed frame.
 Then, the DSI knows for each position, given a disparity and a frame the matching cost.
-As a simple idea, the disparity, chosen for a frame, is then the minimum over three frames.
+As a simple idea, the disparity, chosen for a frame, is the minimum over three frames.
 Looking at a frame at time $f_t$, the frames $f_{t-1}$ and $f_{t+1}$ are also taken into account.
 For the first and the last frame, the two following or respectively the two frames beforehand are used.
 The underlying assumption is, that there is no much motion between the frames, because this would lead to inaccurate matching cost due to possible object hops.
 \newline\newline\noindent If the amount of frames is smaller than three ($T < 3$), the spatiotemporal approach is not used.
 Another possibility is to weight the frames, for instance the frame before and after the current frame are taken by $\frac{1}{5}$ into account, whereas the current frame is taken by $\frac{2}{5}$ into account.
-This approach is reflected by the parameter $weighted$ in Algorithm \ref{alg:disparity-map}, which can be \textsc{True} or \textsc{False}.
+As a result, a new matching cost matrix is created which reflects the disparity using the weighted approach.
+The weighted approach can be toggled via the parameter $weighted$ in Algorithm \ref{alg:disparity-map}, which can be \textsc{True} or \textsc{False}.
 For better representation, all approaches are integrated in Algorithm \ref{alg:disparity-map}.
 
 \begin{algorithm}[h!]
