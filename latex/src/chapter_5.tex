@@ -26,6 +26,7 @@ The former one can lack of accuracy due to false measurements whereas the latter
 As area scanners are never 100 percent accurate, they introduced error-bars, which can range from $0-10$.
 An error-bar indicates how certain the area scanner was that this disparity for a given pixel really existed \citep{kondermann2015stereo}.
 \newline\newline\noindent As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, here three different datasets were chosen.
+\newline\newline\noindent Other datasets, which were found but not investigated are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
 
 \subsection*{Tsukuba stereo dataset}
 
@@ -96,7 +97,6 @@ The dataset consists of 15 scenes.
 The scenes consist of high resolution stereo images $1920x1080$ with an average bitrate of 94 MBit/s.
 With an approximate size of 2 MB for each frame, the size of each sequence varies between 0.4 GB and 2.7 GB.
 For each frame, depth and disparity information are computed with 32-bit floating point precision and saved in OpenEXR files.
-\newline\newline\noindent Other datasets, which were found but not investigated further more are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
 
 %todo add overview images
 
@@ -159,6 +159,13 @@ The results are visualized with heatmaps utilizing the HSV\footnote{HSV = hue-sa
   \label{fig:hue-scale}
 \end{figure}
 
+%todo add opencv autumn scheme
+%todo describe a bit the colouring
+
+Outliers are marked with purple in the heatmaps.
+The border is excluded from the evaluation (cf. Chapter \ref{chap:foundations}) and also marked purple.
+The more heat, the brighter the color, the nearer the objects are.
+
 \subsection*{Applying disparity algorithms on videos}
 
 As said in the implementation Chapter \ref{chap:impl}, disparity algorithms for image can be applied to videos.
@@ -205,6 +212,46 @@ $\delta_{sal}$ & PBMP in salient regions. \\ \hline
 
 
 %todo results
+
+%explicit
+\newpage
+\subsection{Against reference dataset}
+
+As reference scene the \textit{Head and lamp} scene of the Tsukuba dataset was chosen.
+For evaluating against the reference dataset, all presented disparity algorithms computed disparity maps.
+These disparity maps are then compared in combination with different masks.
+The result can be seen in Table \ref{tab:eval:snsm:tsukuba} and the SNSM is depict in Figure \ref{fig:eval:snsm:tsukuba}.
+Compared with the Middlebury stereo benchmark\footnote{\url{http://vision.middlebury.edu/stereo/eval/}}, similar results could be achieved.
+The SNSM utilizes SAD as matching cost function and does not further disparity refinement.
+The results from SNSM with a threshold of $4$ and a block size of $9$ are $\delta_{all} = 6.78\%$ and $\varepsilon_{all} = 2.03px$.
+According to the Middlebury stereo benchmark, the other SAD implementation (SAD-IGMCT) \citep{ambrosch2010accurate} achieved with a threshold of $2$: $\delta_{all} = 2.92\%$.
+The difference comes from smoothing, which SAD-IGMCT included as a disparity refinement step, which is visible while looking at their outcome.
+
+%todo add other algorithm outputs
+
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[ground-truth heatmap]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-ground-truth.png}} &
+\subfloat[computed disparity-map]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-disparity-map.png}} \\
+\subfloat[outliers in SNSM]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-outliers.png}} &
+\subfloat[outliers in SAD-IGMCT]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-outliers-igmct.png}}
+\end{tabular}
+\caption{SNSM heatmaps for Tsukuba scene}
+\label{fig:eval:snsm:tsukuba}
+\end{figure}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l|rrrrrr}
+  \hline
+  \textbf{Method} & $\varepsilon_{all}$ & $\delta_{all}$ \\ \hline \hline
+  SAD & $6.78\%$ & $2.03px$ \\ \hline
+  SAD-IGMCT & $2.93\%$ & $1.38px$ \\ \hline
+\end{tabular}
+\caption{Result table for reference dataset}
+\label{tab:eval:snsm:tsukuba}
+\end{table}
 
 \subsection{General performance}
 
