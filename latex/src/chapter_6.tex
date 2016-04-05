@@ -5,7 +5,7 @@ The work described in this thesis has been concerned with the comparison of disp
 For this purpose, evaluation methods were introduced and integrated.
 As stereoscopic datasets focusing on videos are rarely spread, the used ones for the evaluation were also introduced.
 Additionally, a simple stereo matcher focusing on videos was implemented and thus described.
-The following sections recap this in more detail and furthermore give a future outlook.
+The following section recaps this in more detail and furthermore a future outlook is given.
 
 \section{Thesis summary}
 
@@ -13,20 +13,21 @@ The following sections recap this in more detail and furthermore give a future o
   \item What the thesis brought with each chapter.
   \item One small paragraph regarding one disparity algorithm.
   \item One small paragraph regarding dataset of the chair.
-  \item What was implemented.
   \item What the main result of the evaluation.
 \end{itemize}
 
-%todo summarize a bit
-
-The following modules were actually implemented:
+\noindent The following modules were actually implemented:
 
 \begin{itemize}
   \item Reader for the PFM file format.
-  \item Python scripts for upcoming evaluation.
-  \item Shell scripts for getting the docker containers and thus the work distributed among different instances\footnote{With instances virtual machines from DigitalOcean are meant.}.
-  \item Evaluation processor for
+  \item Python scripts for evaluation.
+  \item Shell scripts for creating docker containers and distribute the work among different server instances.
+  \item Evaluation processor based on OpenCV for stereoscopic videos compared with their ground-truth companion.
+  \item A simple stereo matcher targeting videos by holding a spatiotemporal context.
+  \item An image diminisher utilizing FFmpeg to simulate noise and video compression artifacts.
 \end{itemize}
+
+\noindent Summarize the results of the evaluation.
 
 %todo add recommendations for svddd dataset
 
