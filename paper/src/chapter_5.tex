@@ -142,17 +142,50 @@ Hence the RMSE is the difference between values on average.
 
 \section{Measurement}
 
-
+This chapter summarizes the thoughts behind the evaluation.
+All disparity maps were created on a desktop computer with an i5-2500k @ 3.30GHz (quad-core).
+First, the idea of a distributed calculation arose, as described in Chapter \ref{chap:impl}.
+As this would lack the comparison of runtime, only the desktop computer was used.
+\newline\newline\noindent The whole evaluation was proceeded like the following:
+Python scripts for the execution of all components in a chain were written.
+Disparity maps are computed for each frame in a sequence, for each sequence in a dataset, and for each dataset.
+The Cambridge dataset contains five sequences with each 100 frames.
+In total 12 algorithms were executed.
+This makes an amount of $6.000$ disparity maps.
+\newline\newline\noindent In addition, this dataset was duplicated for observing interferences on disparity algorithms.
+For analyzing the impact of noise, additive gaussian noise with a normal distribution of $\mathcal{N}(\mu,\sigma^2)$ was added.
+For $\sigma$, $10, 20, 30$ were chosen as parameter.
+Lower values had no real impact on a few sample disparity maps computations and were also not visually exhibited.
+Higher values were analyzed by \citeauthor{richardt2010real} \citep{richardt2010real}, but are clearly disturbing the whole image.
+As additive gaussian noise should simulate a more real scenery instead of synthetic rendered videos, higher values were not considered.
+\newline\newline\noindent Normally, high resolution videos are not transmitted in their pure nature (lossless), for instance raw files.
+That said, H.265 was chosen as current state of the art video compression codec.
+H.265 was introduced in Chapter \ref{chap:impl}.
+For analyzing the disturbing effects on disparity algorithms, video compression artifacts were added by converting the images to a video, applying the codec and unwrapping the video into images.
+As parameter, the constant rate factor (CRF) can be adjusted.
+The default parameter value is $28$.
+As $0$ means lossless video compression, it was tested with a few sample disparity maps computations.
+$0$ had no impact and was not considered for the evaluation.
+$14, 28, 40, 51$ were chosen as final values to have a feasible amount of different values and also a meaningful jump between those values (always half steps).
+\newline\newline\noindent Taking those combinations into account yields to an amount of disparity maps to be computed of $48.000$.
+After the disparity maps were computed, other Python scripts were written and executed for the aggregation of the results.
+As the results are for each image in a sequence from a dataset and also focusing on one algorithm, they have to be aggregated and written in summarized CSV files.
+The simple stereo matcher was treated as an exception.
+The reason for this is simple: all the scripts were written with the intent of calculating single independent disparity maps.
+As the simple stereo matcher features spatiotemporal consistency, scripts focusing especially on the execution and aggregation of this matcher were written as well.
 
 \subsection*{Parameter tuning}
 
-Our results.
-because there exist arbitrary combination for the OpenCV implementations.
-The other drawback is that neither the implemented algorithms nor my own have the possibility of adjustments.
+The observed parameters regarding noise and video compression was described before.
+Adjusting and quantifying also the parameters of each algorithm would be a formidable task.
+Thus, only the maximum disparity was adjusted according to the dataset.
+All the other variables were left as default and moreover, some algorithms have no parameter but the maximum disparity to adjust.
 
 \subsection*{Visualization}
 
-The results are visualized with heatmaps utilizing the OpenCV autumn scheme.
+As it may be hard to identify fine-grained changes in grayscale images and also the human eye tends to be more sensitive to observe color changes, heatmaps are used to visualize the results.
+For visualization, the heatmaps are created with the OpenCV autumn color scheme.
+The color-scale of this theme is depict in Figure \ref{fig:colorscale}.
 
 \begin{figure}[h!]
   \centering
@@ -162,14 +195,29 @@ The results are visualized with heatmaps utilizing the OpenCV autumn scheme.
 \end{figure}
 \footnotetext{Source (accessed 04/2016): \url{http://docs.opencv.org/3.1.0/d3/d50/group__imgproc__colormap.html}.}
 
-%todo add opencv autumn scheme
-%todo describe a bit the colouring
+\noindent Outliers are marked with three different purple color steps in the heatmaps.
+The darker the purple color is, the more hard the error was.
+The light blue means $1px$ threshold was exceeded, the color in-between the light blue and the dark purple denotes $2px$ threshold was exceeded and the very dark purple reflects $4px$ threshold was exceeded.
+The border is excluded from the evaluation (cf. Chapter \ref{chap:foundations}) and marked black.
+Brighter color means more heat and marks nearer pixels.
+An example shot can be seen in Figure \ref{fig:example-heatmap}.
+\newline\newline\noindent The maximum disparity in this example shot was $64$.
+This means that due to the baseline separation of the cameras, and the resulting shift of the pixels, some pixels can not be calculated as they have no counterpart.
+This was excluded from the evaluation.
+Also, as the area-based disparity algorithms work with a window size and have a small step from the top and the bottom, this was excluded as well.
+Both is represented with a border mask, which was applied to all evaluation steps beforehand.
+This can also be seen in Figure \ref{fig:example-heatmap}.
+This guarantees a streamlined and balanced evaluation.
 
-"The human perception isn't built for observing fine changes in grayscale images. Human eyes are more sensitive to observing changes between colors, so you often need to recolor your grayscale images to get a clue about them. OpenCV now comes with various colormaps to enhance the visualization in your computer vision application."
-
-Outliers are marked with purple in the heatmaps.
-The border is excluded from the evaluation (cf. Chapter \ref{chap:foundations}) and also marked purple.
-The more heat, the brighter the color, the nearer the objects are.
+\begin{figure}[h!]
+\centering
+\begin{tabular}{cc}
+\subfloat[outliers heatmap]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/street-example-heatmap-outliers.png}} &
+\subfloat[ground-truth heatmap]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/street-example-heatmap.png}}
+\end{tabular}
+\caption{Example heatmaps for outliers heatmap and disparity ground-truth.}
+\label{fig:example-heatmap}
+\end{figure}
 
 \subsection*{Applying disparity algorithms on videos}
 
@@ -179,10 +227,11 @@ Although the frames of a video can be seen as independent pieces, different anom
 \begin{itemize}
   \item outliers in the form of a single frames which differs too much from the others,
   \item impact of noise,
+  \item disturbing effects of artifacts from video compression,
   \item the benefit from creating a naive spatiotemporal context.
 \end{itemize}
 
-\noindent The following sections present the results.
+\noindent The following sections present only the highlights of the results as it is an tremendous amount of data, which were computed during the evaluation.
 
 %explicit
 \newpage
