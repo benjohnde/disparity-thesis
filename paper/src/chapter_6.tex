@@ -1,0 +1,51 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+The work described in this thesis has been concerned with the comparison of disparity algorithms.
+For this purpose, evaluation methods were introduced and integrated.
+As stereoscopic datasets focusing on videos are rarely spread, the used ones for the evaluation were also introduced.
+Additionally, a simple stereo matcher focusing on videos was implemented and thus described.
+The following section recaps this in more detail and furthermore a future outlook is given.
+
+\section{Thesis summary}
+
+\begin{itemize}
+  \item What the thesis brought with each chapter.
+  \item One small paragraph regarding one disparity algorithm.
+  \item One small paragraph regarding dataset of the chair.
+  \item What the main result of the evaluation.
+\end{itemize}
+
+\noindent The following modules were actually implemented:
+
+\begin{itemize}
+  \item Reader for the PFM file format.
+  \item Python scripts for evaluation.
+  \item Shell scripts for creating docker containers and distribute the work among different server instances.
+  \item Evaluation processor based on OpenCV for stereoscopic videos compared with their ground-truth companion.
+  \item A simple stereo matcher targeting videos by holding a spatiotemporal context.
+  \item An image diminisher utilizing FFmpeg to simulate noise and video compression artifacts.
+\end{itemize}
+
+\noindent Summarize the results of the evaluation.
+
+%todo add recommendations for svddd dataset
+
+\section{Future outlook}
+
+A few thoughts on possible future work are outlined.
+The thoughts are split in low- and high-level, from a technical perspective.
+Low-level items are focused towards underlying methods of disparity algorithms, whereas high-level items focus on the bigger picture and tools which may help in developing stereo matcher.
+
+\begin{itemize}
+  \item Neuronal networks \citep{olshausen1996emergence}
+  \item Other matching cost calculation methods \citep{hermann2010gradient}.
+  \item Focus more on how humans experience depth? \citep{deangelis1995neuronal}
+\end{itemize}
+
+\begin{itemize}
+  \item Real-time availability
+  \item higher resolution
+  \item What's on the market, like multi-view?
+  \item Provide more real-world ground truth disparity maps \citep{kondermann2015stereo, Geiger2011IV}.
+\end{itemize}
