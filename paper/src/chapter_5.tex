@@ -238,6 +238,7 @@ Although the frames of a video can be seen as independent pieces, different anom
 \section{Results}
 
 %todo define abbreviations for tables
+%todo maybe rework with matrix
 \noindent The following Table \ref{tab:metrics} contains all combinations of the presented masks with the established metrics.
 As of now, the tags are used in upcoming descriptions and result tables.
 
@@ -263,9 +264,6 @@ $\delta_{sal}$ & PBMP in salient regions. \\ \hline
 \end{table}
 
 %todo small intro
-
-
-%todo results
 
 %explicit
 \newpage
@@ -309,11 +307,10 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
 
 \subsection{General performance}
 
-\subsubsection{Simple stereo matcher}
-
 \subsection{Impact of noise}
 
-\subsubsection{Simple stereo matcher}
+The impact of noise is an interesting and not often seen approach regarding disparity algorithms.
+%todo more intro
 
 \subsection{Impact of video compression}
 
@@ -324,17 +321,12 @@ One outpointed need is the remapping of disparity for different screen sizes.
 If this can not happen on raw data, for instance the data is missing and only the compressed version is available, the influence of video compression on the outcome of disparity algorithms is observed.
 \newline\newline\noindent For this observation five different datasets were created with the image diminisher.
 As underlying video codec H.265 was chosen because it is currently the most efficient video compression technique.
-The recommended default parameter for H.265, the constant rate factor (CRF) is 28.
-It ranges from $0-51$, whereas 0 represents lossless and 51 the worst possible compression.
+The recommended default parameter for H.265, the constant rate factor (CRF) is $28$.
+It ranges from $0-51$, whereas $0$ represents lossless and $51$ the worst possible compression.
 $0, 14, 28, 40, 51$ were chosen with $14$ and $40$ as additionally in-between parameters.
 Thus, the observed range is $0, 14, 28, 40, 51$.
 
-\subsubsection{Simple stereo matcher}
-
 \subsection{Runtime}
-
-\subsubsection{Simple stereo matcher}
-
 
 \section{Discussion}
 
