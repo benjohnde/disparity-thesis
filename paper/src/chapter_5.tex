@@ -314,7 +314,27 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
 
 \subsection{General performance}
 
+%todo small intro
 
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[Frame 8]{\includegraphics[width=0.3\textwidth]{src/images/evaluation/outliers/image0008-heatmap-outliers.png}} &
+\subfloat[Frame 23]{\includegraphics[width=0.3\textwidth]{src/images/evaluation/outliers/image0023-heatmap-outliers.png}} &
+\subfloat[Frame 27]{\includegraphics[width=0.3\textwidth]{src/images/evaluation/outliers/image0027-heatmap-outliers.png}}
+\end{tabular}
+\caption{Outliers observing three frames in 01-book sequence of Cambridge dataset, calculated with StereoBM.}
+\label{fig:outliers1}
+\end{figure}
+
+\noindent As learned in Chapter \ref{chap:foundations}, it is difficult for disparity algorithms to clearly treat object borders at which depth-discontinuity occurs.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{src/images/evaluation/outliers/plot1.pdf}
+  \caption{$\varepsilon_{disc}$ for 01-book sequence of Cambridge dataset, calculated with StereoBM.}
+  \label{fig:plot1}
+\end{figure}
 
 \subsection{Impact of noise}
 
@@ -337,6 +357,10 @@ Thus, the observed range is $0, 14, 28, 40, 51$.
 
 \subsection{Runtime}
 
+%todo small intro
+
+%todo remove me
+\newpage
 \section{Discussion}
 
 This is really important!
