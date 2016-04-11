@@ -424,7 +424,7 @@ As seen in the related work in Chapter \ref{chap:related}, some approaches use r
 Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms in general.
 Gaussian noise is used, meaning that the noise is gaussian distributed (or normal distributed).
 Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance (squared standard deviation).
-\newline\newline\noindent As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $20$ to simulate real scenery.
+\newline\newline\noindent As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $0$ to simulate real scenery.
 The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
 The distribution is illustrated in Figure \ref{fig:gaussian}.
 \newline\newline\noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
@@ -442,16 +442,14 @@ It mostly appears by defect image sensors or erroneous analog-to-digital convers
   \centering
   \begin{tikzpicture}
     \begin{axis}[every axis plot post/.append style={
-      mark=none,domain=17:23,samples=50,smooth},
+      mark=none,domain=-16:+16,samples=50,smooth},
       axis x line*=bottom,
       axis y line*=left,
       enlargelimits=upper]
-      \addplot {gauss(20,0.6)};
-      \addplot {gauss(20,0.8)};
-      \addplot {gauss(20,1.0)};
+      \addplot {gauss(0,3.16228)};
     \end{axis}
   \end{tikzpicture}
-  \caption{Gaussian noise distribution with $\mathcal{N}(20,\sigma^2)$ for different values of $\sigma^2$.}
+  \caption{Gaussian noise distribution with $\mathcal{N}(0,\sqrt{10})$.}
   \label{fig:gaussian}
 \end{figure}
 
