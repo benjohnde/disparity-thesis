@@ -1,17 +1,22 @@
 \chapter{Implementation}
 \label{chap:impl}
 
-The following sections accurately describe the implementation, its components and the subsequent evaluation pipeline for disparity maps.
 Chapter \ref{chap:related} points out that no real algorithm for stereoscopic video disparity yet exists.
-Also, no evaluation suite that assesses disparity algorithms based on stereoscopic videos has not been build yet.
+Also, an evaluation suite that assesses disparity algorithms based on stereoscopic videos has not been build yet.
 Datasets with high-resolution stereo videos are rarely available.
 Source code for existing disparity algorithms are open-sourced and available for the public domain only in a few cases.
 Additionally, a lot of different unaligned code for evaluation and comparing disparity is found.
-\newline\newline\noindent Thus, the decision towards an implementation of a novel evaluation suite, built on top of OpenCV, was made.
+Thus, the decision towards an implementation of a novel evaluation suite, built on top of OpenCV, was made.
 Preexisting source code of disparity algorithms was refactored and integrated.
 Different masks for fine-grained evaluation were implemented as well.
 An image diminisher which alters stereo images by adding noise, to simulate real scenery, or artifacts from video compression was created.
 Additionally, a web front-end was developed to present and visualize the results from any benchmark run within the suite.
+\newline\newline\noindent The following sections describe the implementation, its components and the subsequent evaluation pipeline for disparity maps.
+First, the preliminaries are outlined and an overview on the implementation as well as the evaluation engine is given.
+Second, the integration of existing disparity algorithms is presented.
+Third, the masks for the evaluation are explained and the implementation is described.
+Fourth, the image diminisher, created to simulate real use cases is presented.
+Finally, a simple stereo matcher which respects the spatiotemporal context is described in more detail and the web result viewer of the evaluation engine is introduced.
 
 \section{Preliminaries}
 
@@ -20,7 +25,7 @@ For the later evaluation phase a desktop computer with an i5-2500k @ 3.30GHz (qu
 The programming part was done with Atom\footnote{\url{https://atom.io}}, a modern text editor, and CLion\footnote{\url{https://www.jetbrains.com/clion/}} from JetBrains, a cross-platform IDE especially for C++.
 CMake as a cross-compiling makefile generator was utilized.
 Everything except the web result viewer was implemented using C++.
-As a timer saver and for reducing code duplicates OpenCV was used.
+To reduce the effort of building an evaluation suite from scratch and for reducing code duplicates OpenCV was used.
 The final build-chain consists of a set of shell scripts and CMake as makefile generator.
 With CMake it was possible to cross-compile the app for Linux and use a fast server-instance from DigitalOcean\footnote{\url{https://www.digitalocean.com}} for the generation of the disparity maps and to actually evaluate those.
 \newline\newline\noindent To not rely on different environments, docker images have been used to serve as basis for containerized virtual environments for the evaluation suite.
@@ -33,11 +38,11 @@ Finally, the scripting language Python was used to create a set of scripts for c
 \section{Overview}
 
 Initially, a rapid monolithic prototype was built, featuring the execution of different disparity algorithms for each frame, the creation of masks and the evaluation of a given scene with different quality metrics.
-But as more datasets were found and various masks as an evaluation method were established, the need for a leaner process chain arose.
-Especially as disparity algorithms need some time to compute the disparity map for one frame.
+But as more datasets were found and various masks as an evaluation method were implemented, the need for a leaner process chain arose.
+Especially, as disparity algorithms need some time to compute the disparity map for one frame a more split approach was favored.
 Hence, as videos consist of multiple frames (in our datasets about 100 frames in mean) this is a time consuming task.
 Sometimes metrics change, the threshold is adjusted or a new metric is found.
-\newline\newline\noindent As a result, an approach towards small services with which computed disparity maps can be evaluated repeatedly and independently.
+As a result, the implementation consists of small services, with which computed disparity maps can be computed and evaluated independently.
 Thus, the monolithic prototype was rewritten and partitioned in smaller microservices shaping three different components:
 
 \begin{itemize}
@@ -47,15 +52,18 @@ Thus, the monolithic prototype was rewritten and partitioned in smaller microser
 \end{itemize}
 
 \noindent Additionally, a small tool for diminishing images was created.
-It can simulate real scenery by adding gaussian noise as recommended by \citep{richardt2010real}.
+It can simulate real scenery by adding Gaussian noise as recommended by \citep{richardt2010real}.
 In addition, FFmpeg \citep{FFMPEG2010} was wrapped to simulate artifacts originating from video compression.
 The output, which each one of those microservices in the chain can generate or operate on, is structured in a simple folder tree.
-\newline\newline\noindent The Figure \ref{fig:impl-pipeline} shows the composition and the evaluation chain of these microservices.
+\newline\newline\noindent The Figure \ref{fig:impl-pipeline} shows the composition and the evaluation chain of these services.
+As described in the following subsections, the mask creator needs only the left image, as the disparity map is calculated for the left image as reference.
+Thus, the masks are only created for the reference image.
 
 \tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
 \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
-\begin{figure}[hp!]
+\begin{figure}[h!]
   \centering
+  \scalebox{0.85}{
   \begin{tikzpicture}[node distance=7em, auto]
     %input
     \node [cloud] (right) {right image};
@@ -65,6 +73,9 @@ The output, which each one of those microservices in the chain can generate or o
     %computation
     \node [rblock, below of=right, xshift=2em] (exec) {(1) Algorithm executer};
     \node [rblock, below of=disp, xshift=-2em] (mask-creator) {(2) Mask creator};
+    
+    %diminisher
+    \node [rblock, above of=exec, yshift=7em] (dim) {(4) Image diminisher};
 
     %output
     \node [cloud, below of=exec] (map) {disparity map};
@@ -78,6 +89,9 @@ The output, which each one of those microservices in the chain can generate or o
     \node [cloud, below of=evaluation, xshift=5em] (heatmaps) {heatmaps};
 
     %lines
+    \path [line] (dim) -- (right);
+    \path [line] (dim) -- (left);
+    
     \path [line] (right) -- (exec);
     \path [line] (left) -- (exec);
     \path [line] (left) -- (mask-creator);
@@ -92,21 +106,20 @@ The output, which each one of those microservices in the chain can generate or o
     \path [line] (evaluation) -- (csv);
     \path [line] (evaluation) -- (heatmaps);
   \end{tikzpicture}
+  }
   \caption{Composition and processing pipeline of the implementation.}
   \label{fig:impl-pipeline}
 \end{figure}
 
-\section{Evaluation engine for videos}
-
-In contrast to other implementations, input and output are clearly defined and thus different techniques can be adapted easily.
+\noindent In contrast to other implementations, input and output are clearly defined and thus different techniques can be adapted easily.
 Combined frameworks which fulfill two tasks, disparity calculation (as the algorithm is implemented) and the final evaluation step exist.
 This makes it harder to use the evaluation module separately from the rest.
-None the less the open source community around computer vision also lacks of code for stereo matcher.
+None the less, the open source community around computer vision also lacks of code for a stereo matcher.
 Due to the diversities of algorithms and evaluation suites, the decision was made to go for an OpenCV implementation of an eval suite for disparity algorithms.
 \newline\newline\noindent At the current point in time, no disparity algorithms that directly target videos yet exist.
 As a video is defined by multiple consecutive frames, every disparity algorithm for images can also be applied on videos.
 The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
-None the less it is possible to focus on some other details.
+None the less, it is possible to focus on some other details.
 \newline\newline\noindent For instance, possible outliers in the sense of frames can occur, which may lead to more erroneous results.
 The mean performance (error rate) of algorithms on a complete scene can be analyzed.
 The runtime may vary in a sequence from frame-to-frame.
@@ -115,60 +128,37 @@ This is described in greater detail in the upcoming section regarding image dimi
 \newline\newline\noindent As middleware between the components OpenEXR\footnote{\url{http://www.openexr.com}} is used.
 OpenEXR is a file format for high dynamic-range (HDR) images.
 It supports 32-bit floating-point values and is thus good for representing sub-pixel accurate values in a disparity map.
-The file format is also integrated in OpenCV yet.
-For the later evaluation, the comparison of ground-truth data with computed disparity maps, the file format is sufficient.
+The file format is also integrated in OpenCV.
+For the later evaluation, the comparison of ground-truth data with computed disparity maps, it is sufficient.
 However, to visualize the images on a default monitor, the values have to be normalized in a range suitable for using sophisticated color ranges like RGB.
 Hence, heatmaps are created with normalized disparity maps in the range of $0-255$.
 \newline\newline\noindent Basically, the evaluation engine takes a computed disparity map and the ground-truth counterpart as inputs.
 Only comparing both provides low informative value.
 Algorithms tend to produce disparity maps with a few unknown fields (e.g. noise or occluded pixels).
-Crucial are also depth-discontinuities along object borders, textureless regions and occluded pixels.
+Crucial are also depth-discontinuities along object borders, textureless regions, and occluded pixels.
 Thus, masks are used to only focus on these particular areas in an evaluation.
 The creation of these masks are illustrated accurately in the upcoming section.
 In Chapter \ref{chap:eval}, which discusses evaluation and results, the masks are used in combination with defined quality metrics.
 The evaluation engine applies these quality metrics in combination with masks and outputs the result in a simple CSV file\footnote{CSV stands for comma-separated values. A CSV file usually represents a table, with rows being the lines and in columns the values are separated with commas.}.
-Figure \ref{fig:impl-evaluation-engine} depicts the evaluation engines input and output.
 As seen in Figure \ref{fig:impl-pipeline}, the implementation consists of three components.
 After an algorithm is executed, the masks are created.
 Finally, the computed disparity maps are compared with their ground-truth companion with each mask applied.
-
-\tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
-\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
-\begin{figure}[h!]
-  \centering
-  \begin{tikzpicture}[node distance=6em, auto]
-    %input
-    \node [cloud] (computed) {computed disparity map};
-    \node [cloud, below of=computed] (groundtruth) {ground-truth disparity map};
-    \node [cloud, below of=groundtruth] (result) {CSV file};
-    %computation
-    \node [rblock, right of=computed, xshift=7em, yshift=-3em] (init) {init with input};
-    \node [rblock, below of=init] (compare) {compare masked pixels};
-    %lines
-    \path [line] (computed) -- (init);
-    \path [line] (groundtruth) -- (init);
-    \path [line] (init) -- (compare);
-    \path [line] (compare) -- (result);
-  \end{tikzpicture}
-  \caption[Illustration of the evaluation engine]{Illustration of the evaluation engine.}
-  \label{fig:impl-evaluation-engine}
-\end{figure}
-
-\noindent Python scripts in combination with the evaluation engine represent the whole eval-chain.
+\newline\newline\noindent Python scripts in combination with the evaluation engine represent the whole eval-chain.
 They work basically as a wrapper to iteratively execute each component over each frame of a given input sequence and aggregate the results.
 The evaluation engine, as well as the other components, are run with command line arguments to pass specific parameters for the execution, for instance which input images should be used and where the computed disparity map should be saved.
-
-%explicit
-\newpage
 
 \section{Integration of existing algorithms}
 
 As shown in Chapter \ref{chap:related}, deciding which algorithms should be implemented was not easy.
-There is a huge diversity of used technologies amongst disparity algorithms: various programming languages, cpu versus a CUDA\footnote{CUDA is a high level programming language that targets highly parallel calculations utilizing Graphic Processing Units (GPUs) by Nvidia.} implementation, different coding styles and libraries.
+There is a huge diversity of used technologies amongst disparity algorithms: various programming languages, CPU versus a CUDA\footnote{CUDA is a high level programming language that targets highly parallel calculations utilizing Graphic Processing Units (GPUs) by Nvidia.} implementation, different coding styles and libraries.
 As a matter of fact, this makes it hard to implement and evaluate every available disparity algorithm.
 Thus, a more streamlined extendable architecture is presented.
 The algorithms, which were introduced in the related work Chapter \ref{chap:related}, are adopted and integrated.
 The architecture of the disparity interface is depicted in Figure \ref{fig:uml-disparity-interface}.
+\newline\newline\noindent The abstract class \texttt{DisparityAlgorithm} provides both images, left and right one, in form of a \texttt{cv::Mat} object and also holds the resulting disparity map.
+On top of this abstract class further algorithms can be integrated easily.
+The output of each algorithm is then saved in an OpenEXR file at a given destination path.
+The following subsections describe how the algorithms were integrated, the pre- and post-processing steps if necessary, and illustrate the parameter.
 
 \begin{figure}[h!]
   \centering
@@ -191,14 +181,9 @@ The architecture of the disparity interface is depicted in Figure \ref{fig:uml-d
   \label{fig:uml-disparity-interface}
 \end{figure}
 
-\noindent The abstract class \texttt{DisparityAlgorithm} provides both images, left and right one, in form of a \texttt{cv::Mat} object and also holds the resulting disparity map.
-On top of this abstract class further algorithms can be integrated easily.
-The output of each algorithm is then saved in an OpenEXR file at a given destination path.
-The following subsections describe how the algorithms were integrated, the pre- and post-processing steps if necessary, and illustrate the parameter.
-
 \subsection*{OpenCV}
 
-The OpenCV library \citep{opencv_library}, currently at version 3.1.0, offers two implementations for disparity estimation, block matching and semi-global block matching based on the idea of \citeauthor{hirschmuller2005accurate}.
+The OpenCV library \citep{opencv_library}, currently at version 3.1.0, offers two implementations for disparity estimation, block matching and semi-global block matching based on the idea of \citeauthor{hirschmuller2005accurate} \citep{hirschmuller2005accurate}.
 Both implementations are integrated and fed with the same input parameters.
 The matching cost are calculated differently in both implementations.
 Another difference is, that the simple block matching implementation only operates on grayscale.
@@ -237,9 +222,10 @@ Thus, the result output is converted to a 32-bit floating values matrix, divided
 \citeauthor{birchfield1999depth} defined matching cost as a global function which penalties occlusions and rewards matches \citep{birchfield1999depth}.
 According to \citep{scharstein2002taxonomy, hirschmuller2007evaluation} the Birchfield-Tomasi method leads to better results than traditional similarities measurements like SAD.
 In case of a traditional local similarities measurement, for instance SAD, it is possible to truncate the differences to a certain maximum value.
-Via parameter the algorithm for minimizing the energy function, as presented in the related work Chapter \ref{chap:related}, can be chosen.
-The other parameters are only for the smoothness term of the energy function.
-It is possible to adjust the smoothness exponent, the maximum value of the smoothness term, the weight $\lambda$ of the smoothness term.
+In Chapter \ref{chap:related}, the different algorithms, which are implemented in the Middlebury library, were presented.
+The used algorithm can be selected via command-line parameter.
+Other parameters are only for the smoothness term of the energy function.
+It is possible to adjust the smoothness exponent, the maximum value of the smoothness term, and the weight $\lambda$ of the smoothness term.
 
 \subsection*{ELAS: Efficient large-scaler stereo matching}
 
@@ -253,17 +239,14 @@ For processing the PFM files, a simple file reader was created, according to the
 Specific characteristics of this file format are, that the rows are written bottom-to-top and each column has to be multiplied with a scale factor.
 The ELAS binary can be started with no parameters but the maximum disparity value.
 
-%explicit
-\newpage
-
 \section{Fine-grained evaluation via masks}
 
 The trivial possibility for evaluation would be to just compare the computed disparity map with its ground-truth companion.
-Though, this approach would produce erroneous results due to a variety of reasons.
+But, this approach would produce erroneous results due to a variety of reasons.
 To give an example, occluded regions would lead to a higher error rate.
 As a remedy, masks are introduced to simply focus on interesting pixels.
-Masks are normal matrices of the size of the input image and they reflect two states: $0$ and $1$ like a bit, whereas $1$ stands for masked.
-In the literature they sometimes also named bitmasks.
+Masks are normal matrices of the size of the input image and they reflect two states: $0$ and $1$, whereas $1$ stands for masked.
+In the literature they are sometimes also named bitmasks.
 In this section the following masks are introduced:
 
 \begin{itemize}
@@ -307,7 +290,7 @@ Figure \ref{fig:dd-mask} depicts this.
 \label{fig:dd-mask}
 \end{figure}
 
-\subsection*{Textured regions recognition}
+\subsection*{Textured regions}
 
 Stereo matching algorithms act on the assumption, that disparity is smooth, especially if contrast and color intensity do not change drastically.
 Therefore, it can be interesting to see how those algorithms treat textured and textureless regions.
@@ -333,10 +316,10 @@ Figure \ref{fig:textured-mask} depicts this approach.
 \label{fig:textured-mask}
 \end{figure}
 
-\subsection*{Discover occluded pixels}
+\subsection*{Occluded pixels}
 
 An occluded pixel is defined as a pixel, which is hidden in one of the two images, for instance an object hides it from a different angle.
-In the case of stereo matching the disparity can not be calculated for such pixels
+In the case of stereo matching the disparity can not be calculated for such pixels.
 Thus, occluded pixels have to be handled properly, as they could distort our result.
 For this purpose, a simple mask for non-occluded areas is introduced, to indicate which pixels on the scene are visible for both cameras and which are not.
 Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
@@ -356,10 +339,10 @@ Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 Pixels that are visible from both cameras should have the same disparity value in both disparity maps.
 For occluded pixels, the value is different \citep{scharstein2002taxonomy, martull2012realistic, cyganek2011introduction}.
 Hence, a simple cross-check is sufficient.
-It is implemented as the absolute value from the subtraction of the left and the right value at a given position $(x,y)$.
+It is implemented as the absolute value from the subtraction of the left value at a given position $d_L(x,y)$, and the right value at the corresponding position $d_R(x - d_L(x,y),y)$.
 The result is then checked against a threshold.
 If the value is greater than this threshold, the pixel is marked as occluded.
-A suitable value for the threshold is $2$, according to \citep{scharstein2002taxonomy}.
+A suitable value for the threshold is $1$, according to \citep{scharstein2002taxonomy}.
 
 \subsection*{Saliency detection}
 
@@ -383,14 +366,12 @@ Figure \ref{fig:salient-mask} shows an example binary saliency map of an image f
 \begin{figure}[h!]
 \centering
 \begin{tabular}{cc}
-\subfloat[left image]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001.png}} &
-\subfloat[salient mask]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001-salientmask.png}}
+\subfloat[left image]{\includegraphics[width=0.45\textwidth]{src/images/tank-left.png}} &
+\subfloat[salient mask]{\includegraphics[width=0.45\textwidth]{src/images/tank-salient-mask.png}}
 \end{tabular}
-\caption[Frame of the SVDDD dataset and the corresponding salient regions mask]{Frame of the field sequence from the SVDDD dataset and the corresponding salient regions mask from the static saliency approach.}
+\caption[Saliency detection]{Frame of the tank sequence from the Cambridge dataset and the corresponding salient regions mask from the static saliency approach.}
 \label{fig:salient-mask}
 \end{figure}
-
-\newpage
 
 \section{Image diminisher to simulate real use cases}
 
@@ -407,9 +388,9 @@ Basically, this image diminisher consists of two parts: an OpenCV C++ program, w
   \centering
   \begin{tikzpicture}[node distance=10em, auto]
     %nodes
-    \node [cloud] (input) {input};
+    \node [cloud] (input) {input frame};
     \node [rblock, right of=input] (diminisher) {Image diminisher};
-    \node [cloud, right of=diminisher] (output) {output};
+    \node [cloud, right of=diminisher] (output) {modified output frame};
     %lines
     \path [line] (input) -- (diminisher);
     \path [line] (diminisher) -- (output);
@@ -422,14 +403,20 @@ Basically, this image diminisher consists of two parts: an OpenCV C++ program, w
 
 As seen in the related work in Chapter \ref{chap:related}, some approaches use restoration algorithms in order to reduce occurring noise.
 Hence, noise generation was added as a preprocessing step in order to see how noise disrupts disparity algorithms in general.
-Gaussian noise is used, meaning that the noise is gaussian distributed (or normal distributed).
-Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance (squared standard deviation).
+Gaussian noise is used, meaning that the noise is Gaussian distributed (or normal distributed).
+Normal (Gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance (squared standard deviation).
 \newline\newline\noindent As recommended by \citep{richardt2010real}, gaussian noise is added to synthetic video sequences with a mean of $0$ to simulate real scenery.
 The variance, $\sigma^2$ can be set in our evaluation suite in order to see how this distracts the image.
+\citeauthor{richardt2010real} recommended a variance of $20$.
 The distribution is illustrated in Figure \ref{fig:gaussian}.
+As can be seen, in comparison to $20$, a value of $5$ yields to modified pixels by adding values of $[-15;15]$.
+Beforehand, to avoid errors, the matrix is converted from 8-bit to 16-bit in order to avoid overflow.
+Finally, the matrix get reconverted to 8-bit.
+Values $> 255$ and $< 0$ are fixed to $255$ and respectively $0$.
 \newline\newline\noindent It is added with the \texttt{randn}\footnote{\url{http://docs.opencv.org/master/d2/de8/group__core__array.html\#gaeff1f61e972d133a04ce3a5f81cf6808}} function of the OpenCV library \citep{opencv_library}.
 It generates a \texttt{cv::Mat} with the random distribution of values.
 This matrix is then added on the source matrix, resulting in a noisy image.
+For each frame, left and right, a new noise matrix is created.
 Salt and pepper noise was not chosen, as it does not reflect real scenery.
 Salt and pepper noise is not a common noise, as it contains random occurrences of black and white pixels.
 It mostly appears by defect image sensors or erroneous analog-to-digital conversion.
@@ -446,17 +433,17 @@ It mostly appears by defect image sensors or erroneous analog-to-digital convers
       axis x line*=bottom,
       axis y line*=left,
       enlargelimits=upper]
-      \addplot {gauss(0,3.16228)};
+      \addplot {gauss(0,5)};
     \end{axis}
   \end{tikzpicture}
-  \caption[Gaussian normal distribution]{Gaussian normal distribution with $\mathcal{N}(0,\sqrt{10})$.}
+  \caption[Gaussian normal distribution]{Gaussian normal distribution with $\mathcal{N}(0,5)$.}
   \label{fig:gaussian}
 \end{figure}
 
 \subsection*{Video compression}
 
 Most of the widely used video compression techniques belong to the lossy data compression algorithms.
-As in contrast to lossless compression, lossy tend to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
+As in contrast to lossless compression, lossy tends to produce small artifacts in images or videos as it does not reconstruct the original data as a whole.
 FFmpeg \citep{FFMPEG2010} is used to simulate the degradation of stereo videos.
 FFmpeg is a library for video en- and decoding to create video sequences from images with popular video codecs and also to divide a video sequences into images.
 Figure \ref{fig:ffmpeg-flow} depicts the integration of FFmpeg in the image diminish process and how the python script invokes FFmpeg.
@@ -511,8 +498,8 @@ It would be a tremendous task to implement a feature-complete stereo matcher, fo
 Hence, only the sum of absolute differences (SAD) was implemented as matching cost function.
 Moreover, it is a simple area-matching approach with a given block (window) size.
 Additionally, the previously introduced disparity constraints are not handled properly.
-\newline\newline\noindent Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, calculates the matching cost via Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost} for each possible disparity and stores them in a four-dimensional matrix.
-As input parameter, the Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, expect a set of rectified stereo image pairs, $I_L=\{I_{L_{1}}...I_{L_{n}}\}$ and $I_R=\{I_{R_{1}}...I_{R_{n}}\}$, whereas $n$ denotes the amount of images.
+\newline\newline\noindent Algorithm \ref{alg:dsi-3d}, \textsc{CreateDisparitySpaceImage}, the matching cost for each possible disparity and stores them in a four-dimensional matrix.
+As input parameter, the algorithm expects a set of rectified stereo image pairs, $I_L=\{I_{L_{1}}...I_{L_{n}}\}$ and $I_R=\{I_{R_{1}}...I_{R_{n}}\}$, whereas $n$ denotes the amount of images.
 The maximum disparity to be found is denoted as $d_{max}$ whereas $wSize$ denotes the window size for the blocks to be matched.
 
 \begin{algorithm}[h!]
@@ -545,14 +532,14 @@ $frames \gets \textsc{Images}(I_L)$\;
 \end{algorithm}
 
 \noindent $\textsc{Rect}\{x,y,width,height\}$ denotes a rectangle cropped out of a given image.
-\textsc{CreateMatrix} creates a matrix with dimensions according to the amount of input parameters.
+\textsc{CreateMatrix} creates a matrix with dimensions according to the input parameters.
 The size of each dimension is defined with the parameter itself.
 The output is the matrix $C = C(x,y,t,d)$ whereby $(x,y)$ is the position in the reference image $I_{L_{t}}$, $t$ the number of the frame and $d$ the disparity.
 After the invocation, $C$ returns the matching cost for the given input.
 \newline\newline\noindent Furthermore, the matching cost can be queried with the function $C(x,y,d) \iff C(x,y,0,d)$, which also represents the disparity space image, as introduced in the foundations Chapter \ref{chap:foundations}, by ignoring the time-dimension.
-Algorithm \ref{alg:disparity-map}, \textsc{DisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
-\textsc{DisparityMap} needs as parameter the disparity space image, here denoted as $C(x,y,t,d)$ and the number of the frame $f$, for which the disparity map should be computed.
+Algorithm \ref{alg:disparity-map}, \textsc{GetDisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
 $\textsc{Disparities}(C)$ outputs $d_{max}$, the length of the array holding the disparities, in this matrix.
+\textsc{GetDisparityMap} needs as parameter the disparity space image, here denoted as $C(x,y,t,d)$ and the number of the frame $f$, for which the disparity map should be computed.
 The matching cost is simply, as mentioned beforehand, the sum of absolute differences in a given window, as can be seen in Algorithm \ref{alg:matchingcost}, \textsc{MatchingCost}.
 The $\Delta$ is estimated as the absolute difference between two windows.
 Then, the cost is the sum of all fields in this matrix, which is computed by \textsc{MatrixSum}.
@@ -586,7 +573,9 @@ Looking at a frame at time $f_t$, the frames $f_{t-1}$ and $f_{t+1}$ are also ta
 For the first and the last frame, the two following or respectively the two frames beforehand are used.
 The underlying assumption is, that there is no much motion between the frames, because this would lead to inaccurate matching cost due to possible object hops.
 \newline\newline\noindent If the amount of frames is smaller than three ($T < 3$), the spatiotemporal approach is not used.
-Another possibility is to weight the frames, for instance the frame before and after the current frame are taken by $\frac{1}{5}$ into account, whereas the current frame is taken by $\frac{2}{5}$ into account.
+Another possibility is to weight the frames.
+Here, normal distribution was assumed.
+Thus, the frame before and after the current frame are taken by $\frac{1}{4}$ into account, whereas the current frame is taken by $\frac{2}{4}$ into account.
 As a result, a new matching cost matrix is created which reflects the disparity using the weighted approach.
 The weighted approach can be toggled via the parameter $weighted$ in Algorithm \ref{alg:disparity-map}, which can be \textsc{True} or \textsc{False}.
 For better representation, all approaches are integrated in Algorithm \ref{alg:disparity-map}.
@@ -605,7 +594,7 @@ $cost \gets \textsc{MatrixSum}(\Delta)$\;
 \noindent Both, the unweighted and the weighted spatiotemporal approach are evaluated with the other introduced disparity algorithms.
 The simple stereo matcher without the spatiotemporal dimension is evaluated as well.
 The prediction is, that all three approaches get outperformed by the other stereo matcher.
-The simple reason for that is, the lack of handling the disparity constraints, as described in the foundations Chapter \ref{chap:foundations}.
+The simple reason for that is the lack of handling the disparity constraints as described in the foundations Chapter \ref{chap:foundations}.
 None the less, it is exciting to see, if the naive spatiotemporal approach achieves better results than without.
 As of now, the weighted spatiotemporal approach is denoted as \textsc{WST-SNSM} whereas the unweighted approach is abbreviated as \textsc{UST-SNSM}.
 
@@ -661,7 +650,7 @@ $spatiotemporal \gets frames < 3\ ?\ \textsc{True} : \textsc{False}$\;
 %explicit
 \newpage
 
-\section{Web result viewer for evaluation suite}
+\section{Web result viewer of the evaluation suite}
 
 As during the evaluation a lot of masks as well as heatmaps are created and saved, it was helpful to see the visual output of both, especially as a sequence of frames.
 Thus, a web result viewer for the evaluation suite was implemented.

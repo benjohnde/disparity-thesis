@@ -2,13 +2,13 @@
 \label{chap:related}
 
 In this chapter, the related work regarding disparity algorithms is treated.
-As integration of some disparity algorithms for the later evaluation was part of this thesis, the ones which were actually implemented are examined in more detail.
+As integration of some disparity algorithms for the later evaluation is part of this thesis, the ones which were actually implemented are examined in more detail.
 The well-known semi-global matcher by \citeauthor{hirschmuller2005accurate}, also implemented in the OpenCV library \citep{opencv_library}, is introduced.
 OpenCV\footnote{\url{http://opencv.org}} is an extensive image processing framework, with the main goal towards real-time computer vision.
 \citeauthor{Geiger2010ACCV} introduce an approach that enables fast matching of high-resolution images, which is also outlined in the upcoming section.
 \newline\newline\noindent Both approaches utilize local methods for estimating disparity maps.
 One candidate adopting global methods is the Middlebury MRF library, which is also introduced.
-It implies solving optimization problems (i.e. the minimization of a global energy cost function).
+It implies solving optimization problems, i.e. the minimization of a global energy cost function.
 The library’s implemented methods to solve such optimization problems are outlined in greater detail.
 In the end, an outlook on disparity algorithms on stereoscopic videos is given, which includes an approach towards spatiotemporal consistency and remapping of the disparity range.
 
@@ -44,7 +44,7 @@ As the matching cost represents the information content of two intensities $I_1$
 Hence, the MI matching cost needs to be calculated either iteratively or hierarchically.
 On the one hand, an iteratively approach utilizes a random disparity image for calculating the MI matching cost, which serves as the base for the next iterations.
 On the other hand, the MI matching cost can be calculated hierarchically by recursively using an up-scaled disparity image, which has been calculated at half resolution with a common similarity measurement like SAD.
-For a deeper explanation of how the mutual information are exactly calculated and used in the SGM method compare \citep{hirschmuller2005accurate, hirschmuller2007evaluation, hirschmuller2008stereo, hirschmuller2011semi}.
+For a deeper explanation of how the mutual information is exactly calculated and used in the SGM method compare \citep{hirschmuller2005accurate, hirschmuller2007evaluation, hirschmuller2008stereo, hirschmuller2011semi}.
 
 \subsection*{OpenCV BM and SGBM}
 
@@ -55,11 +55,11 @@ This disparity filter smoothes the disparity and also performs a left-right-cons
 This yields to better and more accurate results but has the drawback of loosing negative disparity values.
 Negative disparity appears if the stereo cameras are verged or inclined towards each other.
 The WLS filtering results in disparity ranging from $0$ to $D_{max}$, which is set beforehand as a parameter.
-Thus the negative disparity is $-1$.
+Thus, unknown disparity is denoted by $-1$.
 
 \section{ELAS: Efficient large-scale stereo matching}
 
-\citeauthor{Geiger2010ACCV} propose a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
+\citeauthor{Geiger2010ACCV} proposed a novel approach for estimating the disparity with so called support points \citep{Geiger2010ACCV, Geiger2011IV}.
 ELAS summarizes a command-line interface for the cross-platform library for efficient large-scale stereo matching and the library itself.
 According to them, "it is robust against moderate changes in illumination and well suited for robotics applications with high resolution images" \citep{Geiger2010ACCV, Geiger2011IV}.
 A support point is like a feature, a point which can be robustly matched.
@@ -71,7 +71,7 @@ A support point which has a different disparity value than all its neighbor (adj
 As the found support points may not cover the whole image, additional support points in the image corners are added.
 They adopt the disparity value of their nearest neighbor.
 Then, image coordinates of the remaining support points are used to create a 2D mesh via Delaunay triangulation.
-To obtain a dense disparity map, missing disparities are interpolated using mesh of the Delaunay triangulation by using the nearest-neighbor on the same image line.
+To obtain a dense disparity map, missing disparities are interpolated using the mesh of the Delaunay triangulation by using the nearest-neighbor on the same image line.
 For more information how the support points are calculated and how the interpolation is done exactly, compare \citep{Geiger2010ACCV, Geiger2011IV}.
 
 \section{Middlebury MRF library}
@@ -94,12 +94,10 @@ Finally, a general outline of the concepts, that are utilized by the above menti
 \subsection*{Solving optimization problems}
 
 Many problems in computer vision, for instance image smoothing, can be described in terms of energy minimization.
-The stereo correspondence problem is formulated as described in Chapter \ref{chap:foundations}.
 Thus, solving of optimization problems is a key part in modern stereo matcher algorithms.
 They solve the labelling problem as described in Chapter \ref{chap:foundations}.
 Most of the current disparity algorithms employ global methods to solve an energy minimization problem.
-Usually they utilize Markov random fields (MRF) based energy functions.
-
+Usually, they utilize Markov random fields (MRF) based energy functions.
 As these are \textit{NP-hard}, approximation algorithms are typically used, like \citep{tappen2003comparison, cyganek2011introduction}:
 
 \begin{itemize}
@@ -174,7 +172,10 @@ They model stereo matching by three coupled MRF \citep{sun2003stereo}:
   \item $O$ is a spatial binary state for handling occlusions.
 \end{itemize}
 \noindent Figure \ref{fig:mrf-stereo-matching} depicts the relationship between $D$, $L$ and $O$.
-The conditional probability\footnote{Bayes' theorem: $P(A|B)$, a conditional probability, is the probability of event A occurring, given that event B occurs. $P(A|B) = \frac{P(B|A)P(A)}{P(B)}$ where $P(A)$ and $P(B)$ are the marginal probabilities of event $A$ and $B$. $P(B|A)$ is the probability of observing event B given that A is true.} over $D$, $L$ and $O$ given a pair of stereo images $I = {I_L,I_R}$ is defined as:
+Matched points in $I_L$ and $I_R$ are illustrated with lines, connecting each other.
+As $O$ denotes pixels which are occluded, $b, c, g, h$ have no counterpart in image $I_R$.
+Thus, the two random fields $L$ and $D$, for obtaining a piecewise smooth surface, are not used.
+The conditional probability\footnote{Bayes' theorem: $P(A|B)$, a conditional probability, is the probability of event A occurring, given that event B occurs. $P(A|B) = \frac{P(B|A)P(A)}{P(B)}$ where $P(A)$ and $P(B)$ are the marginal probabilities of event $A$ and $B$. $P(B|A)$ is the probability of observing event B given that A is true.} over $D$, $L$ and $O$ given a pair of stereo images $I = \{I_L,I_R\}$ is defined as:
 \begin{equation}
   P(D,L,O|I) = \frac{P(I|D,L,O)P(D,L,O)}{P(I)}.
 \end{equation}
@@ -207,7 +208,7 @@ One exception exists: if the factor graph contains no cycles, meaning it can be 
 
 \subsubsection{Dynamic programming}
 
-In general, dynamic programming means means dividing an optimization problem into smaller chunks.
+In general, dynamic programming means dividing an optimization problem into smaller chunks.
 These chunks get solved individually and in the end, they are connected and the optimization problem is minimized \citep{angel1972dynamic, bellman2015applied, cyganek2011introduction}.
 For stereo matching this applies to the partition of a two-dimensional search problem into a series of isolated one-dimensional search problems on each pair of epipolar lines.
 These problems are then solved independently.
@@ -268,11 +269,11 @@ Both is described in \citep{boykov2001fast, sinha2004graph, tappen2003comparison
 \section{Disparity algorithms applied on videos}
 
 Although stereo correspondence is a research field which has been heavily investigated for a few decades, no disparity algorithms that directly target videos yet exist.
-One reason for that could be the lack of solid ground-truth data as only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
-Also the computational bottleneck of dealing with multi-dimensional data can be an issue, for instance adding a new dimension to the disparity space image which reflects the relationship between multiple frames.
+One reason for that could be the lack of solid ground-truth data as only a few datasets have been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
+Also, the computational bottleneck of dealing with multi-dimensional data can be an issue, for instance adding a new dimension to the disparity space image which reflects the relationship between multiple frames.
 As a video is defined by multiple consecutive frames, every disparity algorithm for images can also be applied on videos.
 The drawback of this trivial approach is the lack of taking the correlation of the frames into account.
-However, novel approaches were presented by \citeauthor{khoshabeh2011spatio} \citep{khoshabeh2011spatio}, \citeauthor{lee2012local} \citep{lee2012local}, \citeauthor{davis2003spacetime} \citep{davis2003spacetime}, \citeauthor{richardt2010real} \citep{richardt2010real}, \citeauthor{hosni2012temporally} \citep{hosni2012temporally}, and are in the following section.
+However, novel approaches were presented by \citeauthor{khoshabeh2011spatio} \citep{khoshabeh2011spatio}, \citeauthor{lee2012local} \citep{lee2012local}, \citeauthor{davis2003spacetime} \citep{davis2003spacetime}, \citeauthor{richardt2010real} \citep{richardt2010real}, \citeauthor{hosni2012temporally} \citep{hosni2012temporally}, and are discussed in the following subsections.
 
 \subsection{Spatiotemporal consistency}
 
@@ -284,24 +285,24 @@ On the other hand, image or video sensors always produce little noise, although 
 As a matter of fact, stereo images from real cameras will produce kindly different images due to a variety of reasons, for instance sensor response differences or luminance \citep{khoshabeh2011spatio, cyganek2011introduction}.
 Thus, they will not completely match each other which can also yield to noise in disparity maps.
 Another important factor for the occurrence of noise, which has not been investigated yet, is video compression.
-This idea is more described in the implementation Chapter \ref{chap:impl}.
+This idea is described in more detail in the implementation Chapter \ref{chap:impl}.
 \newline\newline\noindent \citeauthor{khoshabeh2011spatio} \citep{khoshabeh2011spatio} present a two steps approach for dealing with spatiotemporal consistency.
 First, the disparity maps are computed frame-by-frame.
 The computed disparity maps are treated as a space-time volume.
-Then they apply a video restoration algorithms to reduce noise in this space-time volume.
+Then they apply a video restoration algorithm to reduce noise in the space-time volume.
 This video restoration algorithm is based on the augmented Lagrangian method for total variation (TV) image restoration \citep{chan2011augmented}.
 Basically, it is an algorithm for denoising images by looking at the frames before and after the current frame.
 Thus, object edges and depth-discontinuity areas are preserved.
 By applying this algorithm they benefit from three properties of the algorithm: variation regularization, spatial smoothness and temporal consistency, which are established at the same time.
 This leads to more accurate and spatiotemporal consistent maps.
-To simulate real scenery they added gaussian noise to rendered sequences, distributed as $\mathcal{N}(0,20)$\footnote{Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.}.
+To simulate real scenery they added Gaussian noise to rendered sequences, distributed as $\mathcal{N}(0,20)$\footnote{Normal (gaussian) distribution is denoted as $\mathcal{N}(\mu,\sigma^2)$, where $\mu$ is the mean and $\sigma^2$ the variance.}.
 The outcome produces better results when comparing bad pixels (threshold of 1) and visually clearly better disparity maps as depict in Figure \ref{fig:spatiotemporal}.
 As this approach works on computed disparity maps, current image-based disparity algorithms can thereby be easily adapted to the video domain.
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/spatiotemporal.png}
-  \caption[Spatiotemporal disparity refinement]{Spatiotemporal disparity refinement with the augmented Lagrangian method for TV \citep{khoshabeh2011spatio}. Top: Original. Middle: Disparity. Bottom: Processed.}
+  \caption[Spatiotemporal disparity refinement]{Spatiotemporal disparity refinement with the augmented Lagrangian method for TV \citep{khoshabeh2011spatio}. Top: Original. Middle: Disparity. Bottom: Processed disparity.}
   \label{fig:spatiotemporal}
 \end{figure}
 
@@ -314,14 +315,14 @@ As typical disparity algorithms tend to have difficulties in estimating the disp
 They utilize motion cues\footnote{Motion cues are responsible for the perception of motion.} in combination with a modified census transform\footnote{Census transform is basically an algorithm, implemented as a filter, for the classification of textures.} with a noise buffer to obtain disparity maps.
 These disparity maps are more accurate and robust towards the edges of moving objects and in textureless areas.
 Finally, they also apply the previously introduced method to derive a spatiotemporal consistency.
-\newline\newline\noindent The work of \citeauthor{richardt2010real} \citep{richardt2010real}, \citeauthor{hosni2012temporally} \citep{hosni2012temporally} is build on the same principle, which has its origin in the basic approach of \citeauthor{davis2003spacetime} \citep{davis2003spacetime}.
+\newline\newline\noindent The approaches of \citeauthor{richardt2010real} \citep{richardt2010real} as well as \citeauthor{hosni2012temporally} \citep{hosni2012temporally} are build on the same principle, which has its origin in the basic approach of \citeauthor{davis2003spacetime} \citep{davis2003spacetime}.
 They define a matching cost function with an additional property $T$ for the time axis.
 A space-time cost volume is then generated by stacking the cost maps of input frames.
 A simple approach could be to smooth the disparity over time by applying a box filter after the disparity map is computed.
 This would imply that the disparities inside this space-time window are constant.
 As a result object borders may be blurred up to obliteration and get lost in a non-static scene.
 They overcome this issue by assuming that the disparity of an object is approximately constant over a small time window and applying weighted box filter.
-Therefore they build a 3D filter kernel, which weights the pixels.
+Therefore, they build a 3D filter kernel, which weights the pixels.
 Pixels which belong to the same object get a high weight and pixels belonging to a different object a lower weight.
 \newline\newline\noindent Tying in with this approach, \citeauthor{richardt2010real} \citep{richardt2010real} rewrote the filter as a so called dual-cross-bilateral filter.
 Instead of using a custom weight model to preserve edges they utilize a bilateral filter which is a common edge-preserving smoothing technique.
@@ -331,10 +332,11 @@ This variant smoothes the cost space while preserving edges in both input images
 This combined filter is then named the dual-cross-bilateral (DCB) filter.
 The implementation is called DBC grid.
 Spatiotemporal consistency is retained with the added temporal dimension $T$.
-Observing all frames as a whole is computational complex and difficult, because of multi-dimensional data, they consider 5 frames as one temporal entity.
+Observing all frames as a whole is computational complex and difficult.
+Therefore, they consider five frames as one temporal entity.
 The DBC grid with this added temporal constraint is called temportal DBC grid.
-Their approach clearly visibly reduces errors as illustrated in Figure \ref{fig:dbcgrid}.
-The Figure shows a selected frame of a recorded 'skydiving' stereo video \citep{richardt2010real}.
+Their approach clearly reduces errors as illustrated in Figure \ref{fig:dbcgrid}.
+The figure shows a selected frame of a recorded 'skydiving' stereo video \citep{richardt2010real}.
 \newline\newline\noindent They present a real-time GPU-based implementation for competing with current state-of-the-art disparity algorithms regarding runtime.
 At this point in time their implementation is the fastest technique in the Middlebury\footnote{\url{http://vision.middlebury.edu/stereo/eval3/}} benchmark.
 
@@ -361,9 +363,12 @@ If 3D content is optimized for a cinema screen it will look differently on a hom
 This entails the need of changing the disparity after a stereoscopic movie was recorded for the adaption to the current viewing situation of the user.
 For this purpose, they introduce a set of basic disparity mapping operators for the control and the retargeting of the depth of stereoscopic videos.
 To actually use those operators stereoscopic warping of video streams is also presented.
-Basically, those disparity mapping operators define editing operations how the disparity can be modified.
+Basically, those disparity mapping operators define editing operations how the disparity can be modified by formulating a new consistent range of disparity values which respect disparity constraints.
 The goal is to map the disparity to a new range such that the resulting output view fulfills a stereoscopic, a temporal and a saliency constraint (cf. \citep{lang2010nonlinear}), i.e. provide consistent disparity values according to the new range.
 These constraints are identical to related work on video retargeting \citep{krahenbuhl2009system}.
+To obtain the new disparity range, a sparse disparity map of feature correspondences is computed.
+Then, with the use of the disparity operators, a stereoscopic warp of the stereo pair is computed, such that the resulting output views fulfill the desired disparity constraints.
+Stereoscopic warping use the same basic methods as warping for video retargeting \citep{shamir2009visual}.
 Stereoscopic warping is image warping with the help of the introduced disparity mapping operators.
 The outcome of the paper are production-oriented rules and guidelines for editing disparity of stereoscopic content.
 In a survey, user concluded that the applied techniques, i.e. stereoscopic warping with disparity mapping operators, yield in a better viewing experience due to depth structure changes without distracting visual artifacts.
