@@ -150,7 +150,7 @@ Finally, the computed disparity maps are compared with their ground-truth compan
     \path [line] (init) -- (compare);
     \path [line] (compare) -- (result);
   \end{tikzpicture}
-  \caption{Illustration of evaluation engine.}
+  \caption[Illustration of the evaluation engine]{Illustration of the evaluation engine.}
   \label{fig:impl-evaluation-engine}
 \end{figure}
 
@@ -187,7 +187,7 @@ The architecture of the disparity interface is depicted in Figure \ref{fig:uml-d
     \umlimpl{OpenCVStereoBM}{OpenCVStereoMatcher}
     \umlimpl{OpenCVStereoSGBM}{OpenCVStereoMatcher}
   \end{tikzpicture}
-  \caption{Architectural overview on the disparity interface in form of an UML diagram.}
+  \caption[Architectural overview on the disparity interface]{Architectural overview on the disparity interface in form of an UML diagram.}
   \label{fig:uml-disparity-interface}
 \end{figure}
 
@@ -303,7 +303,7 @@ Figure \ref{fig:dd-mask} depicts this.
 \subfloat[mask before final dilation]{\includegraphics[width=0.3\textwidth]{src/images/book_dd_mask.png}} &
 \subfloat[final mask for evaluation]{\includegraphics[width=0.3\textwidth]{src/images/book_dd_mask_final.png}}
 \end{tabular}
-\caption{A depth-discontinuity mask, exampled with the first frame of the book scene from the Middlebury dataset.}
+\caption[Depth-discontinuity mask]{A depth-discontinuity mask, exampled with the first frame of the book scene from the Middlebury dataset.}
 \label{fig:dd-mask}
 \end{figure}
 
@@ -329,7 +329,7 @@ Figure \ref{fig:textured-mask} depicts this approach.
 \subfloat[image of left camera]{\includegraphics[width=0.45\textwidth]{src/images/street_left.png}} &
 \subfloat[final textured mask]{\includegraphics[width=0.45\textwidth]{src/images/street_textured_mask.png}}
 \end{tabular}
-\caption{Textured regions recognition with the first frame of the street scene from the Middlebury dataset.}
+\caption[Textured regions recognition]{Textured regions recognition with the first frame of the street scene from the Middlebury dataset.}
 \label{fig:textured-mask}
 \end{figure}
 
@@ -348,7 +348,7 @@ Figure \ref{fig:noc-mask} shows an example of such a non-occluded areas mask.
 \subfloat[right ground-truth]{\includegraphics[width=0.3\textwidth]{src/images/book_ground-truth_right.png}} &
 \subfloat[resulting mask]{\includegraphics[width=0.3\textwidth]{src/images/book_noc_mask.png}}
 \end{tabular}
-\caption{The ground-truth disparity maps of the first frame from the book scene is used to illustrate the non-occluded areas mask.}
+\caption[Ground-truth disparity maps]{The ground-truth disparity maps of the first frame from the book scene is used to illustrate the non-occluded areas mask.}
 \label{fig:noc-mask}
 \end{figure}
 
@@ -386,7 +386,7 @@ Figure \ref{fig:salient-mask} shows an example binary saliency map of an image f
 \subfloat[left image]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001.png}} &
 \subfloat[salient mask]{\includegraphics[width=0.45\textwidth]{src/images/svddd-field-image0001-salientmask.png}}
 \end{tabular}
-\caption{Frame of the field sequence from the SVDDD dataset and the corresponding salient regions mask from the static saliency approach.}
+\caption[Frame of the SVDDD dataset and the corresponding salient regions mask]{Frame of the field sequence from the SVDDD dataset and the corresponding salient regions mask from the static saliency approach.}
 \label{fig:salient-mask}
 \end{figure}
 
@@ -449,7 +449,7 @@ It mostly appears by defect image sensors or erroneous analog-to-digital convers
       \addplot {gauss(0,3.16228)};
     \end{axis}
   \end{tikzpicture}
-  \caption{Gaussian noise distribution with $\mathcal{N}(0,\sqrt{10})$.}
+  \caption[Gaussian normal distribution]{Gaussian normal distribution with $\mathcal{N}(0,\sqrt{10})$.}
   \label{fig:gaussian}
 \end{figure}
 
@@ -674,7 +674,7 @@ The result is then visualized and the possibility to jump between frames as well
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/result-viewer-overview.png}
-  \caption{Overview page of web result viewer.}
+  \caption[Overview page of the web result viewer]{Overview page of the web result viewer.}
   \label{fig:web-overview}
 \end{figure}
 

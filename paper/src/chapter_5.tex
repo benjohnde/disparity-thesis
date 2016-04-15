@@ -242,35 +242,6 @@ Although the frames of a video can be seen as independent pieces, different anom
 \noindent The following Tables \ref{tab:metrics1} and \ref{tab:metrics2} contains all combinations of the presented masks with the established metrics.
 As of now, the tags are used in descriptions and result matrices.
 
-\begin{table}[h!]
-  \centering
-  \begin{tabular}{ll|l|l|}
-  \cline{3-4}
-   &  & \multicolumn{2}{l|}{\textbf{Description}} \\ \cline{3-4} 
-   &  & RMSE\footnote{RMSE = Root-mean-squared-error} & PBMP\footnote{PBMP = Percentage of bad matching pixels} \\ \hline
-  \multicolumn{1}{|l|}{\multirow{5}{*}{\textbf{Regions}}} & Complete Image\footnote{With complete image, the image with applied border mask is meant.} & $\varepsilon_{all}$ & $\delta_{all}$ \\ \cline{2-4} 
-  \multicolumn{1}{|l|}{} & Non-occluded & $\varepsilon_{noc}$ & $\delta_{noc}$ \\ \cline{2-4} 
-  \multicolumn{1}{|l|}{} & Depth-discontinuity & $\varepsilon_{disc}$ & $\delta_{disc}$ \\ \cline{2-4} 
-  \multicolumn{1}{|l|}{} & Textureless & $\varepsilon_{\neg tex}$ & $\delta_{\neg tex}$ \\ \cline{2-4} 
-  \multicolumn{1}{|l|}{} & Salient & $\varepsilon_{sal}$ & $\delta_{sal}$ \\ \hline
-  \end{tabular}
-  \caption{Overview on used metrics in result matrices.}
-  \label{tab:metrics1}
-\end{table}
-
-\noindent Bla.
-
-\begin{table}[h!]
-  \centering
-  \begin{tabular}{l|l}
-  \textbf{Diminisher} & \textbf{Description} \\ \hline \hline
-  $\sigma_{10}$ & Gaussian noise with $\sigma$ of 10. \\ \hline
-  $\gamma_{28}$ & Applied H.265 compression with a CRF of 28. \\ \hline
-  \end{tabular}
-  \caption{Overview on used image diminisher effects in result matrices.}
-  \label{tab:metrics2}
-\end{table}
-
 %todo small intro
 
 %explicit
@@ -316,8 +287,6 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
 \label{tab:eval:snsm:tsukuba}
 \end{table}
 
-\subsection{General performance}
-
 %todo small intro
 
 \begin{figure}[h!]
@@ -339,6 +308,37 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
   \caption{$\varepsilon_{disc}$ for 01-book sequence of Cambridge dataset, calculated with StereoBM.}
   \label{fig:plot1}
 \end{figure}
+
+%todo explain algorithms numbers
+%todo explain sequences numbers
+
+\begin{table}[]
+\centering
+\begin{tabular}{c|ccccccccc}
+  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\ \hline
+1 & 30.89 & 30.81 & 26.88 & 26.88 & 26.88 & 26.88 & 26.88 & 26.88 & 26.88 \\
+2 &   &   &   &   &   &   &   &   &  \\
+3 &   &   &   &   &   &   &   &   &  \\
+4 &   &   &   &   &   &   &   &   &  \\
+5 &   &   &   &   &   &   &   &   &  \\ \hline
+$\varnothing$ &   &   &   &   &   &   &   &   & 
+\end{tabular}
+\caption{Result table for general performance, containing RMS-Error}
+\end{table}
+
+\begin{table}[]
+\centering
+\begin{tabular}{c|cccc}
+  & 10 & 11 & 12 & 13 \\ \hline
+1 & 30.89 & 30.81 & 26.88 & 26.88 \\
+2 &   &   &   &  \\
+3 &   &   &   &  \\
+4 &   &   &   &  \\
+5 &   &   &   &  \\ \hline
+$\varnothing$ &   &   &   & 
+\end{tabular}
+\caption{Result table for general performance, containing RMS-Error}
+\end{table}
 
 \subsection{Impact of noise}
 

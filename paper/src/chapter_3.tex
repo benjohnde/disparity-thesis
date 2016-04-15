@@ -91,7 +91,7 @@ The Middlebury MRF library \citep{scharstein2014high, szeliski2008comparative} u
 Additionally, a short introduction into MRF-based energy functions is given.
 Finally, a general outline of the concepts, that are utilized by the above mentioned techniques to solve such optimization problems, is given.
 
-\subsection{Solving optimization problems}
+\subsection*{Solving optimization problems}
 
 Many problems in computer vision, for instance image smoothing, can be described in terms of energy minimization.
 The stereo correspondence problem is formulated as described in Chapter \ref{chap:foundations}.
@@ -265,7 +265,7 @@ The difficulty is to find the optimal swap move.
 As starting point an arbitrary label is chosen.
 Both is described in \citep{boykov2001fast, sinha2004graph, tappen2003comparison, ramin2004energy}.
 
-\section{Disparity algorithms on videos}
+\section{Disparity algorithms applied on videos}
 
 Although stereo correspondence is a research field which has been heavily investigated for a few decades, no disparity algorithms that directly target videos yet exist.
 One reason for that could be the lack of solid ground-truth data as only a few datasets has been introduced lately \citep{Butler:ECCV:2012, scharstein2014high}.
@@ -301,7 +301,7 @@ As this approach works on computed disparity maps, current image-based disparity
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/spatiotemporal.png}
-  \caption[Spatiotemporal disparity refinement with the augmented Lagrangian method for TV]{Spatiotemporal disparity refinement with the augmented Lagrangian method for TV \citep{khoshabeh2011spatio}. Top: Original. Middle: Disparity. Bottom: Processed.}
+  \caption[Spatiotemporal disparity refinement]{Spatiotemporal disparity refinement with the augmented Lagrangian method for TV \citep{khoshabeh2011spatio}. Top: Original. Middle: Disparity. Bottom: Processed.}
   \label{fig:spatiotemporal}
 \end{figure}
 
@@ -341,7 +341,7 @@ At this point in time their implementation is the fastest technique in the Middl
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/dbcgrid.png}
-  \caption[Disparity maps of a selected frame of the 'skydiving' stereo video]{Disparity maps of a selected frame of the 'skydiving' stereo video \citep{richardt2010real}. From left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid.}
+  \caption[Examples of disparity maps]{Disparity maps of a selected frame of the 'skydiving' stereo video \citep{richardt2010real}. From left-to-right: video frame (red-cyan anaglyph), DCB Grid, Temporal DBC Grid.}
   \label{fig:dbcgrid}
 \end{figure}
 

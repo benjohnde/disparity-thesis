@@ -262,7 +262,7 @@ Accordingly $d(s) = -2$ and $d(t) = -1$.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.3\textwidth]{src/images/stereo-matching.png}
-  \caption[Two arrays illustrating stereo matching on a 1D search space]{Two arrays illustrating stereo matching on a 1D search space \citep{kack2004robust}.}
+  \caption[Stereo matching on a 1D search space]{Two arrays illustrating stereo matching on a 1D search space \citep{kack2004robust}.}
   \label{fig:stereo-matching}
 \end{figure}
 
@@ -324,7 +324,7 @@ Figure \ref{fig:tsukuba} shows the previous dataset of the University of Tsukuba
 \subfloat[right input image]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-imgR.png}} &
 \subfloat[ground-truth data]{\includegraphics[width=0.3\textwidth]{src/images/tsukuba-dgt.png}}
 \end{tabular}
-\caption[Tsukuba benchmark stereo image pair of the University of Tsukuba]{Tsukuba benchmark stereo image pair of the University of Tsukuba \citep{martull2012realistic}.}
+\caption[Tsukuba benchmark stereo image pair]{Tsukuba benchmark stereo image pair of the University of Tsukuba \citep{martull2012realistic}.}
 \label{fig:tsukuba}
 \end{figure}
 
@@ -365,7 +365,7 @@ Figure \ref{fig:depth-estimation} depicts the depth calculation from disparity w
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.6\textwidth]{src/images/depth-calculation.png}
-  \caption[Depict of depth calculation from disparity.]{Depict of depth calculation from disparity.\protect\footnotemark}
+  \caption[Depth calculation from disparity]{Depict of depth calculation from disparity\protect\footnotemark.}
   \label{fig:depth-estimation}
 \end{figure}
 \footnotetext{Source (accessed 02/2016): \url{http://docs.opencv.org}.}
@@ -441,7 +441,7 @@ Direct methods use intensity based measures.
     \path [line] (computation) -- (disparity);
     \path [line] (disparity) -- (refinement);
   \end{tikzpicture}
-  \caption[Basic processing flow of typical disparity algorithms]{Basic processing flow of typical disparity algorithms, cf. \citep{cyganek2011introduction, scharstein2002taxonomy}.}
+  \caption[Basic processing flow of disparity algorithms]{Basic processing flow of typical disparity algorithms, cf. \citep{cyganek2011introduction, scharstein2002taxonomy}.}
   \label{fig:disparity-flow}
 \end{figure}
 
@@ -593,7 +593,7 @@ Thus, the algorithm is executed along the scanlines.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.5\textwidth]{src/images/tsukuba-block.png}
-  \caption{Illustration of block matching along a scanline.}
+  \caption[Block matching along scanlines]{Illustration of block matching along a scanline.}
   \label{fig:tsukuba-block}
 \end{figure}
 
@@ -647,7 +647,7 @@ With the curve fit a new minimum value $d_x$ is found which no longer needs to l
     \draw[dotted,blue,very thick] (1.8,1) -- (2.8,1);
     \draw[dotted,red,thick] (2.3,1.3) -- (2.3,-0.5);
   \end{tikzpicture}
-  \caption{Sub pixel estimation of a disparity value around adjacent pixels.}
+  \caption[Sub-pixel estimation of a disparity value around adjacent pixels]{Sub-pixel estimation of a disparity value around adjacent pixels.}
   \label{fig:sub-pixel-estimation}
 \end{figure}
 
