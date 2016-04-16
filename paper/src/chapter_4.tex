@@ -647,7 +647,7 @@ None the less, it is exciting to see, if the naive spatiotemporal approach achie
 As during the evaluation a lot of masks as well as heatmaps are created and saved, it was helpful to see the visual output of both, especially as a sequence of frames.
 Thus, a web result viewer for the evaluation suite was implemented.
 It was created with Node.js\footnote{Node.js is a framework for developing server-side web applications with JavaScript, cf. \url{https://nodejs.org/en/}.} and Express\footnote{Simple model-view-controller (MVC) web-framework, based on Node.js, cf. \url{http://expressjs.com}.}.
-\newline\newline\noindent The following Figures \ref{fig:web-overview} and \ref{fig:web-detail} illustrate the implemented web result viewer.
+\newline\newline\noindent The following Figures \ref{fig:web-overview}, \ref{fig:web-overview2} and \ref{fig:web-detail} illustrate the implemented web result viewer.
 The viewer displays all created masks and heatmaps, as well as the input images and their ground-truth disparity map.
 In addition, an algorithm can be selected and the computed disparity map is shown.
 The result is then visualized and the possibility to jump between frames as well as playing them automatically with different speed options is given.
@@ -655,13 +655,33 @@ The result is then visualized and the possibility to jump between frames as well
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/result-viewer-overview.png}
-  \caption[Overview page of the web result viewer]{Overview page of the web result viewer.}
+  \caption[Screenshot of overview page of the web result viewer]{Screenshot of overview page of the web result viewer.}
   \label{fig:web-overview}
 \end{figure}
+
+\noindent In Figure \ref{fig:web-overview} is the focus on displaying the categories of the results.
+As various diminishing effects are applied during the evaluation and a dataset can contain different sequences, the results are initially grouped for a deeper dive.
+With a click on one of the links, the next overview page is displayed.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{src/images/result-viewer-overview2.png}
+  \caption[Screenshot of sequences in the web result viewer]{Screenshot of sequences with results in the web result viewer.}
+  \label{fig:web-overview2}
+\end{figure}
+
+\noindent Figure \ref{fig:web-overview2} displays the mean results of a complete sequence.
+The algorithm is named as well.
+With a click on one of the links, the final detailed result view is displayed.
+The final result page, as illustrated in Figure \ref{fig:web-detail}, shows all created masks, left and right image, the ground-truth disparity and the computed disparity as well as the outliers heatmap.
+For an easier access to the other pages, a breadcrumb has been installed with which the previous pages can be reached.
+As mentioned beforehand, the web viewer is capable of playing the whole sequence in the browser.
+The control bar enables the user to determine the playback and the speed of the playback.
+A progress bar feedbacks which frame is currently displayed.
 
 \begin{figure}[p!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/result-viewer-detail.png}
-  \caption{Detail of one result in the web result viewer.}
+  \caption[Detail of one result in the web result viewer]{Detail of one result in the web result viewer.}
   \label{fig:web-detail}
 \end{figure}
