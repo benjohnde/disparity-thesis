@@ -502,21 +502,21 @@ Additionally, the previously introduced disparity constraints are not handled pr
 As input parameter, the algorithm expects a set of rectified stereo image pairs, $I_L=\{I_{L_{1}}...I_{L_{n}}\}$ and $I_R=\{I_{R_{1}}...I_{R_{n}}\}$, whereas $n$ denotes the amount of images.
 The maximum disparity to be found is denoted as $d_{max}$ whereas $wSize$ denotes the window size for the blocks to be matched.
 $\textsc{Rect}\{x,y,width,height\}$ denotes a rectangle cropped out of a given image.
-\ref{alg:matchingcost} creates a matrix with dimensions according to the input parameters.
+Algorithm \ref{alg:matchingcost} creates a matrix with dimensions according to the input parameters.
 The size of each dimension is defined with the parameter itself.
 The output is the matrix $C = C(x,y,t,d)$ whereby $(x,y)$ is the position in the reference image $I_{L_{t}}$, $t$ the number of the frame and $d$ the disparity.
 After the invocation, $C$ returns the matching cost for the given input.
 Furthermore, the matching cost can be queried with the function $C(x,y,d) \iff C(x,y,0,d)$, which also represents the disparity space image, as introduced in the foundations Chapter \ref{chap:foundations}, by ignoring the time-dimension.
-Algorithm \ref{alg:disparity-map}, \textsc{GetDisparityMap}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
+\newline\newline\noindent Algorithm \ref{alg:disparity-map}, then computes the final disparity map by taking the disparity with the minimum matching cost for each field in the reference matrix.
 $\textsc{Disparities}(C)$ outputs $d_{max}$, the length of the array holding the disparities, in this matrix.
 Algorithm \ref{alg:disparity-map} needs as parameter the disparity space image, here denoted as $C(x,y,t,d)$ and the number of the frame $f$, for which the disparity map should be computed.
-The matching cost is simply, as mentioned beforehand, the sum of absolute differences in a given window, as can be seen in Algorithm \ref{alg:matchingcost}.
+The matching cost is, as mentioned beforehand, the sum of absolute differences in a given window, as can be seen in Algorithm \ref{alg:matchingcost}.
 The $\Delta$ is estimated as the absolute difference between two windows.
 Then, the cost is the sum of all fields in this matrix, which is computed by \textsc{MatrixSum}.
 Algorithm \ref{alg:disparity-map} uses the Algorithm \ref{alg:best-match} which outputs the best match given an amount of disparities $d \in D=\{0{\dots}d_{max}\}$.
 It iterates over all disparities and finds the minimum.
 The best match is in this case the minimum matching cost.
-The spatiotemporal approach utilizes a new dimension, the time axis $t$, and adds it to the disparity space image.
+\newline\newline\noindent The spatiotemporal approach utilizes a new dimension, the time axis $t$, and adds it to the disparity space image.
 $C(x,y,d,t)$ is constructed in Algorithm \ref{alg:dsi-3d} whereby $t \in T=\{0{\dots}n\}$ denotes the current processed frame.
 Then, the DSI knows for each position, given a disparity and a frame the matching cost.
 
@@ -526,8 +526,7 @@ Then, the DSI knows for each position, given a disparity and a frame the matchin
 \KwOut{$C$}
 $step \gets (wSize - 1) / 2$\;
 $C \gets \textsc{CreateMatrix}(\textsc{Cols}(I_L),\textsc{Rows}(I_L),d_{max})$\;
-$frames \gets \textsc{Images}(I_L)$\;
-\For{$t \gets 0$ \textbf{to} $frames$} {
+\For{$t \gets 0$ \textbf{to} $\textsc{Images}(I_L)$} {
   $leftImage \gets I_L(t)$\;
   $rightImage \gets I_L(t)$\;
   \For{$y \gets 0 + step$ \textbf{to} $\textsc{Rows}(I_L(0)) - step$} {
@@ -574,13 +573,6 @@ Here, normal distribution was assumed.
 Thus, the frame before and after the current frame are taken by $\frac{1}{4}$ into account, whereas the current frame is taken by $\frac{2}{4}$ into account.
 As a result, a new matching cost matrix is created which reflects the disparity using the weighted approach.
 The weighted approach can be toggled via the parameter $weighted$ in Algorithm \ref{alg:disparity-map}, which can be \textsc{True} or \textsc{False}.
-For better representation, all approaches are integrated in Algorithm \ref{alg:disparity-map}.
-Both, the unweighted and the weighted spatiotemporal approach are evaluated with the other introduced disparity algorithms.
-The simple stereo matcher without the spatiotemporal dimension is evaluated as well.
-The prediction is, that all three approaches get outperformed by the other stereo matcher.
-The simple reason for that is the lack of handling the disparity constraints as described in the foundations Chapter \ref{chap:foundations}.
-None the less, it is exciting to see, if the naive spatiotemporal approach achieves better results than without.
-As of now, the weighted spatiotemporal approach is denoted as \textsc{WST-SNSM} whereas the unweighted approach is abbreviated as \textsc{UST-SNSM}.
 
 \begin{algorithm}[h!]
 \DontPrintSemicolon
@@ -593,7 +585,14 @@ $cost \gets \textsc{MatrixSum}(\Delta)$\;
 \label{alg:matchingcost}
 \end{algorithm}
 
-\begin{algorithm}[hp!]
+\noindent For better representation, all approaches are integrated in Algorithm \ref{alg:disparity-map}.
+Both, the unweighted and the weighted spatiotemporal approach are evaluated with the other introduced disparity algorithms.
+The simple stereo matcher without the spatiotemporal dimension is evaluated as well.
+The prediction is, that all three approaches get outperformed by the other stereo matcher.
+The simple reason for that is the lack of handling the disparity constraints as described in the foundations Chapter \ref{chap:foundations}.
+None the less, it is exciting to see, if the naive spatiotemporal approach achieves better results than without.
+
+\begin{algorithm}[h!]
 \DontPrintSemicolon
 \KwIn{$C$, $t$, $weighted$}
 \KwOut{$DisparityMap$}
@@ -637,9 +636,6 @@ $spatiotemporal \gets frames < 3\ ?\ \textsc{True} : \textsc{False}$\;
 \caption{\textsc{GetDisparityMap}}
 \label{alg:disparity-map}
 \end{algorithm}
-
-%explicit
-\newpage
 
 \section{Web result viewer of the evaluation suite}
 
