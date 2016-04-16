@@ -532,7 +532,7 @@ $C \gets \textsc{CreateMatrix}(\textsc{Cols}(I_L),\textsc{Rows}(I_L),d_{max})$\;
 \label{alg:dsi-3d}
 \end{algorithm}
 
-\noindent Algorithm \ref{alg:matchingcost} creates a matrix with dimensions according to the input parameters.
+\noindent \textsc{CreateMatrix} creates a matrix with dimensions according to the input parameters.
 The size of each dimension is defined with the parameter itself.
 The output is the matrix $C = C(x,y,t,d)$ whereby $(x,y)$ is the position in the reference image $I_{L_{t}}$, $t$ the number of the frame and $d$ the disparity.
 After the invocation, $C$ returns the matching cost for the given input.
