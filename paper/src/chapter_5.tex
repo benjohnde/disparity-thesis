@@ -2,13 +2,14 @@
 \label{chap:eval}
 
 In the previous chapter, the evaluation suite and its features were presented.
-This chapter is split into several subtopics.
-First, it deals with the introduction of datasets.
-Second, the quality metrics for the comparison of disparity algorithms  for stereoscopic videos are defined.
+This chapter is split into several sections.
+First, it deals with the introduction of datasets, so which datasets were evaluated and why.
+Second, the quality metrics for the comparison of disparity algorithms for stereoscopic videos are defined.
 Third, the structure of the measurement is illustrated.
-Fourth, the results are visualized and discussed.
-\newline\newline\noindent Overall, the setup for the evaluation took 24 days to process 30 GB of stereoscopic videos and to create all disparity maps.
-Accumulated, the computed disparity maps, the created masks as well as the heatmaps, took about 8 GB.
+How the measurement were processed and visualized.
+Fourth, the results are presented and discussed.
+\newline\newline\noindent Overall, the setup for the evaluation took more than 28 days to process about 50 GB of stereoscopic videos and to create all disparity maps.
+Accumulated, the computed disparity maps, the created masks as well as the heatmaps, took about 18 GB.
 
 \section{Datasets}
 
@@ -25,8 +26,8 @@ The former one can lack of accuracy due to false measurements whereas the latter
 \newline\newline\noindent \citeauthor{kondermann2015stereo} came up with an interesting approach.
 As area scanners are never 100 percent accurate, they introduced error-bars, which can range from $0-10$.
 An error-bar indicates how certain the area scanner was that this disparity for a given pixel really existed \citep{kondermann2015stereo}.
-\newline\newline\noindent As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, here three different datasets were chosen.
-\newline\newline\noindent Other datasets, which were found but not investigated are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
+As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, here three different datasets were chosen.
+Other datasets, which were found but not investigated are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
 
 \subsection*{Tsukuba stereo dataset}
 
@@ -66,23 +67,26 @@ This is also one of the first stereoscopic dataset targeting videos.
 
 \noindent The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
 The dataset scales the disparity for each scene from $0$ to $64$.
+The disparity maps are delivered as PNG image files, ranging from $0-255$.
+Thus, the disparity maps are loaded into a matrix and simply converted to range from $0-64$ by dividing the whole matrix through $4$.
+Beforehand, the matrix is converted into $CV_32F$, meaning that each element is represented by 32-bit floating values.
 
 \subsection*{SVDDD - a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information}
 
 As third dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
-The Lehrstuhl f{\"u}r Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
+The department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
 \newline\newline\noindent The difference here is, that this dataset was not analyzed before.
 Thus, it is possible that the chosen algorithms work not properly on this dataset.
 If this case occurs there exist two possibilities why this happens:
 
 \begin{itemize}
   \item On the one hand, the disparity information are not properly calculated, or
-  \item on the other hand, those algorithms have some troubles with the constructed scene.
+  \item on the other hand, those algorithms have some troubles with the constructed scenery.
 \end{itemize}
 
 \noindent Focusing on the latter one, the scenes were created with Blender and utilizes open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
 A second camera was added to the scenes for obtaining depth information.
-The parameter for each scene can be from the Blender files.
+The parameter for each scene can be extracted from the Blender files.
 The scenes were also adjusted regarding the following points to deliver a certain value for stereo matching algorithms:
 
 \begin{itemize}
@@ -92,16 +96,18 @@ The scenes were also adjusted regarding the following points to deliver a certai
   \item transparent layers were removed.
 \end{itemize}
 
-\noindent Otherwise, these points could lead to defective depth information.
+\noindent Without removing these elements in a scene, a stereo matching algorithm may have problems with those arbitrary textures.
+Also, obtaining depth information from Blender can be problematic, if transparent layers are in between the actual background of the scene, which is visible for the viewer, and the camera.
+This can lead to wrong depth information and later on to false disparity information.
 The dataset consists of 15 scenes.
 The scenes consist of high resolution stereo images $1920x1080$ with an average bitrate of 94 MBit/s.
 With an approximate size of 2 MB for each frame, the size of each sequence varies between 0.4 GB and 2.7 GB.
 For each frame, depth and disparity information are computed with 32-bit floating point precision and saved in OpenEXR files.
+\newline\newline\noindent The above mentioned points apply to the first alpha version of the dataset.
+During this thesis, the dataset ran through several iterations as more and more problems arose during the evaluation.
+This is discussed later on.
 
 %todo add overview images
-
-%explicit
-\newpage
 
 \section{Quality metrics}
 
@@ -325,7 +331,7 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
 5 &   &   &   &   &   &   &   &   &  \\ \hline
 $\varnothing$ &   &   &   &   &   &   &   &   & 
 \end{tabular}
-\caption{Result table for general performance, containing RMS-Error}
+\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{1px}$}
 \end{table}
 
 \begin{table}[]
@@ -339,7 +345,7 @@ $\varnothing$ &   &   &   &   &   &   &   &   &
 5 &   &   &   &  \\ \hline
 $\varnothing$ &   &   &   & 
 \end{tabular}
-\caption{Result table for general performance, containing RMS-Error}
+\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{1px}$}
 \end{table}
 
 \subsection{Impact of noise}
@@ -365,15 +371,54 @@ Thus, the observed range is $0, 14, 28, 40, 51$.
 
 %todo small intro
 
-%todo remove me
-\newpage
+
+\subsection{SVDDD}
+
+The SVDDD dataset from the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} was evaluated as well.
+During this thesis, the dataset ran through several iterations as more and more problems arose during the evaluation.
+In addition, some algorithms were not able to process high-resolution stereo images.
+Thus, it is separated from the other results.
+\newline\newline\noindent The initially evaluated scenes led to strange results.
+Some areas were computed correctly but some areas were completely off.
+One major point, which can lead to such strange, defective results, is negative disparity.
+Most of the algorithms expect that disparity values range from $0-d_{max}$.
+Even a small amount of negative disparity can conduct to a result, which is slightly off, i.e. three or four pixels.
+Looking at PBMP$_{1px}$ , which can yield to nearly 50\%.
+An example can be seen in Figure \ref{fig:outliers-rabbit-svddd}, illustrating two images.
+In the left image about 10\% pixels overall contains slightly negative disparity whereas in the right image, the disparity ranges from $0-59$.
+
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ccc}
+\subfloat[Negative disparity]{\includegraphics[width=0.48\textwidth]{src/images/evaluation/02-rabbit-neg-elas.png}} &
+\subfloat[Only positive disparity]{\includegraphics[width=0.48\textwidth]{src/images/evaluation/02-rabbit-elas.png}} &
+\end{tabular}
+\caption[Comparison of computed disparity maps regarding negative disparity]{Comparison of computed disparity maps regarding negative disparity.}
+\label{fig:outliers-rabbit-svddd}
+\end{figure}
+
+\noindent Another challenge of high-resolution datasets is the huge computational power which is necessary to compute disparity maps for them.
+The BP algorithms would have needed about $52 GB$ of memory to calculate the scenes for $d_{max} = 64$ as the labels for all possible states have to be created and stored in memory.
+Also, the SNSM wanted to allocate about $35 GB$ of memory as the disparity space image is computed \textit{a priori} before the actual calculation of the disparity maps takes place.
+The runtime also gives a feeling how computational powerful and complex it is, to perform a disparity estimation on high-resolution stereo images.
+Summing up, the MRF BP algorithms as well as the SNSM were excluded from the evaluation of the SVDDD dataset.
+\newline\newline\noindent Table XYZ contains the mean results of the SVDDD dataset.
+The best result is achieved with the MRF GC Expansion algorithm, which only led to $0.65 \%$ of bad matching pixels in the rabbit scene.
+OpenCV SGBM and ELAS also lead to good results.
+Comparing the runtime of such high-resolution scenes, the OpenCV SGBM clearly outperforms the others.
+Taking the general performance into account, OpenCV SGBM and ELAS both yield to feasible results.
+
+
+
+
+
 \section{Discussion}
 
 %todo write about simple stereo matcher in comparison to opencv implementations
 
 
 
-The results regarding Gaussian noise differ from the results \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
+The results regarding Gaussian noise differ from the results, which \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
 Here, a much lower $\sigma^2$ led to defective results.
 As every pixel gets changed according to the normal distribution and additionally, for each image a different noise matrix was calculated to avoid pattern matching, the stereo image gets disturbed in an unnatural way.
 \citeauthor{richardt2010real} added additive Gaussian noise to simulate a more natural, real scenery.
