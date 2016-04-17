@@ -287,6 +287,8 @@ The difference comes from smoothing, which SAD-IGMCT included as a disparity ref
 \label{tab:eval:snsm:tsukuba}
 \end{table}
 
+\subsection{General performance}
+
 %todo small intro
 
 \begin{figure}[h!]
@@ -367,6 +369,43 @@ Thus, the observed range is $0, 14, 28, 40, 51$.
 \newpage
 \section{Discussion}
 
-This is really important!
+%todo write about simple stereo matcher in comparison to opencv implementations
+
+
+
+The results regarding Gaussian noise differ from the results \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
+Here, a much lower $\sigma^2$ led to defective results.
+As every pixel gets changed according to the normal distribution and additionally, for each image a different noise matrix was calculated to avoid pattern matching, the stereo image gets disturbed in an unnatural way.
+\citeauthor{richardt2010real} added additive Gaussian noise to simulate a more natural, real scenery.
+Gaussian noise is a part of sensor noise, but a small one.
+To simulate such real scenery, a more realistic model should be created.
+For the purpose of simulating an image, captured via CCD sensor, camera noise models exist \citep{liu2006noise}.
+Such complex noise models are difficult to create, but maybe lead to much more feasible results.
+
+
+
+
+%todo write a bit about video compression
+
+
+
+%todo write about runtime in comparison with results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
