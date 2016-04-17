@@ -438,12 +438,31 @@ In comparison, the worst algorithm, in this particular case the OpenCV block mat
 \begin{figure}[h!]
 \centering
 \includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
-\caption[Chart of depth-discontinuity mask]{Depth-discontinuity mask applied on the book sequence with PBMP$_{disc,1px}$.}
+\caption[Chart of textureless region mask]{Chart of textureless region mask applied on the tunnel sequence.}
 \label{fig:eval-plots-pbmp-tex1}
 \end{figure}
 
+\begin{figure}[h!]
+\centering
+\begin{tabular}{cc}
+\subfloat[left image]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-left.png}} &
+\subfloat[ground-truth heatmap]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-ground-truth.png}} \\
+\subfloat[outliers in OpenCV BM]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-2.png}} &
+\subfloat[outliers in ELAS]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-3}}
+\end{tabular}
+\caption{Heatmaps for tunnel scene}
+\label{fig:eval:heat:tunnel}
+\end{figure}
 
+\noindent bla. salient. regions.
+%todo bla salient regions
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/01-book-pbmp-sal-1.pdf}
+\caption[Chart of salient region mask]{Chart of salient region mask applied on the book sequence.}
+\label{fig:eval-plots-pbmp-sal}
+\end{figure}
 
 
 
@@ -454,52 +473,12 @@ The impact of noise is an interesting and not often evaluated approach regarding
 %todo more intro
 
 
-
-
-
-
-
-
-
-\begin{table}[h!]
+\begin{figure}[h!]
 \centering
-\scalebox{0.9}{
-\begin{tabular}{c|rrrrrrrrr}
-  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\ \hline
-1 & 16.60\% & \cellcolor{red!50}30.98\% & 7.31\% & 19.55\% & 8.30\% & 8.74\% & 8.32\% & 24.35\% & \cellcolor{green!50}6.93\% \\
-2 & \cellcolor{green!50}6.88\% & \cellcolor{red!50}13.90\% & 7.18\% & 30.75\% & 10.91\% & 11.19\% & 10.90\% & 13.10\% & 8.32\% \\
-3 & 9.54\% & \cellcolor{red!50}28.14\% & 3.99\% & 11.18\% & 4.17\% & 4.25\% & 4.10\% & 6.31\% & \cellcolor{green!50}3.35\% \\
-4 & 13.98\% & 18.86\% & 9.90\% & \cellcolor{red!50}23.53\% & 8.01\% & 10.47\% & \cellcolor{green!50}7.75\% & 10.20\% & 11.65\% \\
-5 & 5.96\% & \cellcolor{red!50}16.13\% & \cellcolor{green!50}0.19\% & 1.37\% & 3.41\% & 3.34\% & 3.42\% & 5.68\% & 0.62\% \\ \hline
-$\varnothing$ &   &   &   &   &   &   &   &   & 
-\end{tabular}
-}
-\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{noc,1px}$}
-\end{table}
-
-\noindent Bla.
-
-\begin{table}[h!]
-\centering
-\scalebox{0.9}{
-\begin{tabular}{c|rrrr}
-  & 10 & 11 & 12 & 13 \\ \hline
-1 & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
-2 & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% \\
-3 & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
-4 & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
-5 & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
-$\varnothing$ &  &  &  &
-\end{tabular}
-}
-\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{noc,1px}$}
-\end{table}
-
-\noindent Blub.
-
-
-
-
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/04-temple-gn-overview.pdf}
+\caption[Chart of the impact of Gaussian noise]{Chart of the impact of different $\sigma^2$ values for additive Gaussian noise on the result of disparity algorithms focusing on P$_{noc,1px}$.}
+\label{fig:eval-plots-gn-overview}
+\end{figure}
 
 
 
