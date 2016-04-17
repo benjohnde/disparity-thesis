@@ -61,7 +61,7 @@ This is also one of the first stereoscopic dataset targeting videos.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/dbcgrid-dataset.png}
-  \caption[Middlebury stereo dataset example]{Middlebury stereo dataset example}
+  \caption[Cambridge stereo dataset example]{Cambridge stereo dataset example}
   \label{fig:dbcgrid-dataset}
 \end{figure}
 
@@ -75,6 +75,7 @@ Beforehand, the matrix is converted into $CV_32F$, meaning that each element is 
 
 As third dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
 The department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
+Figure \ref{fig:eval:svddd:intro} depicts the left image and its ground-truth disparity companion for a small selection of the SVDDD dataset.
 \newline\newline\noindent The difference here is, that this dataset was not analyzed before.
 Thus, it is possible that the chosen algorithms work not properly on this dataset.
 If this case occurs there exist two possibilities why this happens:
@@ -83,6 +84,18 @@ If this case occurs there exist two possibilities why this happens:
   \item On the one hand, the disparity information are not properly calculated, or
   \item on the other hand, those algorithms have some troubles with the constructed scenery.
 \end{itemize}
+
+\begin{figure}[h!]
+\centering
+\begin{tabular}{cc}
+\subfloat[02-rabbit, left image]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/svddd/02-rabbit-left.png}} &
+\subfloat[03-apple, left image]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/svddd/03-apple-left.png}} \\
+\subfloat[02-rabbit, disparity]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/svddd/02-rabbit-disparity.png}} &
+\subfloat[03-rabbit, disparity]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/svddd/03-apple-disparity.png}}
+\end{tabular}
+\caption{SVDDD high-resolution stereo dataset}
+\label{fig:eval:svddd:intro}
+\end{figure}
 
 \noindent Focusing on the latter one, the scenes were created with Blender and utilizes open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
 A second camera was added to the scenes for obtaining depth information.
@@ -383,9 +396,9 @@ Some areas were computed correctly but some areas were completely off.
 One major point, which can lead to such strange, defective results, is negative disparity.
 Most of the algorithms expect that disparity values range from $0-d_{max}$.
 Even a small amount of negative disparity can conduct to a result, which is slightly off, i.e. three or four pixels.
-Looking at PBMP$_{1px}$ , which can yield to nearly 50\%.
+Looking at PBMP$_{1px}$ , which can yield to nearly $50\%$.
 An example can be seen in Figure \ref{fig:outliers-rabbit-svddd}, illustrating two images.
-In the left image about 10\% pixels overall contains slightly negative disparity whereas in the right image, the disparity ranges from $0-59$.
+In the left image about $10\%$ pixels overall contains slightly negative disparity whereas in the right image, the disparity ranges from $0-59$.
 
 \begin{figure}[h!]
 \centering
@@ -403,7 +416,7 @@ Also, the SNSM wanted to allocate about $35 GB$ of memory as the disparity space
 The runtime also gives a feeling how computational powerful and complex it is, to perform a disparity estimation on high-resolution stereo images.
 Summing up, the MRF BP algorithms as well as the SNSM were excluded from the evaluation of the SVDDD dataset.
 \newline\newline\noindent Table XYZ contains the mean results of the SVDDD dataset.
-The best result is achieved with the MRF GC Expansion algorithm, which only led to $0.65 \%$ of bad matching pixels in the rabbit scene.
+The best result is achieved with the MRF GC Expansion algorithm, which only led to $0.65\%$ of bad matching pixels in the rabbit scene.
 OpenCV SGBM and ELAS also lead to good results.
 Comparing the runtime of such high-resolution scenes, the OpenCV SGBM clearly outperforms the others.
 Taking the general performance into account, OpenCV SGBM and ELAS both yield to feasible results.
