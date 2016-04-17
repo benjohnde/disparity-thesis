@@ -78,12 +78,8 @@ The department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannh
 Figure \ref{fig:eval:svddd:intro} depicts the left image and its ground-truth disparity companion for a small selection of the SVDDD dataset.
 \newline\newline\noindent The difference here is, that this dataset was not analyzed before.
 Thus, it is possible that the chosen algorithms work not properly on this dataset.
-If this case occurs there exist two possibilities why this happens:
-
-\begin{itemize}
-  \item On the one hand, the disparity information are not properly calculated, or
-  \item on the other hand, those algorithms have some troubles with the constructed scenery.
-\end{itemize}
+If this case occurs there exist two possibilities why this happens.
+On the one hand, the disparity information are not properly calculated, or on the other hand, those algorithms have some troubles with the constructed scenery.
 
 \begin{figure}[h!]
 \centering
@@ -100,27 +96,22 @@ If this case occurs there exist two possibilities why this happens:
 \noindent Focusing on the latter one, the scenes were created with Blender and utilizes open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
 A second camera was added to the scenes for obtaining depth information.
 The parameter for each scene can be extracted from the Blender files.
-The scenes were also adjusted regarding the following points to deliver a certain value for stereo matching algorithms:
-
-\begin{itemize}
-  \item rays of light were removed,
-  \item motion and object blur were reduced,
-  \item fain-grained textures (like grass or hairs) were modified, and
-  \item transparent layers were removed.
-\end{itemize}
-
-\noindent Without removing these elements in a scene, a stereo matching algorithm may have problems with those arbitrary textures.
-Also, obtaining depth information from Blender can be problematic, if transparent layers are in between the actual background of the scene, which is visible for the viewer, and the camera.
-This can lead to wrong depth information and later on to false disparity information.
-The dataset consists of 15 scenes.
+The scenes were also adjusted regarding the following points to extract depth-information accurately.
+Rays of light as well as transparent layers were removed to retain accurate depth-information.
+Such transparent layers may result in anomalous depth-information as they may bounce back the depth request while obtaining depth information from Blender.
+Those transparent layers are in between the actual background of the scene, which is visible for the viewer, and the camera.
+Motion and object blur were reduced as such areas can yield to defective disparity information around the blur.
+Fain-grained textures like grass or fine hairs were modified.
+Without modifying these elements in a scene, a stereo matching algorithm may have problems with those arbitrary textures.
+The initial scenes of the Big Buck Bunny project contained randomized grass in each image, left and right side.
+This also yields in the impossibility of stereo matching algorithms to determine the shift of the pixels.
+\newline\newline\noindent The dataset consists of 15 scenes.
 The scenes consist of high resolution stereo images $1920x1080$ with an average bitrate of 94 MBit/s.
 With an approximate size of 2 MB for each frame, the size of each sequence varies between 0.4 GB and 2.7 GB.
 For each frame, depth and disparity information are computed with 32-bit floating point precision and saved in OpenEXR files.
-\newline\newline\noindent The above mentioned points apply to the first alpha version of the dataset.
+The above mentioned points apply to the first alpha version of the dataset.
 During this thesis, the dataset ran through several iterations as more and more problems arose during the evaluation.
 This is discussed later on.
-
-%todo add overview images
 
 \section{Quality metrics}
 
@@ -254,8 +245,6 @@ Although the frames of a video can be seen as independent pieces, different anom
 
 \noindent The following sections present only the highlights of the results as it is an tremendous amount of data, which were computed during the evaluation.
 
-%explicit
-\newpage
 \section{Results}
 
 \noindent The following Tables \ref{tab:metrics1} and \ref{tab:metrics2} contains all combinations of the presented masks with the established metrics.
@@ -263,8 +252,6 @@ As of now, the tags are used in descriptions and result matrices.
 
 %todo small intro
 
-%explicit
-\newpage
 \subsection{Against reference dataset}
 
 As reference scene the \textit{Head and lamp} scene of the Tsukuba dataset was chosen.
