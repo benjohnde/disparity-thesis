@@ -9,7 +9,7 @@ Third, the structure of the measurement is illustrated.
 How the measurement were processed and visualized.
 Fourth, the results are presented and discussed.
 \newline\newline\noindent Overall, the setup for the evaluation took more than 28 days to process about 50 GB of stereoscopic videos and to create all disparity maps.
-Accumulated, the computed disparity maps, the created masks as well as the heatmaps, took about 18 GB.
+Accumulated, the computed disparity maps, the created masks as well as the heatmaps, allocated about 18 GB.
 
 \section{Datasets}
 
@@ -371,10 +371,12 @@ The semi-global stereo matcher implementation of OpenCV achieved the best result
 \newpage
 \subsection{General performance}
 
-%todo small intro
+From a theoretical perspective, the assumption is that the algorithms struggle with depth-discontinuity regions and arbitrary surfaces, i.e. textureless regions.
+Also, global methods should perform slightly better than local methods.
+Salient regions may a bit more random as they take the spectrum of the image into account and not the nature composition of pixel groups like textures.
+\newline\newline\noindent The following Tables \ref{fig:eval:general:performance1} and \ref{fig:eval:general:performance2} contain the general performance with the focus on PBMP$_{noc,1px}$.
 
-%todo explain algorithms numbers
-%todo explain sequences numbers
+%todo small intro
 
 
 \begin{table}[h!]
@@ -387,13 +389,17 @@ The semi-global stereo matcher implementation of OpenCV achieved the best result
 3 & 9.54\% & \cellcolor{red!50}28.14\% & 3.99\% & 11.18\% & 4.17\% & 4.25\% & 4.10\% & 6.31\% & \cellcolor{green!50}3.35\% \\
 4 & 13.98\% & 18.86\% & 9.90\% & \cellcolor{red!50}23.53\% & 8.01\% & 10.47\% & \cellcolor{green!50}7.75\% & 10.20\% & 11.65\% \\
 5 & 5.96\% & \cellcolor{red!50}16.13\% & \cellcolor{green!50}0.19\% & 1.37\% & 3.41\% & 3.34\% & 3.42\% & 5.68\% & 0.62\% \\ \hline
-$\varnothing$ &   &   &   &   &   &   &   &   & 
+$\varnothing$ & 10,59\% & \cellcolor{red!50}21,60\% & \cellcolor{green!50}5,71\% & 17,28\% & 6,96\% & 7,60\% & 6,90\% & 11,93\% & 6,17\% 
 \end{tabular}
 }
-\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{1px}$}
+\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{noc,1px}$}
+\label{fig:eval:general:performance1}
 \end{table}
 
-\noindent Bla.
+\noindent Focusing on the general performance of all but SNSM, ELAS outperforms in mean of all sequences the other global and local methods.
+The worst result is achieved with the OpenCV block matching implementation.
+It is also impressive that ELAS also outperforms traditional global methods, like graph cuts and belief propagation.
+None the less, it has to be mentioned, that the performance of global methods may vary intensely depending on the formulation of the underlying energy function \citep{cyganek2011introduction, szeliski2008comparative, scharstein2006middlebury}.
 
 \begin{table}[h!]
 \centering
@@ -405,13 +411,30 @@ $\varnothing$ &   &   &   &   &   &   &   &   &
 3 & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
 4 & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
 5 & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
-$\varnothing$ &  &  &  &
+$\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!50}7,85\% 
 \end{tabular}
 }
-\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{1px}$}
+\caption[Result table for general performance]{Result table for general performance, focusing on PBMP$_{noc,1px}$}
+\label{fig:eval:general:performance2}
 \end{table}
 
-\noindent Blub.
+\noindent It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
+Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
+\newline\newline\noindent Bla.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/01-book-pbmp-disc-1.pdf}
+\caption[Chart of depth-discontinuity mask]{Depth-discontinuity mask applied on the book sequence with PBMP$_{disc,1px}$.}
+\label{fig:eval-plots-pbmp-disc1}
+\end{figure}
+
+
+
+
+
+
+
 
 \subsection{Impact of noise}
 
@@ -439,7 +462,7 @@ The impact of noise is an interesting and not often evaluated approach regarding
 $\varnothing$ &   &   &   &   &   &   &   &   & 
 \end{tabular}
 }
-\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{1px}$}
+\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{noc,1px}$}
 \end{table}
 
 \noindent Bla.
@@ -457,7 +480,7 @@ $\varnothing$ &   &   &   &   &   &   &   &   &
 $\varnothing$ &  &  &  &
 \end{tabular}
 }
-\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{1px}$}
+\caption[Result table for the impact of noise]{Result table for the impact of noise, focusing on PBMP$_{noc,1px}$}
 \end{table}
 
 \noindent Blub.
@@ -507,7 +530,7 @@ Thus, the observed values are $14, 28, 40$.
 $\varnothing$ &   &   &   &   &   &   &   &   & 
 \end{tabular}
 }
-\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{1px}$}
+\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{noc,1px}$}
 \end{table}
 
 \noindent Bla.
@@ -525,7 +548,7 @@ $\varnothing$ &   &   &   &   &   &   &   &   &
 $\varnothing$ &  &  &  &
 \end{tabular}
 }
-\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{1px}$}
+\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{noc,1px}$}
 \end{table}
 
 \noindent Blub.
