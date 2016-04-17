@@ -238,8 +238,8 @@ Although the frames of a video can be seen as independent pieces, different anom
 
 \begin{itemize}
   \item outliers in the form of a single frames which differs too much from the others,
-  \item impact of noise,
-  \item disturbing effects of artifacts from video compression,
+  \item impact of additive Gaussian noise to simulate real scenery,
+  \item impact of disturbing effects like artifacts from video compression,
   \item the benefit from creating a naive spatiotemporal context.
 \end{itemize}
 
@@ -247,10 +247,60 @@ Although the frames of a video can be seen as independent pieces, different anom
 
 \section{Results}
 
-\noindent The following Tables \ref{tab:metrics1} and \ref{tab:metrics2} contains all combinations of the presented masks with the established metrics.
-As of now, the tags are used in descriptions and result matrices.
+The following subsections present the results of the evaluation.
+The highlights are illustrated as the amount of information, which were obtained during the measurement is huge.
+The following Table \ref{tab:identifier1} contains the identifier which are used throughout the upcoming subsections.
+The following subsections are rationed in the results against the reference dataset, the general performance of the Cambridge dataset as well as the impact of interferences like noise and video compression.
+Afterwards, the runtime and the SVDDD dataset are outlined.
 
-%todo small intro
+\begin{table}[h!]
+\centering
+\begin{tabular}{ll}
+  \hline
+  \textbf{Id} & \textbf{Sequence} \\ \hline \hline
+  1 & book \\
+  2 & street \\
+  3 & tank \\
+  4 & temple \\
+  5 & tunnel \\
+  & \\
+  & \\
+  & \\
+  & \\
+  & \\
+  & \\
+  & \\
+  & \\
+  \hline
+\end{tabular}
+\quad
+\begin{tabular}{ll}
+  \hline
+  \textbf{Id} & \textbf{Algorithm} \\ \hline \hline
+  1 & OpenCV - SGBM \\
+  2 & OpenCV - BM \\
+  3 & ELAS \\
+  4 & MRF - ICM \\
+  5 & MRF - GC Expansion \\
+  6 & MRF - GC Swap \\
+  7 & MRF - BP TRWS \\
+  8 & MRF - BP BPS \\
+  9 & MRF - BP BPM \\
+  10 & OpenCV - Simple BM \\
+  11 & SNSM \\
+  12 & SNSM - STU\footnote{Simple stereo matcher with respecting spatiotemporal context, unweighted.} \\
+  13 & SNSM - STW\footnote{Simple stereo matcher with respecting spatiotemporal context, weighted.} \\
+  \hline
+\end{tabular}
+\caption{Identifier for results}
+\label{tab:identifier1}
+\end{table}
+
+\noindent The general procedure is to describe the high level results of algorithms operate on a whole sequence with PBMP$_{1px}$ utilizing the non-occluded mask.
+As the focus is on PBMP$_{1px}$, lower results are better.
+Then, the other masks are outlined in greater detail.
+Afterwards, particular outliers regarding the whole sequence are discussed.
+The same procedure is then applied to impact of noise and impact of video compression.
 
 \subsection{Against reference dataset}
 
@@ -371,6 +421,9 @@ Thus, the observed range is $0, 14, 28, 40, 51$.
 
 %todo small intro
 
+\subsection{Simple stereo matcher}
+
+%todo small intro
 
 \subsection{SVDDD}
 
