@@ -107,7 +107,7 @@ Thus, the masks are only created for the reference image.
     \path [line] (evaluation) -- (heatmaps);
   \end{tikzpicture}
   }
-  \caption{Composition and processing pipeline of the implementation.}
+  \caption[Composition and processing pipeline of the implementation]{Composition and processing pipeline of the implementation.}
   \label{fig:impl-pipeline}
 \end{figure}
 
@@ -641,6 +641,7 @@ The simple stereo matcher without the spatiotemporal dimension is evaluated as w
 The prediction is, that all three approaches get outperformed by the other stereo matcher.
 The simple reason for that is the lack of handling the disparity constraints as described in the foundations Chapter \ref{chap:foundations}.
 None the less, it is exciting to see, if the naive spatiotemporal approach achieves better results than without.
+As of now, the spatiotemporal approach with unweighted matching cost is denoted as \textit{SNSM - STU} whereas the weighted spatiotemporal approach is denoted as \textit{SNSM - STW}.
 
 \section{Web result viewer of the evaluation suite}
 
