@@ -374,10 +374,8 @@ The semi-global stereo matcher implementation of OpenCV achieved the best result
 From a theoretical perspective, the assumption is that the algorithms struggle with depth-discontinuity regions and arbitrary surfaces, i.e. textureless regions.
 Also, global methods should perform slightly better than local methods.
 Salient regions may a bit more random as they take the spectrum of the image into account and not the nature composition of pixel groups like textures.
+As it would be a tremendous task to deliver all possible plots, only the highlights were included.
 \newline\newline\noindent The following Tables \ref{fig:eval:general:performance1} and \ref{fig:eval:general:performance2} contain the general performance with the focus on PBMP$_{noc,1px}$.
-
-%todo small intro
-
 
 \begin{table}[h!]
 \centering
@@ -420,7 +418,10 @@ $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!5
 
 \noindent It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
 Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
-\newline\newline\noindent Bla.
+\newline\newline\noindent Figure \ref{fig:eval-plots-pbmp-disc1} depicts the trend of the percentage of bad matching pixels near depth-discontinuity areas.
+It is clear to see that global methods perform better than local methods near object borders.
+The worst results are achieved by simple block matching algorithms.
+The best result is achieved by belief propagation, which tends to produce feasible results near object borders, also regarding other sequences.
 
 \begin{figure}[h!]
 \centering
@@ -429,6 +430,17 @@ Also, the best results are achieved with the weighted spatiotemporal approach, a
 \label{fig:eval-plots-pbmp-disc1}
 \end{figure}
 
+\noindent The next Figure \ref{fig:eval-plots-pbmp-tex1} compares the amount of bad matching pixels in non-occluded regions with the textureless regions.
+For this comparison, the scene with the least textures, the tunnel scene of the Cambridge dataset was chosen.
+It is also impressive that overall on average the ELAS algorithm yield to only 0.19\% of bad matching pixels in non-occluded regions PBMP$_{noc,1px}$.
+In comparison, the worst algorithm, in this particular case the OpenCV block matcher implementation, resulted in PBMP$_{noc,1px}$ = 16.13\%.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
+\caption[Chart of depth-discontinuity mask]{Depth-discontinuity mask applied on the book sequence with PBMP$_{disc,1px}$.}
+\label{fig:eval-plots-pbmp-tex1}
+\end{figure}
 
 
 
@@ -500,7 +512,15 @@ High-resolution videos, due to its nature, are not shipped for television as unc
 As seen in the Chapter \ref{chap:related}, there are different applications for disparity algorithms.
 One outpointed need is the remapping of disparity for different screen sizes.
 If this can not happen on raw data, for instance the data is missing and only the compressed version is available, the influence of video compression on the outcome of disparity algorithms is observed.
-\newline\newline\noindent For this observation five different datasets were created with the image diminisher.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
+\caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on P$_{noc,1px}$.}
+\label{fig:eval-plots-pbmp-noc1-vc}
+\end{figure}
+
+\noindent For this observation five different datasets were created with the image diminisher.
 As underlying video codec H.265 was chosen because it is currently the most efficient video compression technique.
 The recommended default parameter for H.265, the constant rate factor (CRF) is $28$.
 It ranges from $0-51$, whereas $0$ represents lossless and $51$ the worst possible compression.
@@ -511,53 +531,8 @@ Thus, the observed values are $14, 28, 40$.
 
 
 
-
-
-
-
-
-
-\begin{table}[h!]
-\centering
-\scalebox{0.9}{
-\begin{tabular}{c|rrrrrrrrr}
-  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 \\ \hline
-1 & 16.60\% & \cellcolor{red!50}30.98\% & 7.31\% & 19.55\% & 8.30\% & 8.74\% & 8.32\% & 24.35\% & \cellcolor{green!50}6.93\% \\
-2 & \cellcolor{green!50}6.88\% & \cellcolor{red!50}13.90\% & 7.18\% & 30.75\% & 10.91\% & 11.19\% & 10.90\% & 13.10\% & 8.32\% \\
-3 & 9.54\% & \cellcolor{red!50}28.14\% & 3.99\% & 11.18\% & 4.17\% & 4.25\% & 4.10\% & 6.31\% & \cellcolor{green!50}3.35\% \\
-4 & 13.98\% & 18.86\% & 9.90\% & \cellcolor{red!50}23.53\% & 8.01\% & 10.47\% & \cellcolor{green!50}7.75\% & 10.20\% & 11.65\% \\
-5 & 5.96\% & \cellcolor{red!50}16.13\% & \cellcolor{green!50}0.19\% & 1.37\% & 3.41\% & 3.34\% & 3.42\% & 5.68\% & 0.62\% \\ \hline
-$\varnothing$ &   &   &   &   &   &   &   &   & 
-\end{tabular}
-}
-\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{noc,1px}$}
-\end{table}
-
-\noindent Bla.
-
-\begin{table}[h!]
-\centering
-\scalebox{0.9}{
-\begin{tabular}{c|rrrr}
-  & 10 & 11 & 12 & 13 \\ \hline
-1 & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
-2 & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% \\
-3 & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
-4 & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
-5 & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
-$\varnothing$ &  &  &  &
-\end{tabular}
-}
-\caption[Result table for the impact of video compression]{Result table for the impact of video compression, focusing on PBMP$_{noc,1px}$}
-\end{table}
-
-\noindent Blub.
-
-
-
-
-
-
+%todo describe me
+%todo add example picture of tank with 14,28 and 40 with motion
 
 
 
