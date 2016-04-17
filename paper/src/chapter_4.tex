@@ -629,7 +629,7 @@ Then, the DSI knows for each position, given a disparity and a frame the matchin
 Looking at a frame at time $f_t$, the frames $f_{t-1}$ and $f_{t+1}$ are also taken into account.
 For the first and the last frame, the two following or respectively the two frames beforehand are used.
 The underlying assumption is, that there is no much motion between the frames, because this would lead to inaccurate matching cost due to possible object hops.
-If the amount of frames is smaller than three ($T < 3$), the spatiotemporal approach is not used.
+\newline\newline\noindent If the amount of frames is smaller than three ($T < 3$), the spatiotemporal approach is not used.
 Another possibility is to weight the frames.
 Here, normal distribution was assumed.
 Thus, the frame before and after the current frame are taken by $\frac{1}{4}$ into account, whereas the current frame is taken by $\frac{2}{4}$ into account.
@@ -679,8 +679,13 @@ As mentioned beforehand, the web viewer is capable of playing the whole sequence
 The control bar enables the user to determine the playback and the speed of the playback.
 A progress bar feedbacks which frame is currently displayed.
 Additionally, the final result page contains some statistical results of the evaluation, like the current viewed frame, runtime and general performance.
+\newline\newline\noindent From a technical perspective, the web result viewer maps the filesystem to a web view.
+The starting point can be configured in a config file.
+The results are read out of the CSV files, converted to JSON\footnote{JSON stands for the JavaScript Object Notation and represents a more human-readable collection of attribute-value pairs.} objects and displayed via small scripts.
+With jQuery\footnote{jQuery is a small JavaScript library for client-side. It helps to select, manipulate or travers the DOM-tree of a web page, cf. \url{https://jquery.com}.}, the displayed objects are changed without the need for reloading the whole page.
+Thus, a sequence can be fluently played and all, the images, the disparity maps, the masks and the result line change at once.
 
-\begin{figure}[p!]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{src/images/result-viewer-detail.png}
   \caption[Detail of one result in the web result viewer]{Detail of one result in the web result viewer.}
