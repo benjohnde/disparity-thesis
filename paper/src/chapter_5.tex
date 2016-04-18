@@ -250,6 +250,7 @@ Although the frames of a video can be seen as independent pieces, different anom
 The following subsections present the results of the evaluation.
 The highlights are illustrated as the amount of information, which were obtained during the measurement is huge.
 The following Table \ref{tab:identifier1} contains the identifier which are used throughout the upcoming subsections.
+Algorithm (10) OpenCV - simple BM utilizes the same implementation as (2) OpenCV - BM but without performing a left-to-right consistency check and WLS filtering, as described in Chapter \ref{chap:impl}.
 The following subsections are rationed in the results against the reference dataset, the general performance of the Cambridge dataset as well as the impact of interferences like noise and video compression.
 Afterwards, the runtime and the SVDDD dataset are outlined.
 
@@ -321,7 +322,7 @@ Some deviations like SAD-IGMCT to SNSM regarding all pixels and a threshold of $
 
 \begin{table}[h!]
 \centering
-\scalebox{1.0}{
+\scalebox{0.95}{
 \begin{tabular}{l|rrrr}
   & RMSE$_{all}$ & PBMP$_{all,1px}$ & PBMP$_{all,2px}$ & PBMP$_{disc,2px}$ \\ \hline
 (1) OpenCV - SGBM & 1.49px & 7.00\% & 4.73\% & \cellcolor{green!50}11.99\% \\
@@ -351,10 +352,10 @@ Surprisingly, the global methods do not outperform the local methods by far.
 \begin{figure}[h!]
 \centering
 \begin{tabular}{cc}
-\subfloat[ground-truth heatmap]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/snsm-tsukuba-ground-truth.png}} &
-\subfloat[computed disparity-map]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/snsm-tsukuba-disparity-map.png}} \\
-\subfloat[outliers in SNSM]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/snsm-tsukuba-outliers.png}} &
-\subfloat[outliers in SAD-IGMCT]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/snsm-tsukuba-outliers-igmct.png}}
+\subfloat[ground-truth heatmap]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-ground-truth.png}} &
+\subfloat[computed disparity-map]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-disparity-map.png}} \\
+\subfloat[outliers in SNSM]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-outliers.png}} &
+\subfloat[outliers in SAD-IGMCT]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/snsm-tsukuba-outliers-igmct.png}}
 \end{tabular}
 \caption{SNSM heatmaps for Tsukuba scene}
 \label{fig:eval:snsm:tsukuba}
@@ -366,9 +367,6 @@ This leads to a more noisy disparity map than for instance the disparity map of 
 But it also shows that by implementing a simple stereo matcher with just the SAD as matching cost measurement step reasonable results can be achieved.
 The semi-global stereo matcher implementation of OpenCV achieved the best result in PBMP$_{disc,2px}$, which focuses on the disparity estimation near depth-discontinuities at object borders.
 
-
-%explicit
-\newpage
 \subsection{General performance}
 
 From a theoretical perspective, the assumption is that the algorithms struggle with depth-discontinuity regions and arbitrary surfaces, i.e. textureless regions.
@@ -401,7 +399,7 @@ None the less, it has to be mentioned, that the performance of global methods ma
 
 \begin{table}[h!]
 \centering
-\scalebox{0.9}{
+\scalebox{0.95}{
 \begin{tabular}{c|rrrr}
   & 10 & 11 & 12 & 13 \\ \hline
 1 & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
@@ -419,7 +417,7 @@ $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!5
 \noindent It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
 Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
 
-\subsubsection{Depth-discontinuity}
+\subsubsection{Depth-discontinuity regions}
 
 Figure \ref{fig:eval-plots-pbmp-disc1} depicts the trend of the percentage of bad matching pixels near depth-discontinuity areas.
 It is clear to see that global methods perform better than local methods near object borders.
@@ -433,10 +431,17 @@ The best result is achieved by belief propagation, which tends to produce feasib
 \label{fig:eval-plots-pbmp-disc1}
 \end{figure}
 
+\noindent The graph shows also the correlation of the two metrics PBMP$_{disc,1px}$ and PBMP$_{noc,1px}$.
+This means that each algorithm performs approximately the same way, either on depth-discontinuity areas or on non-occluded pixels with small positive displacement along the x-axis.
+Concluding, the only algorithms which perform significantly worse than the others are the (2) OpenCV block matching implementation with filtering and (10) the simple OpenCV block matching implementation without filtering.
+Although algorithm (4) MRF - ICM performs not as well as the others, it handles object borders at which depth-discontinuity occur more accurate than the other two outliers.
+As this was just an example plot for depth-discontinuity areas, the other sequences behave the same way.
+
+\subsubsection{Textureless regions}
+
 \noindent The next Figure \ref{fig:eval-plots-pbmp-tex1} compares the amount of bad matching pixels in non-occluded regions with the textureless regions.
-For this comparison, the scene with the least textures, the tunnel scene of the Cambridge dataset was chosen.
-It is also impressive that overall on average the ELAS algorithm yield to only 0.19\% of bad matching pixels in non-occluded regions PBMP$_{noc,1px}$.
-In comparison, the worst algorithm, in this particular case the OpenCV block matcher implementation, resulted in PBMP$_{noc,1px}$ = 16.13\%.
+For this comparison, the tunnel scene of the Cambridge dataset was chosen.
+It is clear to see that regions without textures, i.e. arbitrary surfaces are worse detectable than compared with textured objects.
 
 \begin{figure}[h!]
 \centering
@@ -445,20 +450,78 @@ In comparison, the worst algorithm, in this particular case the OpenCV block mat
 \label{fig:eval-plots-pbmp-tex1}
 \end{figure}
 
+\noindent The percentage of bad matching pixels in textureless regions is nearly the same as overall in non-occluded areas, but with a positive displacement parallel to the x-axis.
+It is also impressive that overall on average the ELAS algorithm yield to only 0.19\% of bad matching pixels in non-occluded regions PBMP$_{noc,1px}$.
+In comparison, the worst algorithm, in this particular case the OpenCV block matcher implementation, resulted in PBMP$_{noc,1px}$ = 16.13\%.
+
+\begin{table}[h!]
+\centering
+\scalebox{0.95}{
+\begin{tabular}{l|rrrr}
+  & RMSE$_{noc}$ & PBMP$_{noc,1px}$ & PBMP$_{noc,2px}$ & PBMP$_{noc,4px}$ \\ \hline
+(3) ELAS & \cellcolor{green!50}0.36px & \cellcolor{green!50}0.19\% & \cellcolor{green!50}0.08\% & \cellcolor{green!50}0.04\% \\
+(10) OpenCV - Simple BM & \cellcolor{red!50}5.82px & \cellcolor{red!50}8.60\% & \cellcolor{red!50}8.58\% & \cellcolor{red!50}8.56\% \\
+(11) SNSM & 0.96px & 0.93\% & 0.71\% & 0.54\% \\
+(12) SNSM STU & 1.02px & 4.53\% & 1.24\% & 0.73\% \\
+(13) SNSM STW & 0.92px & 2.15\% & 0.79\% & 0.59\% \\
+\hline
+\end{tabular}
+}
+\caption[Result table for tunnel scene]{Result table for tunnel scene of Cambridge dataset}
+\label{tab:eval:tex:tunnel:overview}
+\end{table}
+
+\noindent The SNSM also lead to feasible results which can be seen in Table \ref{tab:eval:tex:tunnel:overview}.
+\newline\newline\noindent For a direct comparison of the visual outcome of the disparity maps, Figure \ref{fig:eval:heat:tunnel} depicts four images.
+The left image with its ground-truth companion, the worst result of the OpenCV block matcher implementation and the best outcome yielded by ELAS.
+ELAS seems to determine the disparity map in a nearly perfect manner but seems to struggle with the beginning shadow.
+
 \begin{figure}[h!]
 \centering
 \begin{tabular}{cc}
-\subfloat[left image]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-left.png}} &
-\subfloat[ground-truth heatmap]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-ground-truth.png}} \\
-\subfloat[outliers in OpenCV BM]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-2.png}} &
-\subfloat[outliers in ELAS]{\includegraphics[width=0.49\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-3}}
+\subfloat[left image]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/outliers2/tunnel-left.png}} &
+\subfloat[ground-truth heatmap]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/outliers2/tunnel-ground-truth.png}} \\
+\subfloat[outliers in OpenCV BM]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-2.png}} &
+\subfloat[outliers in ELAS]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/outliers2/tunnel-outliers-noc-3}}
 \end{tabular}
-\caption{Heatmaps for tunnel scene}
+\caption{Heatmaps for the tunnel scene}
 \label{fig:eval:heat:tunnel}
 \end{figure}
 
-\noindent bla. salient. regions.
-%todo bla salient regions
+\noindent The SNSM led to feasible results in the tunnel scene, as can be seen in Table \ref{tab:eval:tex:tunnel:overview}.
+The unweighted approach led to slightly worse overall results.
+The interesting part here is the weighted approach of the SNSM implementation.
+The RMSE$_{noc}$ improved whereas the PBMP$_{noc,1px}$ yield to shoddy results.
+Considering both metrics, it shows that the naive spatiotemporal approach does not respect motion at all.
+The slightly better RMSE$_{noc}$ feels a bit random in the overall evaluation.
+
+\subsubsection{Salient regions}
+
+Focusing on salient regions is a novel approach.
+The distribution of salient regions does not follow any visual attracting regions.
+According to \citeauthor{hou2007saliency} \citep{hou2007saliency}, the main idea is to extract the pixels which jump out of smooth curves, as they deserve most certainly the humans attention.
+Their approach is implemented in the OpenCV library and no parameter can be set.
+It is named static saliency, as only images are considered.
+Thus, it is a pretty basic novel approach to create feasible masks with the static saliency.
+The overall visual results are a bit confusing.
+Figure \ref{fig:eval:sal:eg} shows two sample images and their corresponding computed saliency mask.
+As can be seen in the figure, the static saliency approach in OpenCV yields to confusing results.
+Although in both images, same parts, that are classified as salient regions, are comprehensible and understandable, some are not.
+
+\begin{figure}[h!]
+\centering
+\begin{tabular}{cc}
+\subfloat[image of book scene]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/salient/left-book.png}} &
+\subfloat[image of temple scene]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/salient/left-temple.png}} \\
+\subfloat[corresponding saliency mask]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/salient/salient-book.png}} &
+\subfloat[corresponding saliency mask]{\includegraphics[width=0.45\textwidth]{src/images/evaluation/salient/salient-temple.png}}
+\end{tabular}
+\caption{Examples for salient masks}
+\label{fig:eval:sal:eg}
+\end{figure}
+
+\noindent The book as a whole is not recognized as salient as well as the stairs of the temple are left out completely.
+The chart in Figure \ref{fig:eval-plots-pbmp-sal} depicts the application of the saliency mask to the book sequence.
 
 \begin{figure}[h!]
 \centering
@@ -467,13 +530,21 @@ In comparison, the worst algorithm, in this particular case the OpenCV block mat
 \label{fig:eval-plots-pbmp-sal}
 \end{figure}
 
+\noindent It is clear to see that.
 
+\subsubsection{Outliers}
 
+Beforehand, the investigation of outliers in a whole sequence of consecutive frames was mentioned.
+During the evaluation, only one sequence tended to have outliers, the book scene of the Cambridge dataset.
+In this scene, one frame has significant more bad matched pixels than all the others.
+
+%todo remove me
+\newpage
 
 \subsection{Impact of noise}
 
 The impact of noise is an interesting and not often evaluated approach regarding disparity algorithms.
-%todo more intro
+Figure \ref{fig:eval-plots-gn-overview} shows the impact of different $\sigma^2$ values for additive Gaussian noise on the computation of disparity algorithms.
 
 
 \begin{figure}[h!]
@@ -484,8 +555,8 @@ The impact of noise is an interesting and not often evaluated approach regarding
 \end{figure}
 
 
-
-
+%todo remove me
+\newpage
 
 \subsection{Impact of video compression}
 
@@ -498,7 +569,7 @@ If this can not happen on raw data, for instance the data is missing and only th
 \begin{figure}[h!]
 \centering
 \includegraphics[width=1.0\textwidth]{src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
-\caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on P$_{noc,1px}$.}
+\caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on PBMP$_{noc,1px}$.}
 \label{fig:eval-plots-pbmp-noc1-vc}
 \end{figure}
 
