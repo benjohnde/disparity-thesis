@@ -687,8 +687,26 @@ The unweighted and weighted approach were able to improve this result to 75.04\%
 
 \subsection{Runtime}
 
-%todo small intro
-
+Talking about runtime, the results differ vastly.
+Figure \ref{fig:eval-plots-runtime} illustrates the different runtimes in mean over all sequences of the Cambridge dataset.
+This should provide a solid overview.
+It is clear to see that four variants run fast, i.e. have a low runtime.
+This is true for the local methods, as well as ELAS.
+The global methods need much more time to approximate the energy function.
+\newline\newline\noindent Especially the algorithm variants of belief propagation needed much time.
+Throughout the whole evaluation, (8) MRF - BP BPM led to the best results, compared with other global methods.
+The runtime is according to algorithm (7) MRF - BP TRWS and (9) MRF - BP BPM the lowest.
+Comparing with other results, which were outlined in the sections before, the runtime is not justified as the longer an algorithm runs does not automatically yield to better results.
+\newline\newline\noindent The (11) SNSM is the worst local method focusing on the runtime in comparison with (1), (2) and (10), which are all OpenCV implementations of block matching algorithms.
+This may result as the whole disparity space image is calculated beforehand the disparity maps are computed.
+So the runtime of the SNSM is basically the runtime for the whole scene divided through the amount of frames.
+Both variants, the (12) SNSM-STU and (13) SNSM-STW are dealing with the same information in the same way besides the assembly of the matching cost.
+But this should not affect the runtime at all, so it is also clearly to see, that a certain deviation of the runtime has to be kept in mind.
+\newline\newline\noindent ELAS outperformed in many times all the other algorithms according to PBMP$_{noc}$.
+The runtime is feasible for real-time applications but slightly worse than simple local methods, like the OpenCV block matcher implementation.
+Although, it has to be kept in mind, as outlined in Chapter \ref{chap:impl}, that ELAS is a library which comes with a front-end and an internal image library.
+Both can be the origin for the runtime being worse than simple block-matching algorithm.
+For an accurate comparison which approach is faster, both should be implemented utilizing the same underlying image library.
 
 \begin{figure}[h!]
 \centering
@@ -696,11 +714,6 @@ The unweighted and weighted approach were able to improve this result to 75.04\%
 \caption[Comparison of the runtime of different disparity algorithms]{Comparison of the runtime of different disparity algorithms}
 \label{fig:eval-plots-runtime}
 \end{figure}
-
-
-
-
-
 
 \subsection{SVDDD}
 
@@ -727,70 +740,99 @@ In the left image about $10\%$ pixels overall contains slightly negative dispari
 \label{fig:outliers-rabbit-svddd}
 \end{figure}
 
-\noindent Another challenge of high-resolution datasets is the huge computational power which is necessary to compute disparity maps for them.
+\noindent Another challenge of high-resolution datasets is the huge computational power, which is necessary to compute disparity maps for them.
 The BP algorithms would have needed about $52 GB$ of memory to calculate the scenes for $d_{max} = 64$ as the labels for all possible states have to be created and stored in memory.
 Also, the SNSM wanted to allocate about $35 GB$ of memory as the disparity space image is computed \textit{a priori} before the actual calculation of the disparity maps takes place.
 The runtime also gives a feeling how computational powerful and complex it is, to perform a disparity estimation on high-resolution stereo images.
 Summing up, the MRF BP algorithms as well as the SNSM were excluded from the evaluation of the SVDDD dataset.
-\newline\newline\noindent Table XYZ contains the mean results of the SVDDD dataset.
-The best result is achieved with the MRF GC Expansion algorithm, which only led to $0.65\%$ of bad matching pixels in the rabbit scene.
-OpenCV SGBM and ELAS also lead to good results.
-Comparing the runtime of such high-resolution scenes, the OpenCV SGBM clearly outperforms the others.
-Taking the general performance into account, OpenCV SGBM and ELAS both yield to feasible results.
-
-
-
 
 \begin{table}[h!]
 \centering
-\scalebox{0.9}{
+\scalebox{1.0}{
 \begin{tabular}{l|rrrrrr}
   & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
-02-rabbit-neg & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% & 9.65\% & 9.65\% \\
-02-rabbit & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% & 9.65\% & 9.65\% \\
-03-apple & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% & 9.65\% & 9.65\% \\ \hline
-$\varnothing$ &  &  &  &  &  & 
+02-rabbit-neg & 58.62\% & \cellcolor{red!50}61.51\% & 59.99\% & 60.58\% & \cellcolor{green!50}57.12\% & 57.13\% \\
+02-rabbit & 1.68\% & \cellcolor{red!50}4.31\% & 2.98\% & 3.82\% & \cellcolor{green!50}0.65\% & 0.68\% \\
+03-apple & 1.69\% & \cellcolor{red!50}4.10\% & 3.11\% & 3.44\% & \cellcolor{green!50}0.63\% & 0.65\% \\ \hline
+$\varnothing$ (w/o neg) & 1.69\% & \cellcolor{red!50}4.21\% & 3.05\% & 3.63\% & \cellcolor{green!50}0.64\% & 0.67\%
 \end{tabular}
 }
-\caption[Result table for general performance of SVDDD]{Result table for general performance of SVDDD, focusing on PBMP$_{1px}$}
+\caption[Result table for general performance of SVDDD]{Result table for general performance of SVDDD, focusing on PBMP$_{noc,1px}$}
+\label{tab:svddd-performance}
 \end{table}
 
-\noindent Blub.
+\noindent Table \ref{tab:svddd-performance} contains the mean results of the SVDDD dataset.
+The best result is achieved with the MRF GC Expansion algorithm, which only led to $0.64\%$ of bad matching pixels in all scenes which is quite impressive for both, the scenes and the algorithms.
+OpenCV SGBM and ELAS also lead to good results.
+Comparing the runtime of such high-resolution scenes, the (2) OpenCV BM clearly outperforms the others.
+Taking the general performance into account, OpenCV SGBM and ELAS both yield to feasible results.
+For real-time applications ELAS stands out against the other algorithms.
+Taking both, the overall performance and the runtime into account, ELAS performs best.
+In Figures \ref{fig:eval-svddd-plot-rabbit} and \ref{fig:eval-svddd-plot-apple}, it is clearly to see that ELAS also performs better than the other local methods regarding PBMP$_{noc,4px}$.
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/svddd/02-rabbit-plot.pdf}
+\caption[Performance of SVDDD rabbit scene]{Performance of SVDDD rabbit scene}
+\label{fig:eval-svddd-plot-rabbit}
+\end{figure}
 
+\noindent Both scenes, rabbit and apple performed pretty reasonable.
+In direct comparison with the Cambridge datasets, the results are better.
+The Cambridge scenes are unrealistic constructed in comparison to the Big Buck Bunny project as they contain a lot of repeating objects and arbitrary textures.
+Even the tunnel scenery contains many identical looking bricks.
+The literature states, that those textures are error-prone areas, this could be a reason for the better performing SVDDD.
+The coloring of the scenes in the Cambridge dataset is very even distributed whereas the SVDDD dataset contains different colors in each scene.
+Some scenes of the Cambridge dataset led to worse result than the others, especially the street scene performed best, which supports the assumption, that the result rely on the composition of the scenery.
+In the beginning, the assumption arose, that the fine hair textures may be problematic.
+This is not the case.
+The computed disparity map lack of accuracy near depth-discontinuity areas, but fine-grained structures were not problematic at all.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=1.0\textwidth]{src/images/evaluation/svddd/03-apple-plot.pdf}
+\caption[Performance of SVDDD apple scene]{Performance of SVDDD apple scene}
+\label{fig:eval-svddd-plot-apple}
+\end{figure}
+
+\noindent Focusing on the runtime, which is illustrated in Table \ref{tab:svddd-runtime}, the fastest algorithm is again the OpenCV BM implementation.
+But the huge gap between (2) ELAS, (3) OpenCV BM and the others is noticeable.
+ELAS seems to be a pretty solid approach regarding runtime and overall performance of disparity estimation.
+The best results were achieved by the global methods, which pretty astonishing results of PBMP$_{noc,1px} < 1\%$.
+The runtime was very bad with nearly 10 minutes to compute one single disparity map.
+It has to be kept in mind, that the computation depends heavily on the underlying computing engine (CPU or GPU) and also the implementation.
+Also, in difference to the Cambridge dataset, the SVDDD dataset led to endless iterations in the Middlebury library.
+The Middlebury library is kept to a maximum of 500 iterations, which is not adjustable.
+The SVDDD dataset always needed the whole iterations, which may be the reason for such a long runtime.
+A reason for that can be the high resolution of the dataset.
 
 \begin{table}[h!]
 \centering
 \scalebox{0.9}{
 \begin{tabular}{l|rrrrrr}
   & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
-02-rabbit-neg & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% & 9.65\% & 9.65\% \\
-02-rabbit & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% & 9.65\% & 9.65\% \\
-03-apple & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% & 9.65\% & 9.65\% \\ \hline
-$\varnothing$ &  &  &  &  &  & 
+02-rabbit-neg & 6550 ms & \cellcolor{green!50}817 ms & 1923 ms & 11796 ms & 300939 ms & \cellcolor{red!50}544833 ms \\
+02-rabbit & 4402 ms & \cellcolor{green!50}465 ms & 1000 ms & 20141 ms & 420835 ms & \cellcolor{red!50}617998 ms \\
+03-apple & 4541 ms & \cellcolor{green!50}467 ms & 984 ms & 16063 ms & 384221 ms & \cellcolor{red!50}575137 ms \\ \hline
+$\varnothing$ & 5164 ms & \cellcolor{green!50}583 ms & 1302 ms & 16000 ms & 368665 ms & \cellcolor{red!50}579323 ms
 \end{tabular}
 }
 \caption[Result table for runtime of SVDDD]{Result table for runtime of SVDDD}
+\label{tab:svddd-runtime}
 \end{table}
-
-
-
-
-
-
-%todo add result table
-
-%todo add runtime table for high-resolution result
-
-
 
 \section{Discussion}
 
-%todo write about simple stereo matcher in comparison to opencv implementations
-
-
-
-The results regarding Gaussian noise differ from the results, which \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
+In this section, the result seen before are summarized and discussed.
+The general performance of the integrated algorithms in comparison with the simple naive stereo matcher (SNSM) is interesting.
+The outcome of the comparison is, that in general local methods are faster than global methods but the quality benefit of the disparity map may not be high.
+Although, this depends heavily on the use-case, only one global method, the (9) MRF - BP BPM was really superior.
+SNSM is on a level playing field with other global methods, and even outperforms some, like (3) MRF ICM and (8) MRF - BP BPS.
+Taking the spatiotemporal context into account yields overall to better results, but still lacks of respecting the motion of objects.
+Thus, the result may be a bit random regarding this particular case, as mentioned beforehand in Chapter \ref{chap:impl}.
+The masks are granting another perspective on the performance of disparity algorithms, but only the depth-discontinuity as well as the non-occluded pixel mask seem to give a real overall benefit.
+The saliency mask seems to bit more random as most of the salient regions are not marked correctly whereupon the room for interpretation when it comes to saliency has to be kept in mind.
+\newline\newline\noindent The results regarding Gaussian noise differ from the results, which \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
 Here, a much lower $\sigma^2$ led to defective results.
 As every pixel gets changed according to the normal distribution and additionally, for each image a different noise matrix was calculated to avoid pattern matching, the stereo image gets disturbed in an unnatural way.
 \citeauthor{richardt2010real} added additive Gaussian noise to simulate a more natural, real scenery.
@@ -798,31 +840,20 @@ Gaussian noise is a part of sensor noise, but a small one.
 To simulate such real scenery, a more realistic model should be created.
 For the purpose of simulating an image, captured via CCD sensor, camera noise models exist \citep{liu2006noise}.
 Such complex noise models are difficult to create, but maybe lead to much more feasible results.
-
-
-
-
-%todo write a bit about video compression
-
-
-
-%todo write about runtime in comparison with results
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Here, it could be shown that a small amount of normal distributed noise lead to false disparity information.
+The small amount of informative value is may be at random computed.
+\newline\newline\noindent With testing the interference of video compression, a novel approach was shown.
+The outcome of the approach is, that even a small amount of video compression artifacts lead to a lot of mismatched pixels, although the artifacts are not clearly visible.
+As two parameters are correlating directly and the change of the CRF from $14$ to $28$ did not change the overall result, it may be the case, that disparity algorithms struggle with a small amount of noise until a certain level.
+The jump from about 10\% of bad matching pixels to nearly 60\% at the first tested step is huge.
+\newline\newline\noindent Taking the runtime into account, the information taken out of the literature were confirmed.
+Global methods tend to run pretty long whereas local methods are more for real-time applications.
+Here, ELAS established itself as a surprise candidate.
+The overall performance combined with the runtime is good.
+The results towards object borders are accurate.
+Depending on the image resolution, global methods struggle with high-resolution images whereas ELAS performed pretty well.
+\newline\newline\noindent The last part of the evaluation was to benchmark the SVDDD dataset of the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}}.
+After initial problems with the range of disparity values as well as some ground-truth disparity maps contained unfeasible values, two final scenes could be evaluated.
+Both scenes performed very good along all algorithms.
+Here, the computational limitations became noticeable as the belief propagations as well as the SNSM implementation were in need of too much memory.
+None the less, the other algorithms drew the bigger picture with the main outcome, that the OpenCV SGBM implementation as well as ELAS performed best.

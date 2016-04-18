@@ -9,6 +9,8 @@ The following section recaps this in more detail and furthermore a outlook and f
 
 \section{Thesis summary}
 
+The thesis brought foundations, describing 
+
 \begin{itemize}
   \item What the thesis brought with each chapter.
   \item One small paragraph regarding one disparity algorithm.
@@ -27,40 +29,22 @@ The following section recaps this in more detail and furthermore a outlook and f
   \item An image diminisher utilizing FFmpeg to simulate noise and video compression artifacts.
 \end{itemize}
 
-\noindent Summarize the results of the evaluation.
-
-%todo add recommendations for svddd dataset
-
 \section{Outlook and future work}
 
-
-
-
-
-was man noch verbessern kann
-- simple stereo matcher
-- web viewer
-- darstellen, dass der SNSM ganz gut funktioniert hat
-- ELAS als überraschungskandidaten
-- auf die anderen vorhandenen stichpunkte bisschen eingehen
-
-
-
-
-
-A few thoughts on possible future work are outlined.
-The thoughts are split in low- and high-level, from a technical perspective.
-Low-level items are focused towards underlying methods of disparity algorithms, whereas high-level items focus on the bigger picture and tools which may help in developing stereo matcher.
-
-\begin{itemize}
-  \item Neuronal networks \citep{olshausen1996emergence}
-  \item Other matching cost calculation methods \citep{hermann2010gradient}.
-  \item Focus more on how humans experience depth? \citep{deangelis1995neuronal}
-\end{itemize}
-
-\begin{itemize}
-  \item Real-time availability
-  \item higher resolution
-  \item What's on the market, like multi-view?
-  \item Provide more real-world ground truth disparity maps \citep{kondermann2015stereo, Geiger2011IV}.
-\end{itemize}
+With the web viewer, a tool for sharing benchmark results was presented.
+This tool could be enhanced even more to visualize the results with graphs.
+Another possibility is to let researcher submit their dataset and the whole eval-chain is then executed on a server with the results being shown afterwards.
+The simplest idea to enhance the evaluation engine is, to add more metrics and more algorithms.
+\newline\newline\noindent With the simple stereo matcher, a skeleton for creating a four-dimensional disparity space image was presented.
+This could be a starting point for further research to optimize stereoscopic videos respecting the spatiotemporal context.
+Concluding, the SNSM performed reasonable but seemed to be a bit random in some cases.
+Thus, the next steps could be to try to focus on non-moving objects or to track the movement of objects via Optical flow to take only static parts into account.
+\newline\newline\noindent Future work regarding enhancement of disparity algorithms in general are for instance to implement other matching cost calculation methods and evaluate those \citep{hermann2010gradient}.
+Another approach could be to focus more on how humans experience depth \citep{deangelis1995neuronal} and to combine those learnings with neuronal networks \citep{olshausen1996emergence} which has not been done yet.
+\newline\newline\noindent In general, the available datasets lack of high resolutions.
+Also multi-view datasets are not available with high-resolution images at all.
+Although some real-world ground-truth disparity maps exist, they normally lack of accuracy and tend to be available in only low resolutions \citep{Geiger2011IV}.
+One approach towards the direction of high resolution real-world stereoscopic videos was made by \citeauthor{kondermann2015stereo} \citep{kondermann2015stereo}.
+They provide a error-bar how accurate the sensed disparity is.
+As this is currently the only dataset of that nature, there is still room for more.
+\newline\newline\noindent As a more general outlook, algorithms like ELAS \citep{Geiger2010ACCV} are more demanded due to low runtime and the accuracy in high-resolution images for real-time applications like autonomous driving.
