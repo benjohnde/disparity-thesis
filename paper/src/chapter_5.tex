@@ -418,7 +418,10 @@ $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!5
 
 \noindent It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
 Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
-\newline\newline\noindent Figure \ref{fig:eval-plots-pbmp-disc1} depicts the trend of the percentage of bad matching pixels near depth-discontinuity areas.
+
+\subsubsection{Depth-discontinuity}
+
+Figure \ref{fig:eval-plots-pbmp-disc1} depicts the trend of the percentage of bad matching pixels near depth-discontinuity areas.
 It is clear to see that global methods perform better than local methods near object borders.
 The worst results are achieved by simple block matching algorithms.
 The best result is achieved by belief propagation, which tends to produce feasible results near object borders, also regarding other sequences.
