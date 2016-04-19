@@ -156,14 +156,14 @@ Hence the RMSE is the difference between values on average.
 This chapter describes and summarizes the evaluation process.
 All disparity maps were created on a desktop computer with an i5-2500k @ 3.30GHz (quad-core).
 First, the idea of a distributed calculation arose, as described in Chapter \ref{chap:impl}.
-As this would lack the comparison of runtime, only the desktop computer was used.
+Finally, as this would lack the comparison of runtime, only the desktop computer was used.
 \newline\newline\noindent The whole evaluation was proceeded in the following manner:
 Python scripts manage the chained execution of all components.
 Disparity maps are computed for each frame in a sequence, for each sequence in a dataset, and for each dataset.
 The Cambridge dataset contains five sequences with each 100 frames.
 In total, 13 algorithms were executed.
-This results in a total of $6.000$ disparity maps.
-\newline\newline\noindent In addition, this dataset was duplicated for observing interferences on disparity algorithms.
+This results in a total amount of $6.000$ disparity maps.
+\newline\newline\noindent Additionally, the dataset was duplicated for observing interferences on disparity algorithms.
 For analyzing the impact of noise, additive gaussian noise with a normal distribution of $\mathcal{N}(\mu,\sigma^2)$ was added.
 For $\sigma$, $10, 20, 30$ were chosen as parameter.
 Lower values had no noteworthy impact on a few sample disparity maps computations and were also not visually exhibited.
@@ -171,7 +171,7 @@ Higher values were measured by \citeauthor{richardt2010real} \citep{richardt2010
 As additive gaussian noise should simulate a more real scenery instead of synthetic rendered videos, higher values were not considered.
 \newline\newline\noindent Due to bandwidth limitations, raw (lossless) high resolution videos are not transmitted without additional compression.
 That said, H.265, which was introduced in Chapter \ref{chap:impl}, was chosen as current state of the art video compression codec.
-For analyzing the resulting inteferrence on disparity algorithms, video compression artifacts were added by converting the images to a video, applying the codec and unwrapping the video into images.
+For analyzing the resulting interference on disparity algorithms, video compression artifacts were added by converting the images to a video, applying the codec and unwrapping the video into images.
 As parameter, the constant rate factor (CRF) has been adjusted.
 The default parameter value is $28$.
 As $0$ means lossless video compression, it was tested with a few sample disparity map computations.
@@ -187,17 +187,25 @@ As the simple stereo matcher features spatiotemporal consistency, scripts focusi
 
 \subsection*{Parameter tuning}
 
-The observed parameters regarding noise and video compression were described before.
+The observed parameters regarding noise and video compression were described beforehand.
 In addition, most of the available parameters were described accurately in Chapter \ref{chap:impl}.
-Adjusting and quantifying also the parameters of each algorithm would be a formidable task.
+Taking the variation of the parameters of each algorithm into account, would be a formidable task.
+Adjusting and quantifying also the parameters would yield to a huge variety of combinations.
 Thus, only the maximum disparity was adjusted according to the dataset.
 All the other variables were left as default and moreover, some algorithms have no parameter but the maximum disparity to adjust.
 
 \subsection*{Visualization}
 
-As it may be hard to identify fine-grained changes in grayscale images and also the human eye tends to be more sensitive to observe color changes, heatmaps are used to visualize the results.
+As it may be hard to identify fine-grained changes in grayscale images, and additionally, the human eye tends to be more sensitive to observe color changes, heatmaps are used to visualize the results.
 For visualization, the heatmaps are created with the OpenCV autumn color scheme.
 The color-scale of this theme is depict in Figure \ref{fig:colorscale}.
+Outliers are marked with three different purple color steps in the heatmaps.
+The darker the purple color is, the more hard the error was.
+The light blue means $1px$ threshold was exceeded, the color in-between the light blue and the dark purple denotes $2px$ threshold was exceeded.
+The very dark purple reflects that a $4px$ threshold was exceeded.
+The border is excluded from the evaluation (cf. Chapter \ref{chap:foundations}) and marked black.
+Brighter color means more heat and marks nearer pixels.
+An example shot can be seen in Figure \ref{fig:example-heatmap}.
 
 \begin{figure}[h!]
   \centering
@@ -207,19 +215,13 @@ The color-scale of this theme is depict in Figure \ref{fig:colorscale}.
 \end{figure}
 \footnotetext{Source (accessed 04/2016): \url{http://docs.opencv.org/3.1.0/d3/d50/group__imgproc__colormap.html}.}
 
-\noindent Outliers are marked with three different purple color steps in the heatmaps.
-The darker the purple color is, the more hard the error was.
-The light blue means $1px$ threshold was exceeded, the color in-between the light blue and the dark purple denotes $2px$ threshold was exceeded and the very dark purple reflects $4px$ threshold was exceeded.
-The border is excluded from the evaluation (cf. Chapter \ref{chap:foundations}) and marked black.
-Brighter color means more heat and marks nearer pixels.
-An example shot can be seen in Figure \ref{fig:example-heatmap}.
-\newline\newline\noindent The maximum disparity in this example shot was $64$.
+\noindent The maximum disparity in the example shot was $64$.
 This means that due to the baseline separation of the cameras, and the resulting shift of the pixels, some pixels can not be calculated as they have no counterpart.
-This was excluded from the evaluation.
-Also, as the area-based disparity algorithms work with a window size and have a small step from the top and the bottom, this was excluded as well.
+They were excluded from the evaluation.
+Also, as the area-based disparity algorithms work with a window size and have a small step from the top and the bottom, these borders were excluded as well.
 Both is represented with a border mask, which was applied to all evaluation steps beforehand.
-This can also be seen in Figure \ref{fig:example-heatmap}.
-This guarantees a streamlined and balanced evaluation.
+Figure \ref{fig:example-heatmap} illustrates the border mask.
+It guarantees a streamlined and balanced evaluation.
 
 \begin{figure}[h!]
 \centering
@@ -233,23 +235,22 @@ This guarantees a streamlined and balanced evaluation.
 
 \subsection*{Applying disparity algorithms on videos}
 
-As said in the implementation Chapter \ref{chap:impl}, disparity algorithms for image can be applied to videos.
+As said in the implementation Chapter \ref{chap:impl}, disparity algorithms for images can be applied on videos.
 Although the frames of a video can be seen as independent pieces, different anomalies can be further investigated while analyzing videos:
 
 \begin{itemize}
-  \item outliers in the form of a single frames which differs too much from the others,
+  \item outliers in the form of a single frames, which differs too much from the others,
   \item impact of additive Gaussian noise to simulate real scenery,
-  \item impact of disturbing effects like artifacts from video compression,
-  \item the benefit from creating a naive spatiotemporal context.
+  \item impact of disturbing effects like artifacts from video compression, and
+  \item the benefit from applying spatiotemporal consistency.
 \end{itemize}
 
-\noindent The following sections present only the highlights of the results as it is an tremendous amount of data, which were computed during the evaluation.
+\noindent The following sections present only the highlights of the results, as the computed and evaluated disparity maps form an tremendous amount of data.
 
 \section{Results}
 
-The highlights are illustrated as the amount of information, which were obtained during the measurement is huge.
-The following Table \ref{tab:identifier1} contains the identifier which are used throughout the upcoming subsections.
-Algorithm (10) OpenCV - simple BM utilizes the same implementation as (2) OpenCV - BM but without performing a left-to-right consistency check and WLS filtering, as described in Chapter \ref{chap:impl}.
+The following Table \ref{tab:identifier1} contains the identifier, which are used throughout the upcoming subsections.
+Algorithm (10) OpenCV - simple BM utilizes the same implementation as (2) OpenCV - BM, but without performing a left-to-right consistency check and applying WLS filtering, as described in Chapter \ref{chap:impl}.
 The following subsections are rationed in the results against the reference dataset, the general performance of the Cambridge dataset as well as the impact of interferences like noise and video compression.
 Afterwards, the runtime and the SVDDD dataset are outlined.
 As of now, the spatiotemporal approach with unweighted matching cost is denoted as \textit{SNSM - STU} whereas the weighted spatiotemporal approach is denoted as \textit{SNSM - STW}.
@@ -299,7 +300,7 @@ As of now, the spatiotemporal approach with unweighted matching cost is denoted 
 \label{tab:identifier1}
 \end{table}
 
-\noindent The general procedure is to describe the high level results of algorithms operate on a whole sequence with PBMP$_{1px}$ utilizing the non-occluded mask.
+\noindent The general procedure is to describe the high level results, how algorithms operate on a whole sequence with PBMP$_{1px}$ utilizing the non-occluded mask.
 As the focus is on PBMP$_{1px}$, lower results are better.
 The cell of the best result in each row is marked with green background color, the worst with red.
 Then, the other masks are outlined in greater detail.
@@ -308,13 +309,14 @@ The same procedure is then applied to impact of noise and impact of video compre
 
 \subsection{Against reference dataset}
 
-As reference scene the \textit{Head and lamp} scene of the Tsukuba dataset was chosen.
-For evaluating against the reference dataset, all presented disparity algorithms computed disparity maps.
+As reference scene, the \textit{Head and lamp} scene of the Tsukuba dataset was chosen.
+For evaluating against the reference dataset, all presented disparity algorithms compute disparity maps.
 These disparity maps are then compared in combination with different masks.
-The result can be seen in Table \ref{tab:eval:snsm:tsukuba} and the SNSM is depicted in Figure \ref{fig:eval:snsm:tsukuba}.
+The result can be seen in Table \ref{tab:eval:snsm:tsukuba}.
+The outcome of the SNSM is depicted in Figure \ref{fig:eval:snsm:tsukuba}.
 Compared with the Middlebury stereo benchmark\footnote{\url{http://vision.middlebury.edu/stereo/eval/}}, similar results could be achieved.
-\newline\newline\noindent The SNSM utilizes SAD as matching cost function and does not further disparity refinement.
-The results from SNSM with a threshold of $1$ and a block size of $9$ are PBMP$_{all,1px}$ = 11.51\% and RMSE$_{all} = 1.78px$.
+\newline\newline\noindent The SNSM utilizes SAD as matching cost function and does no further disparity refinement.
+The results from SNSM with a threshold of $1px$ and a block size of $9$ are PBMP$_{all,1px}$ = 11.51\% and RMSE$_{all} = 1.78px$.
 According to the Middlebury stereo benchmark, the other SAD implementation (SAD-IGMCT) \citep{ambrosch2010accurate} achieved with a threshold of $1$: PBMP$_{all,1px}$ = 7.14\%.
 The difference may come from smoothing, which SAD-IGMCT included as a disparity refinement step, which is visible while looking at their outcome.
 The other results are similar to the results in the Middlebury stereo benchmark.
@@ -364,7 +366,7 @@ Surprisingly, the global methods do not outperform the local methods by far.
 \noindent In the beforehand mentioned Figure \ref{fig:eval:snsm:tsukuba}, SNSM struggles with the disparity constraints as they are not forced programmatically.
 For each point $(x,y)$ the disparity is calculated individually.
 This leads to a more noisy disparity map than for instance the disparity map of SAD-IGMCT, which respects the disparity constraints, takes the left-right-consistency into account and performs a disparity refinement step.
-But it also shows that by implementing a simple stereo matcher with just the SAD as matching cost measurement step reasonable results can be achieved.
+But, it also shows that by implementing a simple stereo matcher with just the SAD as matching cost measurement step, reasonable results can be achieved.
 The semi-global stereo matcher implementation of OpenCV achieved the best result in PBMP$_{disc,2px}$, which focuses on the disparity estimation near depth-discontinuities at object borders.
 
 \subsection{General performance}
@@ -396,6 +398,8 @@ $\varnothing$ & 10,59\% & \cellcolor{red!50}21,60\% & \cellcolor{green!50}5,71\%
 The worst result is achieved with the OpenCV block matching implementation.
 It is also impressive that ELAS also outperforms traditional global methods, like graph cuts and belief propagation.
 None the less, it has to be mentioned, that the performance of global methods may vary intensely depending on the formulation of the underlying energy function \citep{cyganek2011introduction, szeliski2008comparative, scharstein2006middlebury}.
+It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
+Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
 
 \begin{table}[h!]
 \centering
@@ -414,13 +418,10 @@ $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!5
 \label{fig:eval:general:performance2}
 \end{table}
 
-\noindent It is interesting to see, that the simplest variant of the block matching implementation in OpenCV is outperformed by just a SAD matching cost implementation, the SNSM.
-Also, the best results are achieved with the weighted spatiotemporal approach, although the approach was not superior in at least one sequence, but overall.
-
 \subsubsection{Depth-discontinuity regions}
 
 Figure \ref{fig:eval-plots-pbmp-disc1} depicts the trend of the percentage of bad matching pixels near depth-discontinuity areas.
-It is clear to see that global methods perform better than local methods near object borders.
+It is clear to see, that global methods perform better than local methods near object borders.
 The worst results are achieved by simple block matching algorithms.
 The best result is achieved by belief propagation, which tends to produce feasible results near object borders, also regarding other sequences.
 
@@ -431,15 +432,15 @@ The best result is achieved by belief propagation, which tends to produce feasib
 \label{fig:eval-plots-pbmp-disc1}
 \end{figure}
 
-\noindent The graph shows also the correlation of the two metrics PBMP$_{disc,1px}$ and PBMP$_{noc,1px}$.
-This means that each algorithm performs approximately the same way, either on depth-discontinuity areas or on non-occluded pixels with small positive displacement along the x-axis.
-Concluding, the only algorithms which perform significantly worse than the others are the (2) OpenCV block matching implementation with filtering and (10) the simple OpenCV block matching implementation without filtering.
-Although algorithm (4) MRF - ICM performs not as well as the others, it handles object borders at which depth-discontinuity occur more accurate than the other two outliers.
-As this was just an example plot for depth-discontinuity areas, the other sequences behave the same way.
+\noindent The graph also shows a vage correlation of the two metrics PBMP$_{disc,1px}$ and PBMP$_{noc,1px}$.
+This means, that each algorithm performs approximately the same way, either on depth-discontinuity areas or on non-occluded pixels with a positive displacement along the x-axis.
+Concluding, the only algorithms which perform significantly worse than the others, are the (2) OpenCV block matching implementation with filtering and (10) the simple OpenCV block matching implementation without filtering.
+Although algorithm (4) MRF - ICM performs not as well as the others, it handles object borders, at which depth-discontinuity occur, more accurate than the other two candidates.
+The other sequences behave in a similar way.
 
 \subsubsection{Textureless regions}
 
-\noindent The next Figure \ref{fig:eval-plots-pbmp-tex1} compares the amount of bad matching pixels in non-occluded regions with the textureless regions.
+\noindent Figure \ref{fig:eval-plots-pbmp-tex1} compares the amount of bad matching pixels in non-occluded regions with the textureless regions.
 For this comparison, the tunnel scene of the Cambridge dataset was chosen.
 It is clear to see that regions without textures, i.e. arbitrary surfaces are worse detectable than compared with textured objects.
 
@@ -451,8 +452,9 @@ It is clear to see that regions without textures, i.e. arbitrary surfaces are wo
 \end{figure}
 
 \noindent The percentage of bad matching pixels in textureless regions is nearly the same as overall in non-occluded areas, but with a positive displacement parallel to the x-axis.
-It is also impressive that overall on average the ELAS algorithm yield to only 0.19\% of bad matching pixels in non-occluded regions PBMP$_{noc,1px}$.
-In comparison, the worst algorithm, in this particular case the OpenCV block matcher implementation, resulted in PBMP$_{noc,1px}$ = 16.13\%.
+It is also impressive, that the ELAS algorithm yield to only 0.19\% of bad matching pixels in non-occluded regions, comparing PBMP$_{noc,1px}$ on average.
+In comparison, the worst algorithm, in this particular case the OpenCV block matcher implementation, resulted in a PBMP$_{noc,1px}$ of 16.13\%.
+The SNSM lead to feasible results, which can be seen in Table \ref{tab:eval:tex:tunnel:overview}.
 
 \begin{table}[h!]
 \centering
@@ -471,10 +473,9 @@ In comparison, the worst algorithm, in this particular case the OpenCV block mat
 \label{tab:eval:tex:tunnel:overview}
 \end{table}
 
-\noindent The SNSM also lead to feasible results which can be seen in Table \ref{tab:eval:tex:tunnel:overview}.
-\newline\newline\noindent For a direct comparison of the visual outcome of the disparity maps, Figure \ref{fig:eval:heat:tunnel} depicts four images.
+\noindent For a direct comparison of the visual outcome of the disparity maps, Figure \ref{fig:eval:heat:tunnel} depicts four images.
 The left image with its ground-truth companion, the worst result of the OpenCV block matcher implementation and the best outcome yielded by ELAS.
-ELAS seems to determine the disparity map in a nearly perfect manner but seems to struggle with the beginning shadow.
+ELAS seems to determine the disparity map in a nearly perfect manner but struggles with the beginning shadow.
 
 \begin{figure}[h!]
 \centering
@@ -489,8 +490,8 @@ ELAS seems to determine the disparity map in a nearly perfect manner but seems t
 \end{figure}
 
 \noindent The SNSM led to feasible results in the tunnel scene, as can be seen in Table \ref{tab:eval:tex:tunnel:overview}.
-The unweighted approach led to slightly worse overall results.
-The interesting part here is the weighted approach of the SNSM implementation.
+The unweighted approach yielded to slightly worse results overall.
+The interesting part here is, that the weighted approach of the SNSM implementation improved the result.
 The RMSE$_{noc}$ improved whereas the PBMP$_{noc,1px}$ yield to shoddy results.
 Considering both metrics, it shows that the naive spatiotemporal approach does not respect motion at all.
 The slightly better RMSE$_{noc}$ feels a bit random in the overall evaluation.
@@ -592,13 +593,13 @@ Figure \ref{fig:eval-plots-gn-overview} shows the impact of different $\sigma^2$
 \label{fig:eval-plots-gn-overview}
 \end{figure}
 
-\noindent Here, the tunnel scene was picked to demonstrate the impact of normal distributed noise.
+\noindent The tunnel scene was picked to demonstrate the impact of normal distributed noise.
 Although, as mentioned beforehand in Chapter \ref{chap:impl}, the idea follows the methodology of \citeauthor{richardt2010real} \citep{richardt2010real}, it is not clear if additive Gaussian noise is an adequate image diminishing effect to simulate real scenery.
-None the less, it is nice to see that all picked metrics correlate with each other.
-The extent of the displacement along the x-axis depends on the amount of disturbing noise was added.
+None the less, it is interesting to see, that all picked metrics correlate with each other.
+The extent of the displacement along the x-axis depends on the amount of disturbing noise.
 Figure \ref{fig:eval:gn:eg} depicts the first frame of the tunnel sequence with different noise degrees.
 Added noise with a $sigma^2$ of $5$ does not seem to distract the visual appearance of the image.
-None the less, it has a direct impact on the performance of disparity algorithms.
+However, it has a direct impact on the performance of disparity algorithms.
 The degree of noise with a $\sigma^2$ of $15$ is visually noticeable.
 One reason for that might be, that this type of noise may not appear in real-life while capturing a scene with a CCD sensor.
 The approach follows the methodology of \citeauthor{richardt2010real} \citep{richardt2010real} but may not be suitable for simulating real scenery.
@@ -626,10 +627,10 @@ The assumption remains, that additive Gaussian noise may not be a good choice to
 \subsection{Impact of video compression}
 
 The impact of video compression is an interesting and novel approach.
-High-resolution videos, due to its nature, are not shipped for television as uncompressed raw data or even lossless compressed.
+High-resolution videos, due to its nature, are not shipped for television as uncompressed raw data.
 As seen in the Chapter \ref{chap:related}, there are different applications for disparity algorithms.
 One outpointed need is the remapping of disparity for different screen sizes.
-If this can not happen on raw data, for instance the data is missing and only the compressed version is available, the influence of video compression on the outcome of disparity algorithms is observed.
+If this can not happen on raw data, for instance the data is missing and only the compressed version is available, the influence of video compression on the performance of disparity algorithms is observed.
 \noindent For this observation five different datasets were created with the image diminisher.
 As underlying video codec H.265 was chosen because it is currently the most efficient video compression technique.
 The recommended default parameter for H.265, the constant rate factor (CRF) is $28$.
@@ -823,47 +824,48 @@ $\varnothing$ & 5164 ms & \cellcolor{green!50}583 ms & 1302 ms & 16000 ms & 3686
 
 \section{Discussion}
 
-In this section, the result seen before are summarized and discussed.
-The general performance of the integrated algorithms in comparison with the simple naive stereo matcher (SNSM) is interesting.
-The outcome of the comparison is, that in general local methods are faster than global methods but the quality benefit of the disparity map may not be high.
+In this section, the above stated results are summarized and discussed.
+The general performance of the integrated algorithms compared to the simple naive stereo matcher yield interesting insights.
+The outcome of the comparison is, that in general local methods are faster than global methods but quality improvement of the disparity map may not be high.
 Although, this depends heavily on the use-case, only one global method, the (9) MRF - BP BPM was really superior.
-SNSM is on a level playing field with other global methods, and even outperforms some, like (3) MRF ICM and (8) MRF - BP BPS.
-Taking the spatiotemporal context into account yields overall to better results, but still lacks of respecting the motion of objects.
-Thus, the result may be a bit random regarding this particular case, as mentioned beforehand in Chapter \ref{chap:impl}.
-The masks are granting another perspective on the performance of disparity algorithms, but only the depth-discontinuity as well as the non-occluded pixel mask seem to give a real overall benefit.
-The saliency mask seems to bit more random as most of the salient regions are not marked correctly whereupon the room for interpretation when it comes to saliency has to be kept in mind.
+SNSM is on a level playing field with other global methods, and even outperforms (3) MRF ICM and (8) MRF - BP BPS.
+Taking the spatiotemporal context into account yields to better results overall, but still lacks of respecting the motion of objects.
+Thus, the result may vary regarding this particular case, as mentioned beforehand in Chapter \ref{chap:impl}.
+The masks are granting another perspective on the performance of disparity algorithms, but only the depth-discontinuity as well as the non-occluded pixel mask seem to lead to overall improvement.
+The saliency mask seems to vary even more as most of the salient regions are not marked correctly whereupon the room for interpretation when it comes to saliency has to be kept in mind.
 \newline\newline\noindent The results regarding Gaussian noise differ from the results, which \citeauthor{richardt2010real} \citep{richardt2010real} achieved.
-Here, a much lower $\sigma^2$ led to defective results.
-As every pixel gets changed according to the normal distribution and additionally, for each image a different noise matrix was calculated to avoid pattern matching, the stereo image gets disturbed in an unnatural way.
-\citeauthor{richardt2010real} added additive Gaussian noise to simulate a more natural, real scenery.
+Here, a much lower $\sigma^2$ lead to defective results.
+Every pixel gets changed according to the normal distribution.
+Additionally, for each image a different noise matrix is calculated to avoid pattern matching.
+Thus, the stereo image gets disturbed in an unnatural way.
+\citeauthor{richardt2010real} added additive Gaussian noise to simulate a more natural, real scenery as captured from real sensors.
 Gaussian noise is a part of sensor noise, but a small one.
 To simulate such real scenery, a more realistic model should be created.
 For the purpose of simulating an image, captured via CCD sensor, camera noise models exist \citep{liu2006noise}.
 Such complex noise models are difficult to create, but maybe lead to much more feasible results.
 However, it could be shown that a small amount of normal distributed noise lead to false disparity information.
 The small amount of informative value is may be at random computed.
-\newline\newline\noindent With testing the interference of video compression, a novel approach was shown.
-The outcome of the approach is, that even a small amount of video compression artifacts lead to a lot of mismatched pixels, although the artifacts are not clearly visible.
-As two parameters are correlating directly and the change of the CRF from $14$ to $28$ did not change the overall result, it may be the case, that disparity algorithms struggle with a small amount of noise until a certain level.
-The jump from about 10\% of bad matching pixels to nearly 60\% at the first tested step is huge.
+\newline\newline\noindent By testing of the interference of video compression, a novel approach was shown.
+The approach shows that, even a small amount of video compression artifacts lead to a lot of mismatched pixels, although the artifacts are not clearly visible.
+As two parameters are correlating directly and the change of the CRF from $14$ to $28$ did not change the overall result, disparity algorithms may struggle with a small amount of noise up to a certain level.
+The difference between about 10\% of bad matching pixels to nearly 60\% at the first tested step is huge.
 In case of disparity remapping, as discussed in Chapter \ref{chap:related}, it does not make any sense to count on compressed video material.
 The resulting disparity maps seem to be too much disturbed regarding the overall performance.
-\newline\newline\noindent Taking the runtime into account, the information taken out of the literature were confirmed.
-Global methods tend to run pretty long whereas local methods are more for real-time applications.
+\newline\newline\noindent With regard of algorithm runtimes, the overall results from literature were confirmed.
+Global methods tend to run longer, nearly 1000 times the runtime, whereas local methods are more real-time applicable.
 Here, ELAS established itself as a surprise candidate.
 The overall performance combined with the runtime is good.
 The results towards object borders are accurate.
-Depending on the image resolution, global methods struggle with high-resolution images whereas ELAS performed pretty well.
-Global methods tend to run pretty long, nearly 1000 times the runtime of local methods.
+Depending on the image resolution, global methods struggle with high-resolution images whereas ELAS performed decently.
 \newline\newline\noindent The last part of the evaluation was to benchmark the SVDDD dataset of the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}}.
-After initial problems with the range of disparity values as well as some ground-truth disparity maps contained unfeasible values, two final scenes were constructed and could be evaluated.
+After initial problems with the range of disparity values as well as some ground-truth disparity maps containing unfeasible values, two final scenes were constructed and evaluated.
 Both scenes performed very good along all algorithms.
 Worth mentioning is also the achieved performance in comparison with the Cambridge dataset.
 SVDDD led to notable better results.
 This may come from the composition of both scenes, as much more different textures and colors are included.
 Focusing on the runtime of the SVDDD dataset and feasibility of applying disparity algorithms on it, the computational limitations became noticeable.
-The belief propagations as well as the SNSM implementation were in need of too much memory.
+The belief propagations as well as the SNSM implementation consumed to much memory.
 This may come from bad implementation as well as inappropriate parameters.
 The parameters of the Middlebury MRF library were not adjustable.
-Thus, this could not be investigated further more.
-None the less, the other algorithms drew the bigger picture with the main outcome, that the OpenCV SGBM implementation as well as ELAS performed best.
+Thus, this could not be investigated in greater detail.
+None the less, the investigation of the other algorithms resulted in the main outcome, that the OpenCV SGBM implementation as well as ELAS performed best.

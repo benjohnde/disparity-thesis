@@ -11,42 +11,46 @@ The following section recaps this in more detail and furthermore a outlook and f
 
 The thesis draws a bow from computer vision basics to the foundations of disparity algorithms.
 For a better understanding of stereoscopy, the human visual perception was introduced.
-For formulating the stereo correspondence problem, how disparity algorithms work and which constraints exist, epipolar geometry was recapped.
+To formulate the stereo correspondence problem, to explain the functioning of disparity algorithms and explain which constraints exist, epipolar geometry was recapped.
 Furthermore, a simplified stereo matcher and common pitfalls were discussed.
 \newline\newline\noindent Concerning disparity algorithms, the diversity, the taxonomy and specialities were presented.
 To draw the bigger picture, the estimation of sub-pixel accuracy and Optical flow were described.
-During the initial literature research, a lot of related work was found.
+During initial literature research, a lot of related work was found.
 As a feasible selection, the well-known semi-global matcher from \citeauthor{hirschmuller2005accurate} \citep{hirschmuller2005accurate} and ELAS from \citeauthor{Geiger2010ACCV} \citep{Geiger2010ACCV} were described in more detail.
 Furthermore, a general overview on solving optimization problems for the description of the Middlebury MRF library was incorporated.
 As the thesis has been concerned with the comparison of disparity algorithms, targeting stereoscopic videos, spatiotemporal consistency as a novel approach to take the correlation of consecutive frames into account was discussed.
 Additionally, remapping of the disparity range in stereoscopic videos was presented.
-\newline\newline\noindent The implementation of the thesis consists of several parts.
+\newline\newline\noindent The presented implementation consists of several parts.
 First, an evaluation suite composed of four components was presented.
-An image diminisher was implemented to alter sequences by adding Gaussian noise to fake a more real scenery or artifacts of video compression to simulate real use-cases.
+An image diminisher was implemented to fake a more real scenery by adding Gaussian noise, or to simulate real use-cases by creating artifacts of video compression.
 An algorithm executer with a generic disparity interface for the integration and prospective expandability was built.
 The OpenCV implementation of disparity algorithms, the Middlebury MRF library and ELAS, the efficient large-scale stereo matcher, were integrated.
 A mask creator was presented to create simple bitmasks for focusing on interesting areas during the evaluation of such algorithms.
-A non-occluded mask, a mask for focusing on textureless regions, a depth-discontinuity mask and a mask for determining salient regions were established.
-Finally, a disparity evaluator with traditional metrics for comparing video processing algorithms were implemented.
+Several masking modes were implemented:
+a non-occluded mask, a mask for focusing on textureless regions, a depth-discontinuity mask and a mask for determining salient regions were established.
+Finally, a disparity evaluator with traditional metrics for comparing video processing algorithms was implemented.
 Second, for visualizing the outcome of the evaluation suite, a web result viewer was presented.
-Third, as a lot of related work regarding spatiotemporal consistency was read and processed, a simple naive stereo matcher which respects the spatiotemporal context was implemented and evaluated.
+Third, to recap literature regarding spatiotemporal consistency, a novel simple naive stereo matcher, which respects the spatiotemporal context was implemented and evaluated.
 Worth mentioning is reader for the PFM file format, which was implemented utilizing the OpenCV file format interface.
-A few scripts for the evaluation as well as a docker image for the distributive computation of disparity maps were created.
+To create the disparity maps and process all other components in a chain, scripts to execute the evaluation process were created.
+For a distributive computation of disparity maps, a docker image was created.
+Summarized, the evaluation engine includes all steps, from disparity map computation, over determining various masking modes to the appliance of quality metrics.
+The whole implementation was developed close to OpenCV.
 \newline\newline\noindent Finally, datasets were examined and chosen.
 A set of defined quality metrics for assessment of the algorithms together with their runtime were introduced.
 The whole measurement process is depict and the results are discussed.
-Additionally, the dataset of the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} was iteratively improved and in the end evaluated.
-\newline\newline\noindent As concluding result, it could be proven that, as known from the literature, local methods are fast and global methods are slow.
+Additionally, the dataset of the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} was iteratively improved and evaluated.
+As concluding result, it could be proven that, as known from the literature, local methods are fast and global methods are slow.
 Both lack of accuracy near depth-discontinuity areas as well as on arbitrary textures.
-The runtime differences between local and global methods is immense.
+The runtime differences between local and global methods are immense.
 A novel approach towards disparity estimation was presented with ELAS.
 It yielded to good results overall with a decent runtime.
 Focusing on the SVDDD dataset of the chair, which provides high-resolution stereoscopic videos, ELAS performed outstanding in comparison with other local methods.
-The dataset performed pretty good in comparison with the Cambridge dataset.
+The dataset performed good in comparison with the Cambridge dataset.
 Best results over all categories were achieved with global methods, but with the drawback of a huge runtime.
-It has to be kept in mind, the the drawback of the huge runtime depends on the application.
+It has to be kept in mind, that the drawback of the huge runtime depends on the application.
 The simple naive stereo matcher (SNSM) led to good results in some sequences and with some diminishing effects.
-Overall, the presented skeleton for further research and development seemed to be a bit random in some cases.
+Overall, the presented skeleton for further research and development did vary in some cases.
 As the spatiotemporal context of the SNSM takes image as a whole into account, object motion may be the reason for some random results.
 Additionally, it could be shown, that Gaussian noise and video compression lead to defective disparity estimations, even with a small amount of disturbing effects.
 To sum it up, the thesis brought a good fundamental knowledge affecting numerous topics of disparity algorithms, plenty of implementational work was done and a versatile evaluation was presented.
@@ -56,7 +60,9 @@ To sum it up, the thesis brought a good fundamental knowledge affecting numerous
 With the web viewer, a tool for sharing benchmark results was presented.
 This tool could be enhanced even more to visualize the results with graphs.
 Another possibility is to let researcher submit their dataset and the whole eval-chain is then executed on a server with the results being shown afterwards.
-The simplest idea to enhance the evaluation engine is, to add more metrics and more algorithms.
+The simplest idea to enhance the evaluation engine is, to add more metrics and more algorithms, as it offers an interface for integrating new algorithms and approaches.
+It could be open-sourced and form a holistic evaluation suite for modern disparity algorithm comparison.
+Also, it could help to enable the creation of regular state of the art benchmarks, that compare latest developments regarding disparity algorithms using standard datasets.
 \newline\newline\noindent With the simple stereo matcher, a skeleton for creating a four-dimensional disparity space image was presented.
 This could be a starting point for further research to optimize stereoscopic videos respecting the spatiotemporal context.
 Concluding, the SNSM performed reasonable but seemed to be a bit random in some cases.
