@@ -503,10 +503,6 @@ According to \citeauthor{hou2007saliency} \citep{hou2007saliency}, the main idea
 Their approach is implemented in the OpenCV library and no parameter can be set.
 It is named static saliency, as only images are considered.
 Thus, it is a pretty basic novel approach to create feasible masks with the static saliency.
-The overall visual results are a bit confusing.
-Figure \ref{fig:eval:sal:eg} shows two sample images and their corresponding computed saliency mask.
-As can be seen in the figure, the static saliency approach in OpenCV yields to confusing results.
-Although in both images, same parts, that are classified as salient regions, are comprehensible and understandable, some are not.
 
 \begin{figure}[h!]
 \centering
@@ -520,7 +516,11 @@ Although in both images, same parts, that are classified as salient regions, are
 \label{fig:eval:sal:eg}
 \end{figure}
 
-\noindent The book as a whole is not recognized as salient as well as the stairs of the temple are left out completely.
+\noindent The overall visual results are a bit confusing.
+Figure \ref{fig:eval:sal:eg} shows two sample images and their corresponding computed saliency mask.
+As can be seen in the figure, the static saliency approach in OpenCV yields to confusing results.
+Although in both images, same parts, that are classified as salient regions, are comprehensible and understandable, some are not.
+The book as a whole is not recognized as salient as well as the stairs of the temple are left out completely.
 The chart in Figure \ref{fig:eval-plots-pbmp-sal} depicts the application of the saliency mask to the book sequence.
 
 \begin{figure}[h!]
@@ -556,14 +556,6 @@ During 41 frames one page will be turned over.
 \label{fig:eval-plots-outliers}
 \end{figure}
 
-\noindent The Figure \ref{fig:eval-plots-outliers} shows that in the beginning and in the end of the scene, exactly the point, in which the page is turned over and forms a flat surface with the book.
-During the movement of the page, more object borders are created as the thin page forms a new object.
-In frame $23$ and $26$ the turn over from one side to the other is made.
-Thus, in exactly this two frames the amount of depth-discontinuity borders is the highest.
-Figure \ref{fig:eval:out:eg} depicts these frames.
-The increasing error at those object borders can be identified.
-It is also clearly visible that Frame $23$ has the highest percentage  of bad matching pixels.
-
 \begin{figure}[h!]
 \centering
 \begin{tabular}{ccc}
@@ -574,6 +566,14 @@ It is also clearly visible that Frame $23$ has the highest percentage  of bad ma
 \caption[Examples for general outliers in a sequence]{Examples for general outliers in the book sequence. The disparity maps are computed with the (3) ELAS algorithm.}
 \label{fig:eval:out:eg}
 \end{figure}
+
+\noindent The Figure \ref{fig:eval-plots-outliers} shows that in the beginning and in the end of the scene, exactly the point, in which the page is turned over and forms a flat surface with the book.
+During the movement of the page, more object borders are created as the thin page forms a new object.
+In frame $23$ and $26$ the turn over from one side to the other is made.
+Thus, in exactly this two frames the amount of depth-discontinuity borders is the highest.
+Figure \ref{fig:eval:out:eg} depicts these frames.
+The increasing error at those object borders can be identified.
+It is also clearly visible that Frame $23$ has the highest percentage  of bad matching pixels.
 
 \subsection{Impact of noise}
 
