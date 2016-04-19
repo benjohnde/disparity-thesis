@@ -3,41 +3,41 @@
 
 In the previous chapter, the evaluation suite and its features were presented.
 This chapter is split into several sections.
-First, it deals with the introduction of datasets, so which datasets were evaluated and why.
-Second, the quality metrics for the comparison of disparity algorithms for stereoscopic videos are defined.
-Third, the structure of the measurement is illustrated.
-How the measurement were processed and visualized.
+At first, the datasets used for evaluation are introduced.
+Afterwards, quality metrics are defined to compare disparity algorithms applied to stereoscopic videos quantitatively.
+Third, the procedure of measuring the introduced metrics is described in greater detail.
+Additionally, the visualization of measured results is explained.
 Fourth, the results are presented and discussed.
-\newline\newline\noindent Overall, the setup for the evaluation took more than 28 days to process about 50 GB of stereoscopic videos and to create all disparity maps.
+\newline\newline\noindent Overall, the generation of all disparity maps and the process of evaluation took more than 28 days, resulting in about 50 GB of stereoscopic videos.
 Accumulated, the computed disparity maps, the created masks as well as the heatmaps, allocated about 18 GB.
 
 \section{Datasets}
 
 A dataset basically describes a set of stereo images, which additionally contains ground-truth disparity maps.
-The aim of such datasets is to provide accurate data, on which researchers can rely.
-This datasets can be used to evaluate the performance of computer vision algorithms, such as disparity algorithms in this thesis.
-Without having such datasets it would be crucial to rate the overall quality of for instance stereo matching algorithms.
+The aim of such datasets is to provide accurate data, researchers can rely on.
+This datasets can be used to evaluate the performance of computer vision algorithms, for example the disparity algorithms introduced by this thesis.
+Without having such datasets it would be crucial to rate the overall quality of stereo matching algorithms.
 As for today, no high-resolution stereoscopic video dataset yet exists, neither a synthetic nor a captured one.
-In order to obtain ground-truth depth information, there exist in general two options.
-On the one hand, the real-world can be sensed via area scanner, for instance a radar (cf. KITTI vision benchmark suite\footnote{\url{http://www.cvlibs.net/datasets/kitti/}}).
-On the other hand, a synthetic computer-animated scene is generated and the renderer calculates the disparity.
+In order to obtain ground-truth depth information, two general options are available.
+On the one hand, the real-world can be sampled via area scanner, for instance a radar sensor (cf. KITTI vision benchmark suite\footnote{\url{http://www.cvlibs.net/datasets/kitti/}}).
+On the other hand, a synthetic computer-animated scene is created with rendering the scene using two virtual cameras to generate disparity maps.
 Of course, the former approach is more error-prone than the latter one.
-The former one can lack of accuracy due to false measurements whereas the latter one real ground-truth information provides.
-\newline\newline\noindent \citeauthor{kondermann2015stereo} came up with an interesting approach.
-As area scanners are never 100 percent accurate, they introduced error-bars, which can range from $0-10$.
-An error-bar indicates how certain the area scanner was that this disparity for a given pixel really existed \citep{kondermann2015stereo}.
-As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, here three different datasets were chosen.
-Other datasets, which were found but not investigated are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, providing real images with ground-truth information \citep{scharstein2006middlebury}.
+The former one can lack of accuracy due to false measurements whereas the latter one provides real ground-truth information.
+\newline\newline\noindent \citeauthor{kondermann2015stereo} came up with an interesting approach:
+as area scanners are never 100 percent accurate, they introduced error-bars, which can range from $0-10$.
+An error-bar indicates the certainty of an area scanner, that the measured disparity at a given pixel is valid \citep{kondermann2015stereo}.
+As it would be a tremendous task to evaluate every existing stereoscopic dataset with every existing disparity algorithms, three different datasets to focus on in the context of this thesis were chosen.
+Other datasets, which were found but not investigated are the MPI Sintel Stereo Training Data, created for optical flow evaluation \citep{Butler:ECCV:2012} and the Middlebury stereo dataset, which provides real images with ground-truth information \citep{scharstein2006middlebury}.
 
 \subsection*{Tsukuba stereo dataset}
 
 As reference dataset, the reworked Tsukuba Stereo Dataset was chosen \citep{martull2012realistic}.
-One of the three scenes is called tsukuba to honour the popular \textit{Head and Lamp} scene and was shortly introduced in the foundations Chapter \ref{chap:foundations}.
+One of the three scenes is called tsukuba to honour the popular \textit{Head and Lamp} scene and was shortly introduced in the foundations in chapter \ref{chap:foundations}.
 The reference dataset is used to see if the implementation leads to similar results as in other stereo benchmarks.
-This does of course not verify that the presented implementation is error-free but can point in the right direction.
-Of course, the settings (i.e. parameters of an algorithm) depends on the input material (e.g. size of the images, noise occurrences) and on the type of the scenery, for instance many regions with arbitrary surfaces (textured vs textureless).
-Hence, it is possible to have good parameters for one scene and not for the other.
-However, in order to evaluate those algorithms the reference dataset is used to see how the eval engine actually works with the same parameters on the same images.
+This does not verify that the presented implementation is error-free but can point in the right direction.
+Of course, the settings (i.e. parameters of an algorithm) depends on the input material (e.g. size of the images, noise occurrences) and on the type of scenery, for instance many regions with arbitrary surfaces (textured vs textureless).
+Hence, it is possible to have good parameters for one scene and not for another.
+However, in order to evaluate those algorithms, the reference dataset is used to see how the evaluation engine actually works with the same parameters on the same images.
 
 \begin{figure}[h!]
 \centering
@@ -55,8 +55,8 @@ However, in order to evaluate those algorithms the reference dataset is used to 
 
 \subsection*{Cambridge stereo dataset}
 
-The second one is a dataset, especially created for the evaluation of the DCBGrid from the University of Cambridge\footnote{\url{http://www.cl.cam.ac.uk/research/rainbow/projects/dcbgrid/datasets/}}.
-This is also one of the first stereoscopic dataset targeting videos.
+The second dataset from the University of Cambridge\footnote{\url{http://www.cl.cam.ac.uk/research/rainbow/projects/dcbgrid/datasets/}} is created especially for the evaluation of the DCBGrid.
+This is also one of the first stereoscopic datasets targeting videos.
 
 \begin{figure}[h!]
   \centering
@@ -65,21 +65,20 @@ This is also one of the first stereoscopic dataset targeting videos.
   \label{fig:dbcgrid-dataset}
 \end{figure}
 
-\noindent The Cambridge stereo dataset consists of five different rendered scenes in $400x300$ resolution with each about 100 frames \citep{richardt2010real}.
-The dataset scales the disparity for each scene from $0$ to $64$.
-The disparity maps are delivered as PNG image files, ranging from $0-255$.
+\noindent The Cambridge stereo dataset consists of five different rendered scenes at a resolution of 400 x 300 pixels, each consisting of about 100 frames \citep{richardt2010real}.
+The dataset scales disparity in the range from $0$ to $64$ pixels.
+The disparity maps are delivered as PNG image files, at 8 bit color depth $(0 - 255)$.
 Thus, the disparity maps are loaded into a matrix and simply converted to range from $0-64$ by dividing the whole matrix through $4$.
-Beforehand, the matrix is converted into $CV_32F$, meaning that each element is represented by 32-bit floating values.
+Beforehand, the matrix is converted into $CV\_32F$, meaning that each element is represented by 32 bit floating values.
 
 \subsection*{SVDDD - a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information}
 
-As third dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
-The department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset on its own with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
+As a third dataset, a novel, not yet analyzed dataset was chosen: the SVDDD\footnote{SVDDD stands for a high-resolution Stereoscopic Video Dataset with precise Depth and Disparity information.} dataset.
+The department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}} created the dataset with high-resolution video sequences containing accurate depth and disparity information for stereoscopic videos.
 Figure \ref{fig:eval:svddd:intro} depicts the left image and its ground-truth disparity companion for a small selection of the SVDDD dataset.
 \newline\newline\noindent The difference here is, that this dataset was not analyzed before.
-Thus, it is possible that the chosen algorithms work not properly on this dataset.
-If this case occurs there exist two possibilities why this happens.
-On the one hand, the disparity information are not properly calculated, or on the other hand, those algorithms have some troubles with the constructed scenery.
+Thus, it is possible that the chosen algorithms do not work properly on this dataset, which may be explained by one of the following reasons:
+Either the disparity maps are not accurately calculated or the chosen algorithms doesn't apply for the constructed scenery.
 
 \begin{figure}[h!]
 \centering
@@ -93,9 +92,10 @@ On the one hand, the disparity information are not properly calculated, or on th
 \label{fig:eval:svddd:intro}
 \end{figure}
 
-\noindent Focusing on the latter one, the scenes were created with Blender and utilizes open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
-A second camera was added to the scenes for obtaining depth information.
-The parameter for each scene can be extracted from the Blender files.
+\noindent Focusing on the latter one, the scenes were created with Blender and utilize open-source scenes from the Big Buck Bunny project\footnote{\url{https://peach.blender.org}}.
+A second camera was added to the scenes to obtain depth information.
+The camera settings for each scene can be extracted from the Blender files.
+With those parameters the disparity can be calculated as shown in Chapter \ref{chap:foundations}.
 The scenes were also adjusted regarding the following points to extract depth-information accurately.
 Rays of light as well as transparent layers were removed to retain accurate depth-information.
 Such transparent layers may result in anomalous depth-information as they may bounce back the depth request while obtaining depth information from Blender.
@@ -105,8 +105,8 @@ Fain-grained textures like grass or fine hairs were modified.
 Without modifying these elements in a scene, a stereo matching algorithm may have problems with those arbitrary textures.
 The initial scenes of the Big Buck Bunny project contained randomized grass in each image, left and right side.
 This also yields in the impossibility of stereo matching algorithms to determine the shift of the pixels.
-\newline\newline\noindent The dataset consists of 15 scenes.
-The scenes consist of high resolution stereo images $1920x1080$ with an average bitrate of 94 MBit/s.
+\newline\newline\noindent The dataset includes 15 scenes.
+Each scene consists of high resolution stereo images at 1920 x 1080 pixels with an average bitrate of 94 MBit/s.
 With an approximate size of 2 MB for each frame, the size of each sequence varies between 0.4 GB and 2.7 GB.
 For each frame, depth and disparity information are computed with 32-bit floating point precision and saved in OpenEXR files.
 The above mentioned points apply to the first alpha version of the dataset.
@@ -123,7 +123,7 @@ Typical quality measure instruments for comparing disparity maps against their g
   \item parameter-free measures.
 \end{itemize}
 
-\noindent As parameter-free measures needs modified disparity algorithms \citep{cyganek2011introduction}, it was not considered.
+\noindent As parameter-free measures need modified disparity algorithms \citep{cyganek2011introduction}, it was not considered.
 
 \subsection*{Percentage of bad matching pixels}
 
@@ -133,12 +133,13 @@ Percentage of bad matching pixels (PBMP) is usually used in comparing the perfor
   \operatorname{PBMP}=\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)| > \delta_t)
 \end{equation}
 
-\noindent The threshold, denoted with $\delta_t$, can be adjusted and as result, the percentage of outlier pixels, which differ by more than $\delta_t$, is estimated.
+\noindent $d_a$ stands for the actual disparity whereas $d_e$ symbolizes the expected one.
+The threshold, denoted with $\delta_t$, can be adjusted and as result, the percentage of outlier pixels, which differ by more than $\delta_t$, is estimated.
 
 \subsection*{Root-mean-squared error}
 
 The mean squared error (MSE) as well as the root mean squared error (RMSE) are both the most popular metrics in image and video processing \citep{cyganek2011introduction, benoit2008quality, scharstein2002taxonomy}.
-The MSE is, as the name implies, the mean of the squared differences between the intensities of pixels in two pictures at the same position.
+MSE measures the mean of the squared differences between the intensities of pixels in two pictures at the same position.
 In conclusion, the average difference per pixel is then the root of the squared error.
 
 \begin{equation}
@@ -152,32 +153,31 @@ Hence the RMSE is the difference between values on average.
 
 \section{Measurement}
 
-This chapter summarizes the thoughts behind the evaluation.
+This chapter describes and summarizes the evaluation process.
 All disparity maps were created on a desktop computer with an i5-2500k @ 3.30GHz (quad-core).
 First, the idea of a distributed calculation arose, as described in Chapter \ref{chap:impl}.
 As this would lack the comparison of runtime, only the desktop computer was used.
-\newline\newline\noindent The whole evaluation was proceeded like the following:
-Python scripts for the execution of all components in a chain were written.
+\newline\newline\noindent The whole evaluation was proceeded in the following manner:
+Python scripts manage the chained execution of all components.
 Disparity maps are computed for each frame in a sequence, for each sequence in a dataset, and for each dataset.
 The Cambridge dataset contains five sequences with each 100 frames.
-In total 12 algorithms were executed.
-This makes an amount of $6.000$ disparity maps.
+In total, 13 algorithms were executed.
+This results in a total of $6.000$ disparity maps.
 \newline\newline\noindent In addition, this dataset was duplicated for observing interferences on disparity algorithms.
 For analyzing the impact of noise, additive gaussian noise with a normal distribution of $\mathcal{N}(\mu,\sigma^2)$ was added.
 For $\sigma$, $10, 20, 30$ were chosen as parameter.
-Lower values had no real impact on a few sample disparity maps computations and were also not visually exhibited.
-Higher values were analyzed by \citeauthor{richardt2010real} \citep{richardt2010real}, but are clearly disturbing the whole image.
+Lower values had no noteworthy impact on a few sample disparity maps computations and were also not visually exhibited.
+Higher values were measured by \citeauthor{richardt2010real} \citep{richardt2010real}, but are clearly disturbing the whole image.
 As additive gaussian noise should simulate a more real scenery instead of synthetic rendered videos, higher values were not considered.
-\newline\newline\noindent Normally, high resolution videos are not transmitted in their pure nature (lossless), for instance raw files.
-That said, H.265 was chosen as current state of the art video compression codec.
-H.265 was introduced in Chapter \ref{chap:impl}.
-For analyzing the disturbing effects on disparity algorithms, video compression artifacts were added by converting the images to a video, applying the codec and unwrapping the video into images.
-As parameter, the constant rate factor (CRF) can be adjusted.
+\newline\newline\noindent Due to bandwidth limitations, raw (lossless) high resolution videos are not transmitted without additional compression.
+That said, H.265, which was introduced in Chapter \ref{chap:impl}, was chosen as current state of the art video compression codec.
+For analyzing the resulting inteferrence on disparity algorithms, video compression artifacts were added by converting the images to a video, applying the codec and unwrapping the video into images.
+As parameter, the constant rate factor (CRF) has been adjusted.
 The default parameter value is $28$.
-As $0$ means lossless video compression, it was tested with a few sample disparity maps computations.
+As $0$ means lossless video compression, it was tested with a few sample disparity map computations.
 $0$ had no impact and was not considered for the evaluation.
 $51$ was not considered as well, as this totally disturbs the image visually, even if there is no motion between two consecutive frames.
-$14, 28, 40$ were chosen as final values to have a feasible amount of different values and also a meaningful jump between those values (always half steps).
+$14, 28, 40$ were chosen as final values to have a feasible amount of different values and with an equal distribution in the available parameter range.
 \newline\newline\noindent Taking those combinations into account yields to an amount of disparity maps to be computed of $48.000$.
 After the disparity maps were computed, other Python scripts were written and executed for the aggregation of the results.
 As the results are for each image in a sequence from a dataset and also focusing on one algorithm, they have to be aggregated and written in summarized CSV files.
@@ -318,7 +318,6 @@ The results from SNSM with a threshold of $1$ and a block size of $9$ are PBMP$_
 According to the Middlebury stereo benchmark, the other SAD implementation (SAD-IGMCT) \citep{ambrosch2010accurate} achieved with a threshold of $1$: PBMP$_{all,1px}$ = 7.14\%.
 The difference may come from smoothing, which SAD-IGMCT included as a disparity refinement step, which is visible while looking at their outcome.
 The other results are similar to the results in the Middlebury stereo benchmark.
-Some deviations like SAD-IGMCT to SNSM regarding all pixels and a threshold of $2$ are huge but can be explained with disparity refinement steps which the SNSM does not perform.
 
 \begin{table}[h!]
 \centering
@@ -343,7 +342,8 @@ SAD-IGMCT & - & 7.14\% & 5.80\% & 18.90\% \\ \hline
 \label{tab:eval:snsm:tsukuba}
 \end{table}
 
-\noindent The best result is achieved with a variant of a global method, belief propagation and yields to 4.97\% of bad matching pixels regarding all pixels and applying a threshold of $2$.
+\noindent Some deviations like SAD-IGMCT to SNSM regarding all pixels and a threshold of $2$ are huge but can be explained with disparity refinement steps which the SNSM does not perform.
+The best result is achieved with a variant of a global method, belief propagation and yields to 4.97\% of bad matching pixels regarding all pixels and applying a threshold of $2$.
 ELAS performs pretty good but struggles with a very accurate disparity map while comparing the results for PBMP$_{all,1px}$.
 The simple block matching algorithm of OpenCV (10) is the same as (2), but without the disparity refinement step and a left-right-consistency check.
 This may explains the very bad results.
@@ -840,20 +840,30 @@ Gaussian noise is a part of sensor noise, but a small one.
 To simulate such real scenery, a more realistic model should be created.
 For the purpose of simulating an image, captured via CCD sensor, camera noise models exist \citep{liu2006noise}.
 Such complex noise models are difficult to create, but maybe lead to much more feasible results.
-Here, it could be shown that a small amount of normal distributed noise lead to false disparity information.
+However, it could be shown that a small amount of normal distributed noise lead to false disparity information.
 The small amount of informative value is may be at random computed.
 \newline\newline\noindent With testing the interference of video compression, a novel approach was shown.
 The outcome of the approach is, that even a small amount of video compression artifacts lead to a lot of mismatched pixels, although the artifacts are not clearly visible.
 As two parameters are correlating directly and the change of the CRF from $14$ to $28$ did not change the overall result, it may be the case, that disparity algorithms struggle with a small amount of noise until a certain level.
 The jump from about 10\% of bad matching pixels to nearly 60\% at the first tested step is huge.
+In case of disparity remapping, as discussed in Chapter \ref{chap:related}, it does not make any sense to count on compressed video material.
+The resulting disparity maps seem to be too much disturbed regarding the overall performance.
 \newline\newline\noindent Taking the runtime into account, the information taken out of the literature were confirmed.
 Global methods tend to run pretty long whereas local methods are more for real-time applications.
 Here, ELAS established itself as a surprise candidate.
 The overall performance combined with the runtime is good.
 The results towards object borders are accurate.
 Depending on the image resolution, global methods struggle with high-resolution images whereas ELAS performed pretty well.
+Global methods tend to run pretty long, nearly 1000 times the runtime of local methods.
 \newline\newline\noindent The last part of the evaluation was to benchmark the SVDDD dataset of the department of Praktische Informatik IV\footnote{\url{http://ls.fmi.uni-mannheim.de/de/pi4/}}.
-After initial problems with the range of disparity values as well as some ground-truth disparity maps contained unfeasible values, two final scenes could be evaluated.
+After initial problems with the range of disparity values as well as some ground-truth disparity maps contained unfeasible values, two final scenes were constructed and could be evaluated.
 Both scenes performed very good along all algorithms.
-Here, the computational limitations became noticeable as the belief propagations as well as the SNSM implementation were in need of too much memory.
+Worth mentioning is also the achieved performance in comparison with the Cambridge dataset.
+SVDDD led to notable better results.
+This may come from the composition of both scenes, as much more different textures and colors are included.
+Focusing on the runtime of the SVDDD dataset and feasibility of applying disparity algorithms on it, the computational limitations became noticeable.
+The belief propagations as well as the SNSM implementation were in need of too much memory.
+This may come from bad implementation as well as inappropriate parameters.
+The parameters of the Middlebury MRF library were not adjustable.
+Thus, this could not be investigated further more.
 None the less, the other algorithms drew the bigger picture with the main outcome, that the OpenCV SGBM implementation as well as ELAS performed best.
