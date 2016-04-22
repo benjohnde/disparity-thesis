@@ -3,9 +3,22 @@
 
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
-
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
+
+%own styles
+\usepackage{subfig}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
+\usepackage{tikz-uml}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{pgfplots}
+\usepackage{colortbl}
+\usepackage{lscape}
+\usepackage{multirow}
+\usepackage{amssymb}
+\tikzstyle{line} = [draw, -latex']
+%/own styles
 
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
@@ -14,7 +27,7 @@
 \subtitle{Comparison of Disparity Algorithms for Stereoscopic Videos}
 \date{May 25, 2016}
 \author{Ben John}
-\institute{University of Mannheim, }
+\institute{University of Mannheim, Department of Praktische Informatik IV}
 
 \begin{document}
 
@@ -29,85 +42,334 @@
 
 \begin{frame}[fragile]{Applications}
   \begin{itemize}
-    \item Kinect
-    \item Sunlight
-    \item not good, medical surgery, 3DTV
+    \item Depth-estimation via camera settings
+    \item Kinect (sunlight)
+    \item 3DTV (remapping)
   \end{itemize}
 \end{frame}
 
 \section{Foundations}
 
 \begin{frame}[fragile]{Epipolar geometry}
-  \begin{itemize}
-    \item bit of epipolar geometry
-  \end{itemize}
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../paper/src/images/epipolar.png}
+    \caption[Epipolar geometry]{Epipolar geometry\protect\footnotemark}
+  \end{figure}
+  \footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
+\end{frame}
+
+\begin{frame}[fragile]{Epipolar geometry}
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../paper/src/images/epipolar-rectified.png}
+    \caption[Epipolar geometry after image rectification]{Epipolar geometry after image rectification\protect\footnotemark}
+  \end{figure}
+  \footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
 \end{frame}
 
 \begin{frame}[fragile]{Constraints}
   \begin{itemize}
-    \item constraints
+    \item Epipolar
+    \item Uniqueness
+    \item Continuity
+    \item Ordering
+    \item Limit
+    \item Lambertian
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Classification}
   \begin{itemize}
-    \item local and global ones
+    \item Local methods
+    \begin{itemize}
+      \item Area matching
+      \item Feature matching
+    \end{itemize}
+    \item Global methods
+    \begin{itemize}
+      \item Dynamic programming
+      \item Graph cuts
+      \item Belief propagation
+    \end{itemize}
   \end{itemize}
+  \visible<2->{
+    \begin{exampleblock}{Energy function}
+      $E(d) = E_{data}(d) + \lambda E_{smooth}(d)$
+    \end{exampleblock}
+   } 
 \end{frame}
 
 \begin{frame}[fragile]{Taxonomy}
-  \begin{itemize}
-    \item explain basics
-  \end{itemize}
+  \begin{enumerate}
+    \item Computing of matching cost
+    \item Save values in disparity space image
+    \item Aggregation of cost values
+    \item Disparity refinement
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}[fragile]{Matching cost}
   \begin{itemize}
-    \item SAD
+    \item Penalty
+    \item Cost for having dissimilarities
+    \item Optimum = 0
   \end{itemize}
+  \visible<2->{
+    \begin{exampleblock}{Sum of absolute differences}
+      $\displaystyle \operatorname{SAD} = \sum_{i,j \in U} \left| I_1(x_L+i,y_L+j) - I_2(x_R+i,y_R+j) \right|$
+    \end{exampleblock}
+  }
+\end{frame}
+
+\begin{frame}[fragile]{Disparity space image}
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../paper/src/images/dsi.png}
+    \caption[Disparity space image]{Illustration of a disparity space image.\protect\footnotemark}
+    \label{fig:dsi}
+  \end{figure}
+  \footnotetext{Source (accessed 03/2016): \url{http://www.cs.virginia.edu/~cab6fh/CV_4/WRITEUP.html}.}
 \end{frame}
 
 \begin{frame}[fragile]{Simple block-matching}
-  \begin{itemize}
-    \item example
-  \end{itemize}
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../paper/src/images/tsukuba-block.png}
+    \caption[Block matching along scanlines]{Illustration of block matching along a scanline.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Example for stereo image pair}
+  \begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \subfloat[left input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgL.png}} &
+  \subfloat[right input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgR.png}} &
+  \subfloat[ground-truth data]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-dgt.png}}
+  \end{tabular}
+  \caption[Tsukuba benchmark stereo image pair]{Tsukuba benchmark stereo image pair of the University of Tsukuba \cite{martull2012realistic}.}
+  \end{figure}
 \end{frame}
 
 \section{Implementation}
 
+\tikzstyle{rblock} = [text width=10em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+\tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+
 \begin{frame}[fragile]{Overview}
-  \begin{itemize}
-    \item explain what was implemented and why
-  \end{itemize}
+  \begin{figure}[h!]
+    \centering
+    \scalebox{0.6}{
+    \begin{tikzpicture}[node distance=7em, auto]
+      %input
+      \node [cloud] (right) {right image};
+      \node [cloud, right of=right, node distance=10em] (left) {left image};
+      \node [cloud, right of=left, node distance=10em] (disp) {ground-truth};
+  
+      %computation
+      \node [rblock, below of=right, xshift=2em] (exec) {(1) Algorithm executer};
+      \node [rblock, below of=disp, xshift=-2em] (mask-creator) {(2) Mask creator};
+      
+      %diminisher
+      \node [rblock, above of=exec, yshift=7em] (dim) {(4) Image diminisher};
+  
+      %output
+      \node [cloud, below of=exec] (map) {disparity map};
+      \node [cloud, below of=mask-creator] (masks) {masks};
+  
+      %evaluation
+      \node [rblock, below of=left, yshift=-14em] (evaluation) {(3) Disparity evaluator};
+  
+      %final result
+      \node [cloud, below of=evaluation, xshift=-5em] (csv) {CSV file};
+      \node [cloud, below of=evaluation, xshift=5em] (heatmaps) {heatmaps};
+  
+      %lines
+      \path [line] (dim) -- (right);
+      \path [line] (dim) -- (left);
+      
+      \path [line] (right) -- (exec);
+      \path [line] (left) -- (exec);
+      \path [line] (left) -- (mask-creator);
+      \path [line] (disp) -- (mask-creator);
+  
+      \path [line] (exec) -- (map);
+      \path [line] (mask-creator) -- (masks);
+  
+      \path [line] (map) -- (evaluation);
+      \path [line] (masks) -- (evaluation);
+  
+      \path [line] (evaluation) -- (csv);
+      \path [line] (evaluation) -- (heatmaps);
+    \end{tikzpicture}
+    }
+    \caption[Composition and processing pipeline of the implementation]{Composition and processing pipeline of the implementation.}
+  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Spatiotemporal stereo matcher}
-  \begin{itemize}
-    \item explain what was implemented and why
-  \end{itemize}
+  \scalebox{0.8}{
+    \begin{algorithm}[H]
+    \DontPrintSemicolon
+    \KwIn{$I_L$, $I_R$, $d_{max}$, $wSize$}
+    \KwOut{$C$}
+    $step \gets (wSize - 1) / 2$\;
+    $C \gets \textsc{CreateMatrix}(\textsc{Cols}(I_L),\textsc{Rows}(I_L),d_{max})$\;
+    \For{$t \gets 0$ \textbf{to} $\textsc{Images}(I_L)$} {
+      $leftImage \gets I_L(t)$\;
+      $rightImage \gets I_L(t)$\;
+      \For{$y \gets 0 + step$ \textbf{to} $\textsc{Rows}(I_L(0)) - step$} {
+        \For{$x \gets 0 + step$ \textbf{to} $\textsc{Cols}(I_L(0)) - step - d_{max}$} {
+          \For{$d \gets 0$ \textbf{to} $d_{max}$} {
+            $rect_{L} \gets \textsc{Rect}\{x - step, y - step, wSize, wSize\}$\;
+            $rect_{R} \gets \textsc{Rect}\{x + d - step, y - step, wSize, wSize\}$\;
+            $window_{L} \gets leftImage(rect_{L})$\;
+            $window_{R} \gets rightImage(rect_{R})$\;
+            $C(x,y,t,d) \gets \textsc{MatchingCost}(window_{L}, window_{R})$\;
+          }
+        }
+      }
+    }
+    \Return{$C$}\;
+    \caption{\textsc{CreateDisparitySpaceImage}}
+    \label{alg:dsi-3d}
+    \end{algorithm}
+
+  }
 \end{frame}
 
-\begin{frame}[fragile]{Evaluation suite}
-  \begin{itemize}
-    \item explain what was implemented and why
-  \end{itemize}
+\begin{frame}[fragile]{Spatiotemporal stereo matcher}
+  \scalebox{1.0}{
+    \begin{algorithm}[H]
+    \DontPrintSemicolon
+    \KwIn{$C$, $t$}
+    \KwOut{$DisparityMap$}
+    $DisparityMap \gets \textsc{CreateMatrix}(\textsc{Cols}(C),\textsc{Rows}(C))$\;
+    \For{$t \gets 0$ \textbf{to} $\textsc{Frames}(C)$} {
+      \For{$y \gets 0$ \textbf{to} $\textsc{Rows}(C)$} {
+        \For{$x \gets 0$ \textbf{to} $\textsc{Cols}(C)$} {
+          $Cost \gets \frac{1}{4} C(x,y,f_0) + \frac{2}{4} C(x,y,f_1)+ \frac{1}{4} C(x,y,f_2)$\;
+          $DisparityMap(x,y) \gets \textsc{BestMatch}(Cost)$\;
+        }
+      }
+    }
+    \Return{$DisparityMap$}\;
+    \caption{\textsc{GetDisparityMap}}
+    \end{algorithm}
+  }
 \end{frame}
 
 \begin{frame}[fragile]{Masking modes}
-  \begin{itemize}
-    \item explain what was implemented and why
-  \end{itemize}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+      \vspace{3em}
+      \begin{itemize}
+        \item Non-occluded mask
+        \item Depth-discontinuity mask
+        \item Textureless mask
+        \item Saliency mask
+      \end{itemize}
+    \column{0.5\textwidth}
+    \only<1>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-img.png}
+      \caption{Frame of book sequence}
+      \end{figure}
+    }
+    \only<2>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-truth.png}
+      \caption{Ground-truth companion}
+      \end{figure}
+    }
+    \only<3>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-mask-dd.png}
+      \caption{Depth-discontinuity at object borders}
+      \end{figure}
+    }
+    \only<4>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-mask-noc.png}
+      \caption{Non-occluded mask}
+      \end{figure}
+    }
+    \only<5>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-mask-tex.png}
+      \caption{Textureless regions}
+      \end{figure}
+    }
+    \only<6>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-mask-sal.png}
+      \caption{Salient pixels}
+      \end{figure}
+    }
+  \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Image diminisher}
-  \begin{itemize}
-    \item explain what was implemented and why
-  \end{itemize}
+  \tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+  \tikzstyle{cloud} = [text width=5em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+  \begin{figure}[h!]
+    \vspace{1cm}
+    \centering
+    \begin{tikzpicture}[node distance=10em, auto]
+      %nodes
+      \node [cloud] (input) {input frame};
+      \node [rblock, right of=input] (diminisher) {Image diminisher};
+      \node [cloud, right of=diminisher] (output) {modified output frame};
+      %lines
+      \path [line] (input) -- (diminisher);
+      \path [line] (diminisher) -- (output);
+    \end{tikzpicture}
+    \caption{Flow of the image diminisher.}
+    \label{fig:image-diminisher-flow}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Image diminisher}
+  \tikzstyle{rblock} = [text width=4em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
+  \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
+  \begin{figure}[h!]
+    \vspace{1cm}
+    \centering
+    \begin{tikzpicture}[node distance=9em, auto, scale=0.8, every node/.style={transform shape}]
+      %nodes
+      \node [cloud] (input) {set of stereo images};
+      \node [rblock, right of=input] (ffmpeg1) {FFmpeg};
+      \node [cloud, right of=ffmpeg1] (video1) {stereoscopic video};
+      \node [rblock, right of=video1] (ffmpeg2) {FFmpeg};
+      
+      \node [cloud, below of=video1, yshift=2em] (video2) {compressed stereo video};
+      \node [rblock, left of=video2] (ffmpeg3) {FFmpeg};
+      \node [cloud, left of=ffmpeg3] (output) {set of diminished stereo images};
+      %lines
+      \path [line] (input) -- (ffmpeg1);
+      \path [line] (ffmpeg1) -- (video1);
+      \path [line] (video1) -- (ffmpeg2);
+      
+      \path [line] (ffmpeg2) -- node[anchor=north, xshift=-1.5em, yshift=1.0em] {H.265} (video2);
+      \path [line] (video2) -- (ffmpeg3);
+      \path [line] (ffmpeg3) -- (output);
+    \end{tikzpicture}
+    \caption{Flow of FFmpeg as image diminisher.}
+  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Web viewer}
   \begin{itemize}
-    \item explain what was implemented and why
+    \item Visualization of evaluation engine
+    \item Written in Node.js
+    \item Displaying some statistics
   \end{itemize}
 \end{frame}
 
@@ -117,315 +379,213 @@
 
 \begin{frame}[fragile]{Overview}
   \begin{itemize}
-    \item sketch measurement
+    \item Targeting videos (mean)
+    \item Looking for outliers
+    \item Masking modes
+    \item Video compression
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Datasets}
   \begin{itemize}
-    \item datasets (shortly)
+    \item Cambridge
+    \item SVDDD (high-resolution)
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Metrics}
   \begin{itemize}
-    \item what was evaluated
+    \item \begin{block}{Percentage of bad matching pixels}
+      $\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)| > \delta_t)$
+    \end{block}
+    \item \begin{block}{RMS-Error}
+      $\sqrt{\frac{1}{n} \sum_{x,y=0}^{}(d_a(x,y) - d_e(x,y))^2}$
+    \end{block}
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Results}
-  \begin{itemize}
-    \item results
-  \end{itemize}
+  \begin{table}
+  \centering
+  \scalebox{1.0}{
+  \begin{tabular}{c|rrrr}
+    & 10 CVSM & 11 SNSM & 12 SNTU & 13 SNTW \\ \hline
+  S1 & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
+  S2 & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% \\
+  S3 & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
+  S4 & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
+  S5 & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
+  $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!50}7,85\% 
+  \end{tabular}
+  }
+  \caption{Result table for comparison of own implementation}
+  \end{table}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/plots/01-book-pbmp-disc-1.pdf}
+  \caption{Depth-discontinuity mask applied on the book sequence.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
+  \caption{Chart of textureless region mask applied on the tunnel sequence.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/01-book-general-outliers.pdf}
+  \caption{Chart of general outliers in a sequence.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \subfloat[Frame 1]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers/image0001.png}} &
+  \subfloat[Frame 23]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers/image0023.png}} &
+  \subfloat[Frame 26]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers/image0026.png}} \\
+  \end{tabular}
+  \caption{Examples for general outliers in the book sequence. The disparity maps are computed with the (3) ELAS algorithm.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/04-temple-gn-overview.pdf}
+  \caption[Chart of the impact of Gaussian noise]{Chart of the impact of different $\sigma^2$ values for additive Gaussian noise on the result of disparity algorithms focusing on P$_{noc,1px}$.}
+  \label{fig:eval-plots-gn-overview}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \subfloat[(3) ELAS outliers]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers-vc/image0023-heatmap-outliers-3.png}} &
+  \subfloat[(5) MRF GC Swap outliers]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers-vc/image0023-heatmap-outliers-5.png}} &
+  \subfloat[(13) SNSM STW]{\includegraphics[width=0.3\textwidth]{../paper/src/images/evaluation/outliers-vc/image0023-heatmap-outliers-13.png}} \\
+  \end{tabular}
+  \caption[Example of computed disparity maps with video compression]{Example of computed disparity maps with video compression. CRF is set to $40$. Frame 23 of the tanks scene.}
+  \label{fig:eval:vc:eg2}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
+  \caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on PBMP$_{noc,1px}$.}
+  \label{fig:eval-plots-pbmp-noc1-vc}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/runtime.pdf}
+  \caption[Comparison of the runtime of different disparity algorithms]{Comparison of the runtime of different disparity algorithms with both datasets, Cambridge and SVDDD}
+  \label{fig:eval-plots-runtime}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \subfloat[Negative disparity]{\includegraphics[width=0.48\textwidth]{../paper/src/images/evaluation/02-rabbit-neg-elas.png}} &
+  \subfloat[Only positive disparity]{\includegraphics[width=0.48\textwidth]{../paper/src/images/evaluation/02-rabbit-elas.png}} &
+  \end{tabular}
+  \caption[Computed disparity map with negative disparity]{Comparison of computed disparity maps regarding negative disparity.}
+  \label{fig:outliers-rabbit-svddd}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/svddd/02-rabbit-plot.pdf}
+  \caption[Performance of SVDDD rabbit scene]{Performance of SVDDD rabbit scene}
+  \label{fig:eval-svddd-plot-rabbit}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  \begin{table}
+  \centering
+  \scalebox{0.9}{
+  \begin{tabular}{l|rrrrrr}
+    & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
+  02-rabbit-neg & 58.62\% & \cellcolor{red!50}61.51\% & 59.99\% & 60.58\% & \cellcolor{green!50}57.12\% & 57.13\% \\
+  02-rabbit & 1.68\% & \cellcolor{red!50}4.31\% & 2.98\% & 3.82\% & \cellcolor{green!50}0.65\% & 0.68\% \\
+  03-apple & 1.69\% & \cellcolor{red!50}4.10\% & 3.11\% & 3.44\% & \cellcolor{green!50}0.63\% & 0.65\% \\ \hline
+  $\varnothing$ (w/o neg) & 1.69\% & \cellcolor{red!50}4.21\% & 3.05\% & 3.63\% & \cellcolor{green!50}0.64\% & 0.67\%
+  \end{tabular}
+  }
+  \caption{Result table for general performance of SVDDD (PBMP$_{noc,1px}$)}
+  \end{table}
 \end{frame}
 
 \section{Conclusion}
 
-\begin{frame}[fragile]{Contributions}
+\begin{frame}[fragile]{Conclusion}
   \begin{itemize}
-    \item conclusion
+    \item surprise candidate ELAS
+    \item camera noise model
+    \item SVDDD dataset
+    \item Salient mask varies a bit
+    \item Immense runtime differences
+    \item Possible outliers in a scene
   \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Contributions}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item PFM file reader
+      \item Generic Disparity Interface
+      \item Disparity Executioner
+      \item Evaluation Engine
+      \item Mask creator
+      \item Image diminisher
+    \end{itemize}
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item Python scripts
+      \item Web result viewer
+      \item Benchmark results
+      \item Skeleton for stereo matcher with separated dsi
+      \item Spatiotemporal stereo matcher
+    \end{itemize}
+  \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{Outlook}
   \begin{itemize}
-    \item short future outlook
+    \item Motion saliency
+    \item Enhancement of spatiotemporal matcher
+    \item Holistic evaluation suite for modern disparity algorithm comparison
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Future work}
   \begin{itemize}
-    \item short future outlook
+    \item Multi-view datasets
+    \item High-resolution datasets
+    \item Optical flow regarding spatiotemporal consistency
+    \item Humans depth experience with neuronal networks
   \end{itemize}
 \end{frame}
-
-%\begin{frame}[fragile]{Metropolis}
-%  The \themename theme is a Beamer theme with minimal visual noise
-%  inspired by the \href{https://github.com/hsrmbeamertheme/hsrmbeamertheme}{\textsc{hsrm} Beamer
-%  Theme} by Benjamin Weiss.
-%
-%  Enable the theme by loading
-%
-%  \begin{verbatim}    \documentclass{beamer}
-%    \usetheme{metropolis}\end{verbatim}
-%
-%  Note, that you have to have Mozilla's \emph{Fira Sans} font and XeTeX
-%  installed to enjoy this wonderful typography.
-%\end{frame}
-%\begin{frame}[fragile]{Sections}
-%  Sections group slides of the same topic
-%
-%  \begin{verbatim}    \section{Elements}\end{verbatim}
-%
-%  for which \themename provides a nice progress indicator \ldots
-%\end{frame}
-%
-%\begin{frame}{Metropolis titleformats}
-%	\themename supports 4 different titleformats:
-%	\begin{itemize}
-%		\item Regular
-%		\item \textsc{Smallcaps}
-%		\item \textsc{allsmallcaps}
-%		\item ALLCAPS
-%	\end{itemize}
-%	They can either be set at once for every title type or individually.
-%\end{frame}
-%
-%{
-%\metroset{titleformat frame=smallcaps}
-%\begin{frame}{Small caps}
-%	This frame uses the \texttt{smallcaps} titleformat.
-%
-%	\begin{alertblock}{Potential Problems}
-%		Be aware, that not every font supports small caps. If for example you typeset your presentation with pdfTeX and the Computer Modern Sans Serif font, every text in smallcaps will be typeset with the Computer Modern Serif font instead.
-%	\end{alertblock}
-%\end{frame}
-%}
-%
-%{
-%\metroset{titleformat frame=allsmallcaps}
-%\begin{frame}{All small caps}
-%	This frame uses the \texttt{allsmallcaps} titleformat.
-%
-%	\begin{alertblock}{Potential problems}
-%		As this titleformat also uses smallcaps you face the same problems as with the \texttt{smallcaps} titleformat. Additionally this format can cause some other problems. Please refer to the documentation if you consider using it.
-%
-%		As a rule of thumb: Just use it for plaintext-only titles.
-%	\end{alertblock}
-%\end{frame}
-%}
-%
-%{
-%\metroset{titleformat frame=allcaps}
-%\begin{frame}{All caps}
-%	This frame uses the \texttt{allcaps} titleformat.
-%
-%	\begin{alertblock}{Potential Problems}
-%		This titleformat is not as problematic as the \texttt{allsmallcaps} format, but basically suffers from the same deficiencies. So please have a look at the documentation if you want to use it.
-%	\end{alertblock}
-%\end{frame}
-%}
-%
-%\section{Elements}
-%
-%\begin{frame}[fragile]{Typography}
-%      \begin{verbatim}The theme provides sensible defaults to
-%\emph{emphasize} text, \alert{accent} parts
-%or show \textbf{bold} results.\end{verbatim}
-%
-%  \begin{center}becomes\end{center}
-%
-%  The theme provides sensible defaults to \emph{emphasize} text,
-%  \alert{accent} parts or show \textbf{bold} results.
-%\end{frame}
-%
-%\begin{frame}{Font feature test}
-%  \begin{itemize}
-%    \item Regular
-%    \item \textit{Italic}
-%    \item \textsc{SmallCaps}
-%    \item \textbf{Bold}
-%    \item \textbf{\textit{Bold Italic}}
-%    \item \textbf{\textsc{Bold SmallCaps}}
-%    \item \texttt{Monospace}
-%    \item \texttt{\textit{Monospace Italic}}
-%    \item \texttt{\textbf{Monospace Bold}}
-%    \item \texttt{\textbf{\textit{Monospace Bold Italic}}}
-%  \end{itemize}
-%\end{frame}
-%
-%\begin{frame}{Lists}
-%  \begin{columns}[T,onlytextwidth]
-%    \column{0.33\textwidth}
-%      Items
-%      \begin{itemize}
-%        \item Milk \item Eggs \item Potatos
-%      \end{itemize}
-%
-%    \column{0.33\textwidth}
-%      Enumerations
-%      \begin{enumerate}
-%        \item First, \item Second and \item Last.
-%      \end{enumerate}
-%
-%    \column{0.33\textwidth}
-%      Descriptions
-%      \begin{description}
-%        \item[PowerPoint] Meeh. \item[Beamer] Yeeeha.
-%      \end{description}
-%  \end{columns}
-%\end{frame}
-%\begin{frame}{Animation}
-%  \begin{itemize}[<+- | alert@+>]
-%    \item \alert<4>{This is\only<4>{ really} important}
-%    \item Now this
-%    \item And now this
-%  \end{itemize}
-%\end{frame}
-%\begin{frame}{Figures}
-%  \begin{figure}
-%    \newcounter{density}
-%    \setcounter{density}{20}
-%    \begin{tikzpicture}
-%      \def\couleur{alerted text.fg}
-%      \path[coordinate] (0,0)  coordinate(A)
-%                  ++( 90:5cm) coordinate(B)
-%                  ++(0:5cm) coordinate(C)
-%                  ++(-90:5cm) coordinate(D);
-%      \draw[fill=\couleur!\thedensity] (A) -- (B) -- (C) --(D) -- cycle;
-%      \foreach \x in {1,...,40}{%
-%          \pgfmathsetcounter{density}{\thedensity+20}
-%          \setcounter{density}{\thedensity}
-%          \path[coordinate] coordinate(X) at (A){};
-%          \path[coordinate] (A) -- (B) coordinate[pos=.10](A)
-%                              -- (C) coordinate[pos=.10](B)
-%                              -- (D) coordinate[pos=.10](C)
-%                              -- (X) coordinate[pos=.10](D);
-%          \draw[fill=\couleur!\thedensity] (A)--(B)--(C)-- (D) -- cycle;
-%      }
-%    \end{tikzpicture}
-%    \caption{Rotated square from
-%    \href{http://www.texample.net/tikz/examples/rotated-polygons/}{texample.net}.}
-%  \end{figure}
-%\end{frame}
-%\begin{frame}{Tables}
-%  \begin{table}
-%    \caption{Largest cities in the world (source: Wikipedia)}
-%    \begin{tabular}{lr}
-%      \toprule
-%      City & Population\\
-%      \midrule
-%      Mexico City & 20,116,842\\
-%      Shanghai & 19,210,000\\
-%      Peking & 15,796,450\\
-%      Istanbul & 14,160,467\\
-%      \bottomrule
-%    \end{tabular}
-%  \end{table}
-%\end{frame}
-%\begin{frame}{Blocks}
-%  Three different block environments are pre-defined and may be styled with an
-%  optional background color.
-%
-%  \begin{columns}[T,onlytextwidth]
-%    \column{0.5\textwidth}
-%      \begin{block}{Default}
-%        Block content.
-%      \end{block}
-%
-%      \begin{alertblock}{Alert}
-%        Block content.
-%      \end{alertblock}
-%
-%      \begin{exampleblock}{Example}
-%        Block content.
-%      \end{exampleblock}
-%
-%    \column{0.5\textwidth}
-%
-%      \metroset{block=fill}
-%
-%      \begin{block}{Default}
-%        Block content.
-%      \end{block}
-%
-%      \begin{alertblock}{Alert}
-%        Block content.
-%      \end{alertblock}
-%
-%      \begin{exampleblock}{Example}
-%        Block content.
-%      \end{exampleblock}
-%
-%  \end{columns}
-%\end{frame}
-%\begin{frame}{Math}
-%  \begin{equation*}
-%    e = \lim_{n\to \infty} \left(1 + \frac{1}{n}\right)^n
-%  \end{equation*}
-%\end{frame}
-%\begin{frame}{Line plots}
-%  \begin{figure}
-%    \begin{tikzpicture}
-%      \begin{axis}[
-%        mlineplot,
-%        width=0.9\textwidth,
-%        height=6cm,
-%      ]
-%
-%        \addplot {sin(deg(x))};
-%        \addplot+[samples=100] {sin(deg(2*x))};
-%
-%      \end{axis}
-%    \end{tikzpicture}
-%  \end{figure}
-%\end{frame}
-%\begin{frame}{Bar charts}
-%  \begin{figure}
-%    \begin{tikzpicture}
-%      \begin{axis}[
-%        mbarplot,
-%        xlabel={Foo},
-%        ylabel={Bar},
-%        width=0.9\textwidth,
-%        height=6cm,
-%      ]
-%
-%      \addplot plot coordinates {(1, 20) (2, 25) (3, 22.4) (4, 12.4)};
-%      \addplot plot coordinates {(1, 18) (2, 24) (3, 23.5) (4, 13.2)};
-%      \addplot plot coordinates {(1, 10) (2, 19) (3, 25) (4, 15.2)};
-%
-%      \legend{lorem, ipsum, dolor}
-%
-%      \end{axis}
-%    \end{tikzpicture}
-%  \end{figure}
-%\end{frame}
-%\begin{frame}{Quotes}
-%  \begin{quote}
-%    Veni, Vidi, Vici
-%  \end{quote}
-%\end{frame}
-%
-%\begin{frame}{References}
-%  Some references to showcase [allowframebreaks] \cite{knuth92,ConcreteMath,Simpson,Er01,greenwade93}
-%\end{frame}
-%
-%\section{Conclusion}
-%
-%\begin{frame}{Summary}
-%
-%  Get the source of this theme and the demo presentation from
-%
-%  \begin{center}\url{github.com/matze/mtheme}\end{center}
-%
-%  The theme \emph{itself} is licensed under a
-%  \href{http://creativecommons.org/licenses/by-sa/4.0/}{Creative Commons
-%  Attribution-ShareAlike 4.0 International License}.
-%
-%  \begin{center}\ccbysa\end{center}
-%
-%\end{frame}
 
 \plain{Questions?}
 
