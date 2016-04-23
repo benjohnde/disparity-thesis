@@ -1,12 +1,12 @@
 \documentclass[10pt]{beamer}
 \usetheme{metropolis}
 
+%own styles
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
 
-%own styles
 \usepackage{subfig}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning}
@@ -18,10 +18,9 @@
 \usepackage{multirow}
 \usepackage{amssymb}
 \tikzstyle{line} = [draw, -latex']
-%/own styles
 
 \usepackage{xspace}
-\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+%/own styles
 
 \title{Master Thesis Presentation}
 \subtitle{Comparison of Disparity Algorithms for Stereoscopic Videos}
@@ -32,6 +31,8 @@
 \begin{document}
 
 \maketitle
+\setbeamertemplate{frame footer}{Ben John}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
 
 \begin{frame}{Table of contents}
   \setbeamertemplate{section in toc}[sections numbered]
@@ -68,15 +69,16 @@
   \footnotetext{Source (accessed 02/2016): \url{https://en.wikipedia.org}.}
 \end{frame}
 
-\begin{frame}[fragile]{Constraints}
-  \begin{itemize}
-    \item Epipolar
-    \item Uniqueness
-    \item Continuity
-    \item Ordering
-    \item Limit
-    \item Lambertian
-  \end{itemize}
+\begin{frame}[fragile]{Example for stereo image pair}
+  \begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \subfloat[left input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgL.png}} &
+  \subfloat[right input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgR.png}} &
+  \subfloat[ground-truth data]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-dgt.png}}
+  \end{tabular}
+  \caption[Tsukuba benchmark stereo image pair]{Tsukuba benchmark stereo image pair of the University of Tsukuba \cite{martull2012realistic}.}
+  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Classification}
@@ -100,16 +102,19 @@
    } 
 \end{frame}
 
-\begin{frame}[fragile]{Taxonomy}
-  \begin{enumerate}
-    \item Computing of matching cost
-    \item Save values in disparity space image
-    \item Aggregation of cost values
-    \item Disparity refinement
-  \end{enumerate}
+\begin{frame}[fragile]{Processing steps}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.5\textwidth}
+    \begin{enumerate}
+      \item Compute of matching cost
+      \item Save values in disparity space image
+      \item Aggregate of cost values
+      \item Disparity refinement
+    \end{enumerate}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Matching cost}
+\begin{frame}[fragile]{Step 1: Matching cost}
   \begin{itemize}
     \item Penalty
     \item Cost for having dissimilarities
@@ -122,7 +127,7 @@
   }
 \end{frame}
 
-\begin{frame}[fragile]{Disparity space image}
+\begin{frame}[fragile]{Step 2: Disparity space image}
   \begin{figure}[h!]
     \centering
     \includegraphics[width=1.0\textwidth]{../paper/src/images/dsi.png}
@@ -137,18 +142,6 @@
     \centering
     \includegraphics[width=0.5\textwidth]{../paper/src/images/tsukuba-block.png}
     \caption[Block matching along scanlines]{Illustration of block matching along a scanline.}
-  \end{figure}
-\end{frame}
-
-\begin{frame}[fragile]{Example for stereo image pair}
-  \begin{figure}[h!]
-  \centering
-  \begin{tabular}{ccc}
-  \subfloat[left input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgL.png}} &
-  \subfloat[right input image]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-imgR.png}} &
-  \subfloat[ground-truth data]{\includegraphics[width=0.3\textwidth]{../paper/src/images/tsukuba-dgt.png}}
-  \end{tabular}
-  \caption[Tsukuba benchmark stereo image pair]{Tsukuba benchmark stereo image pair of the University of Tsukuba \cite{martull2012realistic}.}
   \end{figure}
 \end{frame}
 
@@ -168,7 +161,7 @@
       \node [cloud, right of=left, node distance=10em] (disp) {ground-truth};
   
       %computation
-      \node [rblock, below of=right, xshift=2em] (exec) {(1) Algorithm executer};
+      \node [rblock, below of=right, xshift=2em] (exec) {(1) Algorithm executor};
       \node [rblock, below of=disp, xshift=-2em] (mask-creator) {(2) Mask creator};
       
       %diminisher
@@ -208,8 +201,8 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Spatiotemporal stereo matcher}
-  \scalebox{0.8}{
+\begin{frame}[fragile]{Spatiotemporal stereo matcher (1)}
+  \scalebox{0.86}{
     \begin{algorithm}[H]
     \DontPrintSemicolon
     \KwIn{$I_L$, $I_R$, $d_{max}$, $wSize$}
@@ -239,7 +232,7 @@
   }
 \end{frame}
 
-\begin{frame}[fragile]{Spatiotemporal stereo matcher}
+\begin{frame}[fragile]{Spatiotemporal stereo matcher (2)}
   \scalebox{1.0}{
     \begin{algorithm}[H]
     \DontPrintSemicolon
@@ -261,9 +254,8 @@
 \end{frame}
 
 \begin{frame}[fragile]{Masking modes}
-  \begin{columns}[T,onlytextwidth]
+  \begin{columns}[onlytextwidth]
     \column{0.5\textwidth}
-      \vspace{3em}
       \begin{itemize}
         \item Non-occluded mask
         \item Depth-discontinuity mask
@@ -282,7 +274,7 @@
       \begin{figure}
       \centering
       \includegraphics[width=1.0\textwidth]{images/book-truth.png}
-      \caption{Ground-truth companion}
+      \caption{Ground-truth disparity map}
       \end{figure}
     }
     \only<3>{
@@ -295,7 +287,12 @@
     \only<4>{
       \begin{figure}
       \centering
-      \includegraphics[width=1.0\textwidth]{images/book-mask-noc.png}
+      {%
+      \setlength{\fboxsep}{0pt}%
+      \setlength{\fboxrule}{1pt}%
+      \fbox{\includegraphics[width=1.0\textwidth]{images/book-mask-noc.png}
+      }%
+      }%
       \caption{Non-occluded mask}
       \end{figure}
     }
@@ -314,26 +311,6 @@
       \end{figure}
     }
   \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Image diminisher}
-  \tikzstyle{rblock} = [text width=8em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
-  \tikzstyle{cloud} = [text width=5em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
-  \begin{figure}[h!]
-    \vspace{1cm}
-    \centering
-    \begin{tikzpicture}[node distance=10em, auto]
-      %nodes
-      \node [cloud] (input) {input frame};
-      \node [rblock, right of=input] (diminisher) {Image diminisher};
-      \node [cloud, right of=diminisher] (output) {modified output frame};
-      %lines
-      \path [line] (input) -- (diminisher);
-      \path [line] (diminisher) -- (output);
-    \end{tikzpicture}
-    \caption{Flow of the image diminisher.}
-    \label{fig:image-diminisher-flow}
-  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Image diminisher}
@@ -366,11 +343,20 @@
 \end{frame}
 
 \begin{frame}[fragile]{Web viewer}
-  \begin{itemize}
-    \item Visualization of evaluation engine
-    \item Written in Node.js
-    \item Displaying some statistics
-  \end{itemize}
+  \begin{columns}[onlytextwidth]
+    \column{0.5\textwidth}
+    \begin{itemize}
+      \item Visualization of evaluation engine
+      \item Written in Node.js
+      \item Displaying statistical information
+    \end{itemize}
+    \column{0.5\textwidth}
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{../paper/src/images/result-viewer-detail.png}
+      \caption{Detail view}
+      \end{figure}
+  \end{columns}
 \end{frame}
 
 \plain{Demo}
@@ -535,12 +521,12 @@
   \end{table}
 \end{frame}
 
-\section{Conclusion}
+\section{Conclusion and outlook}
 
 \begin{frame}[fragile]{Conclusion}
   \begin{itemize}
-    \item surprise candidate ELAS
-    \item camera noise model
+    \item Surprise candidate ELAS
+    \item Camera noise model
     \item SVDDD dataset
     \item Salient mask varies a bit
     \item Immense runtime differences
@@ -549,25 +535,16 @@
 \end{frame}
 
 \begin{frame}[fragile]{Contributions}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-    \begin{itemize}
-      \item PFM file reader
-      \item Generic Disparity Interface
-      \item Disparity Executioner
-      \item Evaluation Engine
-      \item Mask creator
-      \item Image diminisher
-    \end{itemize}
-    \column{0.5\textwidth}
-    \begin{itemize}
-      \item Python scripts
-      \item Web result viewer
-      \item Benchmark results
-      \item Skeleton for stereo matcher with separated dsi
-      \item Spatiotemporal stereo matcher
-    \end{itemize}
-  \end{columns}
+  \begin{itemize}
+    \item Generic Disparity Interface
+    \item Evaluation Engine
+    \item Mask creator
+    \item Image diminisher
+    \item Web result viewer
+    \item Benchmark results
+    \item Skeleton for stereo matcher
+    \item Spatiotemporal stereo matcher
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Outlook}
@@ -575,11 +552,6 @@
     \item Motion saliency
     \item Enhancement of spatiotemporal matcher
     \item Holistic evaluation suite for modern disparity algorithm comparison
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Future work}
-  \begin{itemize}
     \item Multi-view datasets
     \item High-resolution datasets
     \item Optical flow regarding spatiotemporal consistency
