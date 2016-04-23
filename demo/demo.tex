@@ -115,16 +115,11 @@
 \end{frame}
 
 \begin{frame}[fragile]{Step 1: Matching cost}
-  \begin{itemize}
-    \item Penalty
-    \item Cost for having dissimilarities
-    \item Optimum = 0
-  \end{itemize}
-  \visible<2->{
-    \begin{exampleblock}{Sum of absolute differences}
-      $\displaystyle \operatorname{SAD} = \sum_{i,j \in U} \left| I_1(x_L+i,y_L+j) - I_2(x_R+i,y_R+j) \right|$
-    \end{exampleblock}
-  }
+  \begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../paper/src/images/tsukuba-block.png}
+    \caption[Block matching along scanlines]{Illustration of block matching along a scanline.}
+  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Step 2: Disparity space image}
@@ -135,14 +130,6 @@
     \label{fig:dsi}
   \end{figure}
   \footnotetext{Source (accessed 03/2016): \url{http://www.cs.virginia.edu/~cab6fh/CV_4/WRITEUP.html}.}
-\end{frame}
-
-\begin{frame}[fragile]{Simple block-matching}
-  \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.5\textwidth]{../paper/src/images/tsukuba-block.png}
-    \caption[Block matching along scanlines]{Illustration of block matching along a scanline.}
-  \end{figure}
 \end{frame}
 
 \section{Implementation}
@@ -364,19 +351,66 @@
 \section{Evaluation}
 
 \begin{frame}[fragile]{Overview}
+  \begin{block}{Analyzed algorithms}
+    \begin{itemize}
+      \item OpenCV implementations
+      \begin{itemize}
+        \item (1) Semi-global stereo matcher
+        \item (2) Block-matcher
+        \item (10) Simple-block matcher
+      \end{itemize}
+      \item Middlebury MRF library
+      \begin{itemize}
+        \item (3) Iterated conditional modes (ICM)
+        \item (4-5) Graph cuts (swap and extension)
+        \item (6-9) Various belief propagations implementations
+      \end{itemize}
+      \item Efficient large scale stereo matcher (ELAS)
+      \item Own stereo matcher implementation
+      \begin{itemize}
+        \item (9) Simple block-matcher
+        \item (10-11) Simple spatiotemporal consistent block-matcher
+      \end{itemize}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Datasets (1)}
   \begin{itemize}
-    \item Targeting videos (mean)
-    \item Looking for outliers
-    \item Masking modes
-    \item Video compression
+    \item Cambridge
+    \begin{itemize}
+      \item 5 sequences
+      \item at 500 x 400 resolution
+    \end{itemize}
+    \item Stereoscopic Video Dataset with precise Depth and Disparity information (SVDDD)
+    \begin{itemize}
+      \item 2 sequences
+      \item at 1920 x 1080 resolution
+    \end{itemize}
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Datasets}
-  \begin{itemize}
-    \item Cambridge
-    \item SVDDD (high-resolution)
-  \end{itemize}
+\begin{frame}[fragile]{Datasets (2)}
+  \begin{block}{Cambridge}
+    \begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{../paper/src/images/dbcgrid-dataset.png}
+    \caption{Overview of sequences}
+    \end{figure}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Datasets (3)}
+  \begin{block}{SVDDD}
+    \begin{figure}
+    \centering
+    \begin{tabular}{cc}
+    \subfloat[02 rabbit scene]{\includegraphics[width=0.45\textwidth]{images/02-rabbit.png}} &
+    \subfloat[03 apple scene]{\includegraphics[width=0.45\textwidth]{images/03-apple.png}} \\
+    \end{tabular}
+    \caption{Overview of sequences}
+    \end{figure}
+  \end{block}
 \end{frame}
 
 \begin{frame}[fragile]{Metrics}
@@ -390,25 +424,34 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Overall results (1)}
+  \begin{itemize}
+    \item Targeting videos (mean)
+    \item Looking for outliers
+    \item Masking modes
+    \item Video compression
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Overall results (2)}
   \begin{table}
   \centering
   \scalebox{1.0}{
-  \begin{tabular}{c|rrrr}
+  \begin{tabular}{l|rrrr}
     & 10 CVSM & 11 SNSM & 12 SNTU & 13 SNTW \\ \hline
-  S1 & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
-  S2 & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% \\
-  S3 & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
-  S4 & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
-  S5 & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
+  S1 - book & \cellcolor{red!50}32.61\% & \cellcolor{green!50}8.72\% & 10.07\% & 9.65\% \\
+  S2 - street & \cellcolor{red!50}25.64\% & 11.79\% & \cellcolor{green!50}8.76\% & 8.90\% \\
+  S3 - tanks & \cellcolor{red!50}13.26\% & \cellcolor{green!50}6.08\% & 8.71\% & 7.29\% \\
+  S4 - temple & \cellcolor{red!50}38.96\% & 12.98\% & \cellcolor{green!50}11.15\% & 11.26\% \\
+  S5 - tunnel & \cellcolor{red!50}8.60\% & \cellcolor{green!50}0.93\% & 4.54\% & 2.15\% \\ \hline
   $\varnothing$ & \cellcolor{red!50}23,81\% & 8,10\% & 8,66\% & \cellcolor{green!50}7,85\% 
   \end{tabular}
   }
-  \caption{Result table for comparison of own implementation}
+  \caption{Result table for comparison of own implementation with Cambridge dataset}
   \end{table}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (3) - Depth-discontinuity mask}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/plots/01-book-pbmp-disc-1.pdf}
@@ -416,7 +459,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (4) - Textureless mask}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
@@ -424,11 +467,11 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (5) - Outliers}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/01-book-general-outliers.pdf}
-  \caption{Chart of general outliers in a sequence.}
+  \caption{Chart of general outliers in the book sequence.}
   \end{figure}
 \end{frame}
 
