@@ -181,10 +181,10 @@
   \scalebox{0.86}{
     \begin{algorithm}[H]
     \DontPrintSemicolon
-    \KwIn{$I_L$, $I_R$, $d_{max}$, $wSize$}
+    \KwIn{$\{I_L\}$, $\{I_R\}$, $d_{max}$, $wSize$}
     \KwOut{$C$}
     $step \gets (wSize - 1) / 2$\;
-    $C \gets \textsc{CreateMatrix}(\textsc{Cols}(I_L),\textsc{Rows}(I_L),d_{max})$\;
+    $C \gets \textsc{CreateMatrix}(\textsc{Cols}(I_L),\textsc{Rows}(I_L),\textsc{Images}(I_L),d_{max})$\;
     \For{$t \gets 0$ \textbf{to} $\textsc{Images}(I_L)$} {
       $leftImage \gets I_L(t)$\;
       $rightImage \gets I_L(t)$\;
