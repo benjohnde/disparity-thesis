@@ -95,23 +95,15 @@
       \item Belief propagation
     \end{itemize}
   \end{itemize}
-  \visible<2->{
-    \begin{exampleblock}{Energy function}
-      $E(d) = E_{data}(d) + \lambda E_{smooth}(d)$
-    \end{exampleblock}
-   } 
 \end{frame}
 
 \begin{frame}[fragile]{Processing steps}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-    \begin{enumerate}
-      \item Compute of matching cost
-      \item Save values in disparity space image
-      \item Aggregate of cost values
-      \item Disparity refinement
-    \end{enumerate}
-  \end{columns}
+  \begin{enumerate}
+    \item Compute of matching cost
+    \item Save values in disparity space image
+    \item Aggregate of cost values
+    \item Disparity refinement
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}[fragile]{Step 1: Matching cost}
@@ -213,7 +205,6 @@
     }
     \Return{$C$}\;
     \caption{\textsc{CreateDisparitySpaceImage}}
-    \label{alg:dsi-3d}
     \end{algorithm}
 
   }
@@ -298,35 +289,6 @@
       \end{figure}
     }
   \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Image diminisher}
-  \tikzstyle{rblock} = [text width=4em, rectangle, draw, fill=blue!20, text centered, rounded corners, minimum height=4em]
-  \tikzstyle{cloud} = [text width=6em, ellipse, draw, fill=red!15, text centered, rounded corners, minimum height=3.2em]
-  \begin{figure}[h!]
-    \vspace{1cm}
-    \centering
-    \begin{tikzpicture}[node distance=9em, auto, scale=0.8, every node/.style={transform shape}]
-      %nodes
-      \node [cloud] (input) {set of stereo images};
-      \node [rblock, right of=input] (ffmpeg1) {FFmpeg};
-      \node [cloud, right of=ffmpeg1] (video1) {stereoscopic video};
-      \node [rblock, right of=video1] (ffmpeg2) {FFmpeg};
-      
-      \node [cloud, below of=video1, yshift=2em] (video2) {compressed stereo video};
-      \node [rblock, left of=video2] (ffmpeg3) {FFmpeg};
-      \node [cloud, left of=ffmpeg3] (output) {set of diminished stereo images};
-      %lines
-      \path [line] (input) -- (ffmpeg1);
-      \path [line] (ffmpeg1) -- (video1);
-      \path [line] (video1) -- (ffmpeg2);
-      
-      \path [line] (ffmpeg2) -- node[anchor=north, xshift=-1.5em, yshift=1.0em] {H.265} (video2);
-      \path [line] (video2) -- (ffmpeg3);
-      \path [line] (ffmpeg3) -- (output);
-    \end{tikzpicture}
-    \caption{Flow of FFmpeg as image diminisher.}
-  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Web viewer}
@@ -424,16 +386,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Overall results (1)}
-  \begin{itemize}
-    \item Targeting videos (mean)
-    \item Looking for outliers
-    \item Masking modes
-    \item Video compression
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Overall results (2)}
+\begin{frame}[fragile]{Results (1) - Own stereo matcher}
   \begin{table}
   \centering
   \scalebox{1.0}{
@@ -451,7 +404,7 @@
   \end{table}
 \end{frame}
 
-\begin{frame}[fragile]{Results (3) - Depth-discontinuity mask}
+\begin{frame}[fragile]{Results (2) - Depth-discontinuity mask}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/plots/01-book-pbmp-disc-1.pdf}
@@ -459,7 +412,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (4) - Textureless mask}
+\begin{frame}[fragile]{Results (3) - Textureless mask}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
@@ -467,7 +420,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (5) - Outliers}
+\begin{frame}[fragile]{Results (4) - Outliers}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/01-book-general-outliers.pdf}
@@ -475,7 +428,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (5) - Outliers example}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
@@ -487,16 +440,16 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (6) - Video compression}
   \begin{figure}[h!]
   \centering
-  \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/04-temple-gn-overview.pdf}
-  \caption[Chart of the impact of Gaussian noise]{Chart of the impact of different $\sigma^2$ values for additive Gaussian noise on the result of disparity algorithms focusing on P$_{noc,1px}$.}
-  \label{fig:eval-plots-gn-overview}
+  \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
+  \caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on PBMP$_{noc,1px}$.}
+  \label{fig:eval-plots-pbmp-noc1-vc}
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (7) - Video compression examples}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
@@ -509,37 +462,26 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
-  \begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
-  \caption[Chart of the impact of video compression]{Chart of the impact of different CRF values for H.265 video compression on the result of disparity algorithms focusing on PBMP$_{noc,1px}$.}
-  \label{fig:eval-plots-pbmp-noc1-vc}
-  \end{figure}
-\end{frame}
-
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (8) - Runtime}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/runtime.pdf}
-  \caption[Comparison of the runtime of different disparity algorithms]{Comparison of the runtime of different disparity algorithms with both datasets, Cambridge and SVDDD}
-  \label{fig:eval-plots-runtime}
+  \caption{Comparison of the runtime of different disparity algorithms.}
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (9) - SVDDD}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
   \subfloat[Negative disparity]{\includegraphics[width=0.48\textwidth]{../paper/src/images/evaluation/02-rabbit-neg-elas.png}} &
   \subfloat[Only positive disparity]{\includegraphics[width=0.48\textwidth]{../paper/src/images/evaluation/02-rabbit-elas.png}} &
   \end{tabular}
-  \caption[Computed disparity map with negative disparity]{Comparison of computed disparity maps regarding negative disparity.}
-  \label{fig:outliers-rabbit-svddd}
+  \caption{Comparison of computed disparity maps regarding negative disparity.}
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (10) - SVDDD performance}
   \begin{figure}
   \centering
   \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/svddd/02-rabbit-plot.pdf}
@@ -548,7 +490,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results (11) - SVDDD performance}
   \begin{table}
   \centering
   \scalebox{0.9}{
