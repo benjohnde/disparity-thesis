@@ -217,7 +217,7 @@
     \For{$t \gets 0$ \textbf{to} $\textsc{Frames}(C)$} {
       \For{$y \gets 0$ \textbf{to} $\textsc{Rows}(C)$} {
         \For{$x \gets 0$ \textbf{to} $\textsc{Cols}(C)$} {
-          $Cost \gets \frac{1}{4} C(x,y,f_0) + \frac{2}{4} C(x,y,f_1)+ \frac{1}{4} C(x,y,f_2)$\;
+          $Cost \gets \frac{1}{4} C(x,y,f_{t-1}) + \frac{2}{4} C(x,y,f_{t})+ \frac{1}{4} C(x,y,f_{t+1})$\;
           $DisparityMap(x,y) \gets \textsc{BestMatch}(Cost)$\;
         }
       }
@@ -409,15 +409,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (3) - Textureless mask}
-  \begin{figure}[h!]
-  \centering
-  \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/05-tunnel-pbmp-tex-1.pdf}
-  \caption{Chart of textureless region mask applied on the tunnel sequence.}
-  \end{figure}
-\end{frame}
-
-\begin{frame}[fragile]{Results (4) - Outliers}
+\begin{frame}[fragile]{Results (3) - Outliers}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/01-book-general-outliers.pdf}
@@ -425,7 +417,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (5) - Outliers example}
+\begin{frame}[fragile]{Results (4) - Outliers example}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
@@ -437,7 +429,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (6) - Video compression}
+\begin{frame}[fragile]{Results (5) - Video compression}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/03-tank-pbmp-noc-1-vc.pdf}
@@ -446,7 +438,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (7) - Video compression examples}
+\begin{frame}[fragile]{Results (6) - Video compression examples}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
@@ -459,7 +451,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (8) - Runtime}
+\begin{frame}[fragile]{Results (7) - Runtime}
   \begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{../paper/src/images/evaluation/plots/runtime.pdf}
@@ -467,7 +459,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (9) - SVDDD}
+\begin{frame}[fragile]{Results (8) - SVDDD}
   \begin{figure}[h!]
   \centering
   \begin{tabular}{ccc}
@@ -478,7 +470,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (10) - SVDDD performance}
+\begin{frame}[fragile]{Results (9) - SVDDD performance}
   \begin{figure}
   \centering
   \includegraphics[width=0.9\textwidth]{../paper/src/images/evaluation/svddd/02-rabbit-plot.pdf}
@@ -487,7 +479,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Results (11) - SVDDD performance}
+\begin{frame}[fragile]{Results (10) - SVDDD performance}
   \begin{table}
   \centering
   \scalebox{0.9}{
