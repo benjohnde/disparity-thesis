@@ -83,16 +83,16 @@
 
 \begin{frame}[fragile]{Classification}
   \begin{itemize}
-    \item Local methods
-    \begin{itemize}
-      \item Area matching
-      \item Feature matching
-    \end{itemize}
     \item Global methods
     \begin{itemize}
       \item Dynamic programming
       \item Graph cuts
       \item Belief propagation
+    \end{itemize}
+    \item Local methods
+    \begin{itemize}
+      \item Area matching
+      \item Feature matching
     \end{itemize}
   \end{itemize}
 \end{frame}
@@ -335,22 +335,11 @@
 \end{frame}
 
 \begin{frame}[fragile]{Datasets (1)}
-  \begin{itemize}
-    \item Cambridge
+  \begin{block}{Cambridge}
     \begin{itemize}
       \item 5 sequences
       \item at 500 x 400 resolution
     \end{itemize}
-    \item Stereoscopic Video Dataset with precise Depth and Disparity information (SVDDD)
-    \begin{itemize}
-      \item 2 sequences
-      \item at 1920 x 1080 resolution
-    \end{itemize}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]{Datasets (2)}
-  \begin{block}{Cambridge}
     \begin{figure}
     \centering
     \includegraphics[width=1.0\textwidth]{../paper/src/images/dbcgrid-dataset.png}
@@ -359,8 +348,12 @@
   \end{block}
 \end{frame}
 
-\begin{frame}[fragile]{Datasets (3)}
+\begin{frame}[fragile]{Datasets (2)}
   \begin{block}{SVDDD}
+    \begin{itemize}
+      \item 2 sequences
+      \item at 1920 x 1080 resolution
+    \end{itemize}
     \begin{figure}
     \centering
     \begin{tabular}{cc}
@@ -378,7 +371,7 @@
       $\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)| > \delta_t)$
     \end{block}
     \item \begin{block}{RMS-Error}
-      $\sqrt{\frac{1}{n} \sum_{x,y=0}^{}(d_a(x,y) - d_e(x,y))^2}$
+      $\sqrt{\frac{1}{n} \sum_{x,y=0}^{}(|d_a(x,y) - d_e(x,y)|)^2}$
     \end{block}
   \end{itemize}
 \end{frame}
@@ -474,9 +467,9 @@
 \begin{frame}[fragile]{Results (9) - SVDDD performance}
   \begin{table}
   \centering
-  \scalebox{0.9}{
+  \scalebox{0.8}{
   \begin{tabular}{l|rrrrrr}
-    & 1 & 2 & 3 & 4 & 5 & 6 \\ \hline
+    & 1 CVSG & 2 CVBM & 3 ELAS & 4 MICM & 5 MGCE & 6 MGCS \\ \hline
   02-rabbit-neg & 58.62\% & \cellcolor{red!50}61.51\% & 59.99\% & 60.58\% & \cellcolor{green!50}57.12\% & 57.13\% \\
   02-rabbit & 1.68\% & \cellcolor{red!50}4.31\% & 2.98\% & 3.82\% & \cellcolor{green!50}0.65\% & 0.68\% \\
   03-apple & 1.69\% & \cellcolor{red!50}4.10\% & 3.11\% & 3.44\% & \cellcolor{green!50}0.63\% & 0.65\% \\ \hline
@@ -502,7 +495,7 @@
 
 \begin{frame}[fragile]{Contributions}
   \begin{itemize}
-    \item Generic Disparity Interface
+    \item Generic disparity interface
     \item Evaluation Engine
     \item Mask creator
     \item Image diminisher
