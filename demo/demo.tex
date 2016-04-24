@@ -255,13 +255,6 @@
     \only<3>{
       \begin{figure}
       \centering
-      \includegraphics[width=1.0\textwidth]{images/book-mask-dd.png}
-      \caption{Depth-discontinuity at object borders}
-      \end{figure}
-    }
-    \only<4>{
-      \begin{figure}
-      \centering
       {%
       \setlength{\fboxsep}{0pt}%
       \setlength{\fboxrule}{1pt}%
@@ -269,6 +262,13 @@
       }%
       }%
       \caption{Non-occluded mask}
+      \end{figure}
+    }
+    \only<4>{
+      \begin{figure}
+      \centering
+      \includegraphics[width=1.0\textwidth]{images/book-mask-dd.png}
+      \caption{Depth-discontinuity at object borders}
       \end{figure}
     }
     \only<5>{
@@ -398,7 +398,7 @@
   \begin{figure}[h!]
   \centering
   \includegraphics[width=1.0\textwidth]{../paper/src/images/evaluation/plots/01-book-general-outliers.pdf}
-  \caption{Chart of general outliers in the book sequence.}
+  \caption{Chart of general outliers in the book sequence with ELAS algorithm.}
   \end{figure}
 \end{frame}
 
